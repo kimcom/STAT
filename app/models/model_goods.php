@@ -80,5 +80,5 @@ class Model_Goods extends Model {
 		$cnn = new Cnni();
 		return $cnn->cats_add_in_promo2();
 	}
-}
+    }
 ?>

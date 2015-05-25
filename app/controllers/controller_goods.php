@@ -6,7 +6,10 @@ class Controller_Goods extends Controller {
 	function action_good_edit() {
 		$this->view->generate('view_goods_attr.php', 'view_template.php');
 	}
-	function action_good_balance() {
+        function action_good_info() {
+        $this->view->generate('view_good_info.php', 'view_template.php');
+        }
+        function action_good_balance() {
 		$this->view->generate('view_goods_balance.php', 'view_template.php');
 	}
 	function action_barcodes() {
@@ -46,8 +49,8 @@ class Controller_Goods extends Controller {
 	function action_good_barcode() {
 		$this->model = new Model_Goods();
 		echo $this->model->get_good_barcode_list();
-	}
-	function action_barcode_edit() {
+	}        
+        function action_barcode_edit() {
 		$this->model = new Model_Goods();
 		echo $this->model->get_barcode_edit();
 	}
@@ -110,5 +113,6 @@ class Controller_Goods extends Controller {
 	function action_map_discountCard_edit() {
 		$this->view->generate('view_discountCard_attr.php', 'view_template.php');
 	}
+        
 }
 ?>
