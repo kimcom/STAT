@@ -287,8 +287,8 @@ $("#grid3").jqGrid({
 		}
 	});
  // select
-       var a_status = [{id: 0, text: 'можно начинать'}, {id: 20, text: 'постановка задач'}, {id: 30, text: 'в работе'}, {id: 50, text: 'пауза'}, {id: 60, text: 'на проверке'}, {id: 100, text: 'завершено'}];
-	$("#select_status").select2({data: a_status, placeholder: "Выберите статус"});
+       var a_status = [{id: 0, text: 'Стикеры'},  {id: 30, text: 'Планка'}];
+	$("#select_status").select2({data: a_status, placeholder: "Выберите тип ценника"});
 	$("#select_status").select2("val", 20); 
         
         
@@ -343,7 +343,7 @@ $("#grid3").jqGrid({
     </div>
     <div class="tab-content">
         <div class="active tab-pane min530 m0 w100p ui-corner-all borderTop1 borderColor frameL border1" id="tab_filter">
-            <div class='p5 ui-corner-all frameL border0 w400' style='display:table;'>
+            <div class='p5 ui-corner-all frameL border0 w350' style='display:table;'>
                 <div class="input-group input-group-sm w100p">
                     <span class="input-group-addon w25p TAL">Код товара</span>
                     <span id="GoodID" class="input-group-addon form-control TAL"><?php echo $row['GoodID']; ?></span>
@@ -374,58 +374,60 @@ $("#grid3").jqGrid({
                     <div class="w100p" id="select_status"></div>
                     <span class="input-group-addon w32"></span>
                 </div>
+            </div>
+            <div class='p5 ui-corner-all frameL ml10 border0 w400' style='float:left;'>
                 <div class="input-group input-group-sm w100p">
-                    <span class="input-group-addon w25p TAL">Наименование:</span>
+                    <span class="input-group-addon w130 TAL">Наименование:</span>
                     <input id="name" name="name" type="text" class="form-control TAL" value="<?php echo $row['Name']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span class="input-group-addon w25p TAL">Торговая марка:</span>
+                    <span class="input-group-addon w130 TAL">Торговая марка:</span>
                     <input id="name" name="name" type="text" class="form-control TAL" value="<?php echo $row['Trademark']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span class="input-group-addon w25p TAL">Производитель:</span>
+                    <span class="input-group-addon w130 TAL">Производитель:</span>
                     <input id="name" name="name" type="text" class="form-control TAL" value="<?php echo $row['Producer']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">Ед. измерения</span>
+                    <span  class="input-group-addon w130 TAL">Ед. измерения</span>
                     <input   type="text"  class="form-control TAL" value="<?php echo $row['Unit'];?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">Длина</span>
+                    <span  class="input-group-addon w130 TAL">Длина</span>
                     <input   type="text"  class="form-control TAL" value="<?php echo $row['Length']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">Ширина</span>
+                    <span  class="input-group-addon w130 TAL">Ширина</span>
                     <input   type="text"  class="form-control TAL" value="<?php echo $row['Width']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">Высота</span>
+                    <span  class="input-group-addon w130 TAL">Высота</span>
                     <input   type="text"  class="form-control TAL" value="<?php echo $row['Height']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">В упаковке</span>
+                    <span  class="input-group-addon w130 TAL">В упаковке</span>
                     <input   type="text"  class="form-control TAL" value="<?php echo $row['Unit_in_pack']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">Тип упаковки</span>
+                    <span  class="input-group-addon w130 TAL">Тип упаковки</span>
                     <input   type="text"  class="form-control TAL" value="<?php echo $row['Type_in_pack']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">Мат упаковки</span>
+                    <span  class="input-group-addon w130 TAL">Мат упаковки</span>
                     <input   type="text"  class="form-control TAL" value="<?php echo $row['Material_in_pack']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
-                    <span  class="input-group-addon w25p TAL">Вес </span>
+                    <span  class="input-group-addon w130 TAL">Вес </span>
                     <input id="Weight" name="Weight"  type="text"  class="form-control TAL" value="<?php echo $row['Weight']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
