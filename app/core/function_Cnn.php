@@ -1717,6 +1717,11 @@ Fn::paramToLog();
 		$url = str_replace("pr.Status=-1", "pr.Status<>100", $url);
 		$url = str_replace("pc.Status=-1", "pc.Status<>100", $url);
 
+		$url = str_replace("==", "=", $url);
+		$url = str_replace("=>", ">", $url);
+		$url = str_replace("=<", "<", $url);
+		$url = str_replace("=<>", "<>", $url);
+
 //Fn::debugToLog('jqgrid3 action', $action);
 Fn::debugToLog('jqgrid3 url', $url);
 //Fn::paramToLog();
