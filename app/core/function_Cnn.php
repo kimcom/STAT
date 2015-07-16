@@ -3,7 +3,7 @@ class Cnn {
 	private $db = null;
 	public function __construct() {
 		try {
-			$this->db = new PDO('mysql:host=localhost;dbname='.$_SESSION['dbname'], 'shop', '149521',array(1006));
+			$this->db = new PDO('mysql:host=localhost;dbname='.$_SESSION['dbname'].';port='.$_SESSION['server_port'], $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
 			//$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
 			Fn::errorToLog("PDO error!: ", $e->getMessage());
@@ -519,11 +519,10 @@ Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['QUERY_STRING']));
 		header("Content-type: application/json;charset=utf8");
 		echo json_encode($response);
 	}
-
 	public function get_report7_data() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
-//Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 		//echo $DT_start.' '.  $DT_stop . '<br>';
 		if (isset($DT_start)) {
 			$dt = DateTime::createFromFormat('d?m?Y', $DT_start);
@@ -594,90 +593,7 @@ Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['QUERY_STRING']));
 		}
 		return json_encode($response);
 	}
-	public function get_pendel_data_XXXXX() {
-		foreach ($_REQUEST as $arg => $val)
-			${$arg} = $val;
-Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
-		//echo $DT_start.' '.  $DT_stop . '<br>';
-		if (isset($DT_start)) {
-			$dt = DateTime::createFromFormat('d?m?Y', $DT_start);
-			//echo $dt->format('Ymd').'<br>';
-			$date1 = $dt->format('Ymd');
-		} else {
-			return;
-		}
-		if (isset($DT_stop)) {
-			$dt = DateTime::createFromFormat('d?m?Y', $DT_stop);
-			//echo $dt->format('Ymd');
-			$date2 = $dt->format('Ymd');
-		} else {
-			return;
-		}
-Fn::debugToLog('pendel', $date1 . '	' . $date2);
-//Fn::paramToLog();
-		//$url = 'ddd=1&'.urldecode($_SERVER['QUERY_STRING']);
-		//call pr_reports('avg_sum', @_id, '20141001', '20141031', '');
-		$stmt = $this->db->prepare("CALL pr_reports_pendel('1', @id, ?, ?)");
-		$stmt->bindParam(1, $date1, PDO::PARAM_STR);
-		$stmt->bindParam(2, $date2, PDO::PARAM_STR);
-		//$stmt->bindParam(3, $url, PDO::PARAM_STR);
-		//$stmt->bindParam(3, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
-// вызов хранимой процедуры
-		$stmt->execute();
-		header("Content-type: application/json;charset=utf8");
-		$response = new stdClass();
-		$response->page = 1;
-		$response->total = 1;
-		$response->records = 0;
-		$response->error = '';
-		if (!Fn::checkErrorMySQLstmt($stmt))
-			$response->error = $stmt->errorInfo();
-//	Fn::debugToLog("resp", json_encode($response));
-		if ($stmt->rowCount() > 0) {
-			$t = 0;
-			do {
-				$rowset = $stmt->fetchAll();
-				if ($rowset != null) {
-					if ($t == 1) {
-						foreach ($rowset as $row) {
-							//			Fn::debugToLog($t, $row[0]);
-							$response->query = $row[0];
-							$response->records = $row[1];
-						}
-					} else if ($t == 0) {
-//Fn::debugToLog('pendel',json_encode($rowset));
-						//Fn::debugToLog("columnCount 2", $stmt->columnCount());
-						$columnCount = $stmt->columnCount();
-						$i = 0;
-						foreach ($rowset as $row) {
-//							$response->rows[$i]['id'] = $row[0];
-							$response->rows[$i]['field0'] = $row[0];
-							$response->rows[$i]['field1'] = $row[1];
-							$response->rows[$i]['field2'] = $row[2];
-							$response->rows[$i]['field3'] = $row[3];
-							$response->rows[$i]['field4'] = $row[4];
-							$response->rows[$i]['field5'] = $row[5];
-							$response->rows[$i]['field6'] = $row[6];
 
-//							$ar = array();
-//							for ($f = 0; $f < $columnCount - 3; $f++) {
-//								$ar[] = $row[$f];
-//							}
-////							$ar = array_pad($ar, 10, null);
-////							for ($f = $columnCount - 5; $f < $columnCount; $f++) {
-////								$ar[] = $row[$f];
-////							}
-//							$response->rows[$i]['cell'] = $ar;
-							$i++;
-						}
-					}
-				}
-				$t++;
-			} while ($stmt->nextRowset());
-		}
-Fn::debugToLog('pendel',json_encode($response));
-		echo json_encode($response);
-	}
 	public function get_pendel_data2() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
@@ -702,6 +618,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$response->table1 = '';
 		$str = '';
 		$part = 4;
+		$cnt_tbl = 0;
 		if($part == 4){
 //Fn::debugToLog('pendel', $dateStart . '	' . $dateStop.'	'.$part);
 //запрос валовый доход
@@ -719,6 +636,8 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 				$columnCount = $stmt->columnCount();
 				$rowCount = $stmt->rowCount();
 				$dg_max_id_row = $gross[$rowCount - 1][0];
+				$cnt_tbl = $dg_max_id_row - 1; //так как нет затрат по экспорту
+//Fn::debugToLog('$dg_max_id_row', $dg_max_id_row.'	$cnt_tbl:'.$cnt_tbl);
 				if ($dg_max_id_row != 0){
 //конвертируем полученный rowset в удобный нам формат в array
 					for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
@@ -749,6 +668,9 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 				}
 			}		
 		}
+
+//Fn::objectToLog($dataGross);
+
 //запрос по затратам
 //Fn::debugToLog('pendel', $dateStart . '	' . $dateStop.'	'.$action);
 //Fn::debugToLog('pendel', 'dt1='.$dt1->format('Y-m') . '	dt2=' . $dt2->format('Y-m'));
@@ -770,10 +692,12 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 				$spent[$t]['name'] = $rowset[0]['Stream'];
 				$spent[$t]['max_id_row'] = $rowset[$rowCount - 1][0];
 				$max_id_row = $spent[$t]['max_id_row'];
-				if ($max_id_row == 0) continue;
+//Fn::debugToLog("spent t=", $t."	".$columnCount."	".$rowCount  . "	" . $rowset[0]['Stream']."		".  $rowset[$rowCount - 1][0]);
+				//if ($max_id_row == 0) continue;
 //конвертируем полученный rowset в удобный нам формат в array
 				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
 					$period = $dt->format('Y-m');
+//Fn::debugToLog("", $t." ".$max_id_row." ".$period);
 					$spent[$t][$max_id_row][$period]['SumSpent'] = 0;
 				}
 				for ($tr = 0; $tr < $max_id_row; $tr++) {
@@ -795,14 +719,18 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		} while ($stmt->nextRowset());
 //запишем суммы затрат в таблицу валовый доход		
 		$count_t = $t;
-		$count_spent = ($count_t < 6 ? $count_t : 6);
+//		$count_spent = ($count_t < 5 ? $count_t : 5);
+		$count_spent = ($count_t < $cnt_tbl ? $count_t : $cnt_tbl);
 		for ($t = 0; $t < $count_spent; $t++) {
 			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
 				$period = $dt->format('Y-m');
-				//Fn::debugToLog("итоги", Fn::nfPendel($spent[$t][$spent[$t]['max_id_row']][$period]['SumSpent']));
+//				Fn::debugToLog("итоги", $t.'   '.$period);
+//				Fn::debugToLog("итоги", Fn::nfPendel($spent[$t][$spent[$t]['max_id_row']][$period]['SumSpent']));
 				$dataGross[$t][$period]['SumSpent'] = $spent[$t][$spent[$t]['max_id_row']][$period]['SumSpent'];
 			}
 		}
+//Fn::objectToLog($spent);
+//Fn::objectToLog($dataGross);
 
 		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
 //формируем шапку Валовый доход
@@ -994,7 +922,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 			$str .= '<th class="TAL">' . $spent[$t][$tr]['Field1']['Name'] . '</th>';
 			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
 				$period = $dt->format('Y-m');
-				if($t>=6){ 
+				if($t >= $cnt_tbl){ 
 //					Fn::debugToLog("вошло:	$t	$tr	$period	SumSpent=", $spent[$t][$tr][$period]['SumSpent']);
 					$total[$period]['SumSpent'] += $spent[$t][$tr][$period]['SumSpent'];
 				}
@@ -1288,15 +1216,16 @@ Fn::paramToLog();
 		}
 		$goodid = $id;
 //Fn::paramToLog();
-		$stmt = $this->db->prepare("CALL pr_balance_min( ?, @id, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt = $this->db->prepare("CALL pr_balance_min( ?, @id, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $clientid, PDO::PARAM_STR);
 		$stmt->bindParam(3, $goodid, PDO::PARAM_STR);
 		$stmt->bindParam(4, $BalanceMinM, PDO::PARAM_STR);
-		$stmt->bindParam(5, $_STD, PDO::PARAM_STR);
-		$stmt->bindParam(6, $_DT_start, PDO::PARAM_STR);
-		$stmt->bindParam(7, $_DT_stop, PDO::PARAM_STR);
-		$stmt->bindParam(8, $_param, PDO::PARAM_STR);
+		$stmt->bindParam(5, $_AVG, PDO::PARAM_STR);
+		$stmt->bindParam(6, $_STD, PDO::PARAM_STR);
+		$stmt->bindParam(7, $_DT_start, PDO::PARAM_STR);
+		$stmt->bindParam(8, $_DT_stop, PDO::PARAM_STR);
+		$stmt->bindParam(9, $_param, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 //		$this->echo_response($stmt);
@@ -1325,16 +1254,17 @@ Fn::paramToLog();
 		}
 		$goodid = $id;
 		$url = urldecode($_SERVER['QUERY_STRING']);
-Fn::paramToLog();
-		$stmt = $this->db->prepare("CALL pr_balance_min( ?, @id, ?, ?, ?, ?, ?, ?, ?)");
+//Fn::paramToLog();
+		$stmt = $this->db->prepare("CALL pr_balance_min( ?, @id, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $point_balance_min, PDO::PARAM_STR);
 		$stmt->bindParam(3, $_goodid, PDO::PARAM_STR);
 		$stmt->bindParam(4, $_BalanceMinM, PDO::PARAM_STR);
-		$stmt->bindParam(5, $_STD, PDO::PARAM_STR);
-		$stmt->bindParam(6, $_DT_start, PDO::PARAM_STR);
-		$stmt->bindParam(7, $_DT_stop, PDO::PARAM_STR);
-		$stmt->bindParam(8, $url, PDO::PARAM_STR);
+		$stmt->bindParam(5, $_AVG, PDO::PARAM_STR);
+		$stmt->bindParam(6, $_STD, PDO::PARAM_STR);
+		$stmt->bindParam(7, $_DT_start, PDO::PARAM_STR);
+		$stmt->bindParam(8, $_DT_stop, PDO::PARAM_STR);
+		$stmt->bindParam(9, $url, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 //		$this->echo_response($stmt);

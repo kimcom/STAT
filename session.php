@@ -5,6 +5,10 @@ session_start();
 	//$_SESSION['nav_style'] = 'inverse';
     $_SESSION['DT_sebest'] = '04/03/2015';
 
+	$_SESSION['server_port'] = '3306';
+	$_SESSION['server_user'] = 'shop';
+	$_SESSION['server_pass'] = '149521';
+
 if (!isset($_SESSION['sitename']))
     $_SESSION['sitename'] = 'Система анализа статистики<br/>и управления продажами. (Сокращенно САУ)<br/>Сузирье'.'&trade;';
 if (!isset($_SESSION['titlename']))

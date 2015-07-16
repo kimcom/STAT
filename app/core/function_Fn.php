@@ -83,6 +83,13 @@ class Fn {
 		Fn::DebugToLog("param\n" . $_SERVER['SCRIPT_FILENAME'] . "\n" . $_SERVER['REQUEST_URI'] . "\n", ob_get_clean());
 		ob_end_clean();
 	}
+
+	public static function objectToLog($object) {
+		ob_start();
+		var_dump($object);
+		Fn::DebugToLog("param\n" . $_SERVER['SCRIPT_FILENAME'] . "\n" . $_SERVER['REQUEST_URI'] . "\n", ob_get_clean());
+		ob_end_clean();
+	}
 	
 	public static function nf($num) {
 		return number_format($num, 2, '.', '');
