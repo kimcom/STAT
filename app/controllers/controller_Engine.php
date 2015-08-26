@@ -76,6 +76,24 @@ EOF;
 		//Fn::debugToLog('set file',$bl);
 	}
 
+	function action_deletefile() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		$dir_name = "shopv2/shop-k/";
+		$filename = "goods_".$clientID.".csv";
+		if (file_exists($dir_name.$filename)){
+			echo "файл найден ($dir_name$filename)\n";
+			$fp = unlink($dir_name . $filename);
+			if (!$fp) {
+				echo "ошибка удаления файла ($dir_name$filename)\n";
+			}else{
+				echo "файл удален ($dir_name$filename)\n";
+			}
+		}else{
+				echo "файл не найден ($dir_name$filename)\n";
+		}
+	}
+
 	function action_jqgrid3() {
 		$cnn = new Cnn();
 		return $cnn->get_jqgrid3();
@@ -136,7 +154,11 @@ EOF;
 		$cnn = new Cnn();
 		return $cnn->user_save();
 	}
-	
+	function action_menu_users_save() {
+		$cnn = new Cnn();
+		return $cnn->menu_users_save();
+	}
+
 	function action_good_set_param(){
 		$cnn = new Cnn();
 		return $cnn->good_param_save();

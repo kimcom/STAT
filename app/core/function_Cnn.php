@@ -860,6 +860,20 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		}
 		$str .= '</tr>';
 		$str .= "</thead>";
+//отступ
+		$str .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
+//формируем шапку Затраты
+		$str .= '<thead><tr>
+				<th rowspan=1>№ п-п</th>
+				<th rowspan=1>Затраты</th>';
+//		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
+//			$str .= '<th colspan=4>' . $dt->format('Y-m') . '</th>';
+//		}
+//		$str .= '</tr><tr>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
+			$str .= '<th colspan=4>Сумма затрат '.  $dt->format('Y-m') .'</th>';
+		}
+		$str .= '</tr></thead>';
 
 //отступ
 		$str .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
@@ -1606,7 +1620,9 @@ Fn::paramToLog();
 			$password = '';
 		if ($companyName == null)
 			$companyName = '';
-Fn::paramToLog();
+		if ($clientid == null)
+			$clientid = 0;
+////Fn::paramToLog();
 		$stmt = $this->db->prepare("CALL pr_user_info('save', @id, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $userid, PDO::PARAM_STR);
 		$stmt->bindParam(2, $login, PDO::PARAM_STR);
@@ -1753,6 +1769,46 @@ Fn::debugToLog('jqgrid3 url', $url);
 		header("Content-type: application/json;charset=utf-8");
 		echo json_encode($response);
 		return;
+	}
+
+//menu
+	public function menu_list() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		$stmt = $this->db->prepare("CALL pr_menu('list',@id,?,?,?)");
+		$stmt->bindParam(1, $menuid, PDO::PARAM_STR);
+		$stmt->bindParam(2, $_SESSION['UserID'], PDO::PARAM_STR);
+		$stmt->bindParam(3, $value, PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			return false;
+		if ($stmt->rowCount() == 0){
+			$stmt = $this->db->prepare("CALL pr_menu('all_menu_users',@id,?,?,?)");
+			$stmt->bindParam(1, $menuid, PDO::PARAM_STR);
+			$stmt->bindParam(2, $_SESSION['UserID'], PDO::PARAM_STR);
+			$stmt->bindParam(3, $value, PDO::PARAM_STR);
+			$stmt->execute();
+			$stmt = $this->db->prepare("CALL pr_menu('list',@id,?,?,?)");
+			$stmt->bindParam(1, $menuid, PDO::PARAM_STR);
+			$stmt->bindParam(2, $_SESSION['UserID'], PDO::PARAM_STR);
+			$stmt->bindParam(3, $value, PDO::PARAM_STR);
+			$stmt->execute();
+		}
+		$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+		return $rowset;
+	}
+	public function menu_users_save() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$stmt = $this->db->prepare("CALL pr_menu('menu_users_save',@id,?,?,?)");
+		$stmt->bindParam(1, $menuid, PDO::PARAM_STR);
+		$stmt->bindParam(2, $_SESSION['UserID'], PDO::PARAM_STR);
+		$stmt->bindParam(3, $value, PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$this->echo_response($stmt);
 	}
 
 //category

@@ -304,7 +304,7 @@ $(document).ready(function () {
     <ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
         <li class="active">
             <a id="a_tab_filter" href="#tab_filter" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;">
-                <legend class="h20">Информация о товаре<?php echo $VisibleInOrder; ?></legend>
+                <legend class="h20">Информация о товаре</legend>
             </a>
         </li>
         

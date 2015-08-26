@@ -41,7 +41,8 @@ class Route {
 			$controller_name != 'login' &&
 			$controller_name != 'recovery' &&
 			$controller_name != 'register' &&
-			$controller_name != 'register_ok'
+			$controller_name != 'register_ok' &&
+			$action_name != 'deletefile' 
 			) {
 			Fn::redirectToController('logon');
 			return;
