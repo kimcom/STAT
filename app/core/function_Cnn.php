@@ -1361,6 +1361,18 @@ Fn::paramToLog();
 		$stmt->execute();
 		$this->echo_response($stmt);
 	}
+	public function point_users_save() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$stmt = $this->db->prepare("CALL pr_point('point_users_save', @id, ?, ?, null, null, null, null, null, null, null, null, null, null, ?, null, null)");
+		$stmt->bindParam(1, $pointid, PDO::PARAM_STR);
+		$stmt->bindParam(2, $userid, PDO::PARAM_STR);
+		$stmt->bindParam(3, $value, PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$this->echo_response($stmt);
+	}
 
 //task
 	public function task_info() {
@@ -1744,8 +1756,10 @@ Fn::debugToLog('jqgrid3 url', $url);
 	public function select2() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
+		$type = $_SESSION['UserID'];
 //Fn::paramToLog();
 //Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
+		if($action=='point')$type = $_SESSION['UserID'];
 		$stmt = $this->db->prepare("CALL pr_select2(?, @id, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $name, PDO::PARAM_STR);
@@ -1804,7 +1818,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 //Fn::paramToLog();
 		$stmt = $this->db->prepare("CALL pr_menu('menu_users_save',@id,?,?,?)");
 		$stmt->bindParam(1, $menuid, PDO::PARAM_STR);
-		$stmt->bindParam(2, $_SESSION['UserID'], PDO::PARAM_STR);
+		$stmt->bindParam(2, $userid, PDO::PARAM_STR);
 		$stmt->bindParam(3, $value, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();

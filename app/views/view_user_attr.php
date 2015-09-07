@@ -75,6 +75,7 @@ if (isset($_REQUEST['userID'])) {
 			if(elem.target.checked==false) checked = 0;
 			$.post('../engine/menu_users_save', {
 				menuid: rowid,
+				userid: <?php echo $userid; ?>,
 				value: checked
 			},
 			function (data) {
@@ -110,18 +111,39 @@ if (isset($_REQUEST['userID'])) {
 		sortable: true,
 		datatype: "json",
 		height:400,
-		colNames:['Код','Торговая точка','Город','Цена'],
+		colNames:['Код','Торговая точка','Город','Доступ'],
 		colModel: [
 			{name: 'c_ClientID', index: 'c.ClientID',	width: 60,	align: "center", sorttype: "text", search: true},                         
-			{name: 'c_NameShort',index: 'c.NameShort',  width: 250, sorttype: "text", search: true},
-		    {name: 'c_City', index: 'c.City', width: 150, sorttype: "text", search: true},
-		    {name: 'p_Price', index: 'p.Price', width: 70, align: "right", search: false},
+			{name: 'NameShort',index: 'NameShort',  width: 200, sorttype: "text", search: true},
+		    {name: 'City', index: 'City', width: 150, sorttype: "text", search: true},
+		    {name: 'Access', index: 'Access', width: 100, align: "center", search: true, editable:true, 
+				formatter:'checkbox', edittype:'checkbox', editoptions:{value:'1:0'}, formatoptions:{disabled:false},
+				stype:'select', searchoptions : {value : ":любой;1:разрешен;0:запрещен"},
+		    },
 		],
+		beforeSelectRow : function(rowid, elem) {
+			if(elem.target.checked==undefined)return;
+			if(elem.target.checked==true) checked = 1;
+			if(elem.target.checked==false) checked = 0;
+			$.post('../engine/point_users_save', {
+				pointid: rowid,
+				userid: <?php echo $userid;?>,
+				value: checked
+			},
+			function (data) {
+				if (data == false) {
+					$("#dialog>#text").html('Возникла ошибка при сохранении кодов товаров.<br><br>Сообщите разработчику!');
+					$("#dialog").dialog("open");
+			    } else {
+					$("#grid2").trigger('reloadGrid');
+			    }
+			});
+	    },
 		width: 546,
 		shrinkToFit: false,
-		rowNum: 20,
-		rowList: [20, 30, 40, 50, 100],
-		sortname: "ClientID",
+		rowNum: 100,
+		rowList: [40, 60, 80, 100],
+		sortname: "NameShort",
 		viewrecords: true,
 		gridview: true,
 		toppager: true,
@@ -140,17 +162,18 @@ if (isset($_REQUEST['userID'])) {
 	$('#myTab a').click(function (e) {
 		e.preventDefault();
 		if (this.id == 'a_tab_menu') {
-			$("#grid1").jqGrid('setGridParam', { url: "../engine/jqgrid3?action=menu&grouping=<?php echo $_SESSION['UserID']?>&f1=MenuID&f2=Level&f3=Name&f4=Access", page: 1});
+			$("#grid1").jqGrid('setGridParam', { url: "../engine/jqgrid3?action=menu&grouping=<?php echo $userid?>&f1=MenuID&f2=Level&f3=Name&f4=Access", page: 1});
 			$("#grid1").trigger('reloadGrid');
 		}
 		if (this.id == 'a_tab_point') {
-			$("#grid2").jqGrid('setGridParam', {url: "../engine/jqgrid3?action=good_price&p.GoodID=1&f1=ClientID&f2=NameShort&f3=City&f4=PriceShop", page: 1});
+			$("#grid2").jqGrid('setGridParam', {url: "../engine/jqgrid3?action=point_access&grouping=<?php echo $userid?>&f1=ClientID&f2=NameShort&f3=City&f4=Access", page: 1});
 		    $("#grid2").trigger('reloadGrid');
 		}
     });
-	setTimeout(function(){
-		$('#a_tab_menu').click();
-	}, 100);
+//	setTimeout(function(){
+//		//$('#a_tab_menu').click();
+//		$('#a_tab_point').click();
+//	}, 100);
 });
 </script>
 <style>

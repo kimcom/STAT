@@ -158,6 +158,10 @@ EOF;
 		$cnn = new Cnn();
 		return $cnn->menu_users_save();
 	}
+	function action_point_users_save() {
+		$cnn = new Cnn();
+		return $cnn->point_users_save();
+	}
 
 	function action_good_set_param(){
 		$cnn = new Cnn();

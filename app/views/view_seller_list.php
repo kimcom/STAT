@@ -11,7 +11,7 @@ $(document).ready(function(){
 // Creating grid1
 	$("#grid1").jqGrid({
 		sortable: true,
-	    url:"../engine/jqgrid3?action=sellers_list&f1=SellerID&f2=Name&f3=Post&f4=Fired&f5=ClientID&f6=City&f7=NameShort&f8=Kod1C",
+	    url:"../engine/jqgrid3?action=sellers_list&f1=SellerID&f2=Name&f3=Post&f4=Fired&f5=ClientID&f6=City&f7=NameShort&f8=Kod1C&UserID=<?php echo $_SESSION['UserID']; ?>",
 		datatype: "json",
 		height:'auto',
 		colNames:['Код','ФИО','Должность','Статус','Код маг.','Город','Магазин', 'Код 1С'],
@@ -69,7 +69,7 @@ $(document).ready(function(){
 	$("#pgrid1").removeClass('ui-jqgrid-pager');
 	$("#pgrid1").addClass('ui-jqgrid-pager-empty');
 	$("#grid1").gridResize();
-	$("#gs_Fired").attr('title','1-уволен, 0-нет');
+	//$("#gs_Fired").attr('title','1-уволен, 0-нет');
 });
 </script>
 <div class="container min570">

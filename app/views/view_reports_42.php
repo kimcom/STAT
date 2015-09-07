@@ -413,7 +413,7 @@ $("#select_report_setting").click();
 		    $("#grid1").showCol("field3");
 		    $(".ui-search-input>input").val("");
 			//$("#grid1").jqGrid("clearGridData", true).trigger("reloadGrid");
-		    $("#grid1").jqGrid('setGridParam', {datatype: "json", url: "../reports/jqgrid3?action=point_list&f1=PointID&f2=Name&f3=MatrixName", page: 1}).trigger('reloadGrid');
+		    $("#grid1").jqGrid('setGridParam', {datatype: "json", url: "../reports/jqgrid3?action=point_list&f1=PointID&f2=Name&f3=MatrixName&pu.UserID=<?php echo $_SESSION['UserID'];?>", page: 1}).trigger('reloadGrid');
 			$("#divTable").removeClass('ml10');
 			$("#divTree").hide();
 			$("#divTable").show();
@@ -753,6 +753,7 @@ $("#select_report_setting").click();
 			"&seller=" + keyJoin(seller).join(';') +
 			"&promo=" + keyJoin(promo).join(';') +
 			"&card=" + keyJoin(card).join(';') +
+			"&UserID=<?php echo $_SESSION['UserID']; ?>" +
 			""}).trigger('reloadGrid');
 	});
 

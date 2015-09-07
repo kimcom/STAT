@@ -8,12 +8,15 @@ if (isset($_REQUEST['clientID'])) {
 } else {
 	return;
 }
+$clientid = $_REQUEST['clientID'];
 $balanceActivity = $row['BalanceActivity'];
 if ($balanceActivity == null)
 	$balanceActivity = 0;
 $matrixID = $row['MatrixID'];
 if ($matrixID == null)
 	$matrixID = 0;
+$btn_access = '';
+if($_SESSION['AccessLevel']<2000) $btn_access = 'disabled';
 ?>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -68,7 +71,69 @@ if ($matrixID == null)
 	var a_status = [{id: 2567, text: 'Матрица A'}, {id: 2568, text: 'Матрица B'}, {id: 2571, text: 'Матрица C'}];
 	$("#select_matrixID").select2({data: a_status, placeholder: ""});
 	$("#select_matrixID").select2("val", <?php echo $matrixID; ?>);
-    });
+
+// Creating grid1
+	fs = 0;
+	$("#grid1").jqGrid({
+		sortable: true,
+	    url:"../engine/jqgrid3?action=sellers_list&f1=SellerID&f2=Name&f3=Post&f4=Fired&f5=ClientID&f6=City&f7=NameShort&f8=Kod1C&c.ClientID=<?php echo $clientid;?>&UserID=<?php echo $_SESSION['UserID']; ?>",
+		datatype: "json",
+		height:'auto',
+		colNames:['Код','ФИО','Должность','Статус','Код маг.','Город','Магазин', 'Код 1С'],
+		colModel:[
+			{name:'SellerID',	index:'SellerID', width: 60, align:"center", sorttype:"text", search:true},
+			{name:'Name',		index:'Name', 	  width:160, align:"left",   sorttype:"text", search:true},
+			{name: 'Post', index: 'Post', width: 100, align: "left", sorttype: "text", search: true},
+		{name: 'Fired', index: 'Fired', width: 60, align: "center", sorttype: "text", search: true},
+		{name: 'c_ClientID', index: 'c.ClientID', width: 60, align: "center", sorttype: "text", search: true},
+		{name: 'c_City', index: 'c.City', width: 100, sorttype: "text", search: true},
+		{name: 'c_NameShort', index: 'c.NameShort', width: 160, sorttype: "text", search: true},
+		{name: 'Kod1C', index: 'Kod1C', width: 60, align: "center", sorttype: "text", search: true}
+	    ],
+	    gridComplete: function () {
+		if (!fs) {
+		    fs = 1;
+		    filter_restore("#grid1");
+		}
+	    },
+	    width: 'auto',
+	    shrinkToFit: false,
+	    rowNum: 20,
+	    rowList: [20, 30, 40, 50, 100],
+	    sortname: "Name",
+	    viewrecords: true,
+	    toppager: true,
+	    caption: "Список сотрудников",
+	    pager: '#pgrid1',
+	});
+	$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
+	$("#grid1").navButtonAdd('#grid1_toppager', {
+	    title: 'Добавить сотрудника', buttonicon: "ui-icon-pencil", caption: 'Добавить', position: "last",
+	    onClickButton: function () {
+		window.location = "../lists/seller_info?sellerID=-1";
+	    }
+	});
+	$("#grid1").navButtonAdd('#grid1_toppager', {
+	    title: 'Открыть информационную карту', buttonicon: "ui-icon-pencil", caption: 'Открыть карту', position: "last",
+	    onClickButton: function () {
+		var id = $("#grid1").jqGrid('getGridParam', 'selrow');
+		var node = $("#grid1").jqGrid('getRowData', id);
+		//console.log(id,node,node.Name);
+		if (id != '')
+		    window.location = "../lists/seller_info?sellerID=" + id;
+	    }
+	});
+	$("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true, beforeSearch: function () {filter_save("#grid1");}});
+	$("#pg_pgrid1").remove();
+	$("#pgrid1").removeClass('ui-jqgrid-pager');
+	$("#pgrid1").addClass('ui-jqgrid-pager-empty');
+	$("#grid1").gridResize();
+
+//	setTimeout(function(){
+//		//$('#a_tab_menu').click();
+//		$('#a_tab_sellers').click();
+//	}, 100);
+});
 </script>
 <input id="clientID" name="clientID" type="hidden" value="<?php echo $row['ClientID']; ?>">
 <style>
@@ -79,14 +144,15 @@ if ($matrixID == null)
 <div class="container center">
 	<ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
 		<li class="active"><a href="#tab_filter" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">Информация о торговой точке</legend></a></li>
+        <li><a id="a_tab_sellers" href="#tab_sellers" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">Список сотрудников</legend></a></li>
 	</ul>
 	<div class="floatL">
-		<button id="button_save" class="btn btn-sm btn-success frameL m0 h40 hidden-print font14">
+		<button id="button_save" class="btn btn-sm btn-success frameL m0 h40 hidden-print font14 <?php echo $btn_access;?>">
 			<span class="ui-button-text" style='width:120px;height:22px;'>Сохранить данные</span>
 		</button>
 	</div>
 	<div class="tab-content">
-		<div class="active tab-pane min530 m0 w100p ui-corner-all borderTop1 borderColor frameL border1" id="tab_filter">
+		<div class="active tab-pane min530 m0 w100p ui-corner-tab1 borderTop1 borderColor frameL border1" id="tab_filter">
 			<div class='p5 ui-corner-all frameL border0 w500' style='display1:table;'>
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w25p TAL">Код торговой точки:</span>
@@ -169,6 +235,12 @@ if ($matrixID == null)
 				</div>
 			</div>
 		</div>
+		<div  class="tab-pane min530 m0 w100p ui-corner-all borderTop1 borderColor frameL border1" id="tab_sellers">
+			<div class='p5'>
+				<table id="grid1"></table>
+				<div id="pgrid1"></div>
+			</div>
+		</div> 
 	</div>
 </div>
 <div id="dialog" title="ВНИМАНИЕ!">

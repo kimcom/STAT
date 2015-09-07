@@ -10,7 +10,7 @@ $(document).ready(function(){
 	$("#grid1").jqGrid({
 		sortable: true,
 		url:"../engine/jqgrid3?action=point_list_full&f1=ClientID&f2=DateAct&f3=AppVersion&f4=1C&f5=BalanceActivity&f6=NameShort&f7=NameValid&f8=City&f9=Address\n\
-			&f10=Telephone&f11=Label&f12=CountTerminal&f13=PriceType&f14=Matrix",
+			&f10=Telephone&f11=Label&f12=CountTerminal&f13=PriceType&f14=Matrix&UserID=<?php echo $_SESSION['UserID']; ?>",
 //		url:"../lists/get_points_list?param=list",
 		datatype: "json",
 		height:'auto',
