@@ -41,22 +41,23 @@ $(document).ready(function () {
 		hide: {effect: "explode",duration: 1000}
     });
 	dt = new Date();
-	dt.setMonth(dt.getMonth() - 1, 1);
+//	dt.setMonth(dt.getMonth() - 1, 1);
 	$("#DT_start").datepicker({
 		//showOn: "both", 
 		numberOfMonths: 1,
 		showButtonPanel: true, 
 		dateFormat: 'dd/mm/yy',
-		closeText: "Закрыть",
+		showWeek: true,
 		//showAnim: "fold"
 	});
 	$("#DT_start").datepicker("setDate", dt);
 	dt = new Date();
-	dt.setDate(0);
+//	dt.setDate(0);
     $("#DT_stop").datepicker({
 		//showOn: "both", 
 		numberOfMonths: 1,
 		showButtonPanel: true,
+		showWeek: true,
 		dateFormat: 'dd/mm/yy'
 	});
 	$("#DT_stop").datepicker("setDate", dt);
@@ -148,7 +149,7 @@ $("#select_report_setting").click();
 		treedatatype: 'json',
 		datatype: "json",
 		mtype: "POST",
-		width: 250,
+		width: 230,
 		height: 380,
 		ExpandColumn: 'name',
 //		url: '../category/get_tree_NS?nodeid=20',
@@ -486,16 +487,16 @@ $("#select_report_setting").click();
 		datatype: 'local',
 	    height: 'auto',
 	    colModel: [
-			{name: 'field0' , index: 'field0' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field1' , index: 'field1' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field2' , index: 'field2' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field3' , index: 'field3' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field4' , index: 'field4' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field5' , index: 'field5' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field6' , index: 'field6' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field7' , index: 'field7' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field8' , index: 'field8' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field9' , index: 'field9' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field0' , index: 'field0' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field1' , index: 'field1' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field2' , index: 'field2' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field3' , index: 'field3' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field4' , index: 'field4' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field5' , index: 'field5' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field6' , index: 'field6' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field7' , index: 'field7' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field8' , index: 'field8' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field9' , index: 'field9' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field10', index: 'field10', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} </b>'},
 			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
 			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
@@ -544,7 +545,7 @@ $("#select_report_setting").click();
 				ar["field"+i] = summary;
 			}
 			i = 14;
-			var summary = $("#gridRep").jqGrid('getCol', "field"+i, false, 'avg');
+			var summary = ar["field13"]*100/ar["field11"];
 			ar["field" + i] = summary;
 			$("#gridRep").jqGrid('footerData','set', ar);
 			$("#dialog_progress").dialog("close");
@@ -732,6 +733,15 @@ $("#select_report_setting").click();
 		prmRep += (grouping_str.length == 0) ? "" : "<br>" + "Группировки отчета: " + grouping_str;
 		$("#report_param_str").html(prmRep);
 //return;
+		orderby = ""; len = Object.keys(grouping).length - 1;
+		for (id in grouping) {
+		orderby += grouping[id].replace('_', '.') + " asc";
+		if (len != parseInt(id))
+			orderby += ', ';
+		}
+		orderby = orderby.split("g.goodID").join("g.Name");
+		orderby = orderby.split("cl.partnerID").join("c.Name");
+		orderby = orderby.split("s.sellerID").join("s.Name");
 		$("#gridRep").jqGrid('setGridParam', {datatype: "json", url: "../reports/report"+reportID+"_data" +
 			"?sid=" + reportID +
 			"&DT_start=" + $("#DT_start").val() +
@@ -746,7 +756,9 @@ $("#select_report_setting").click();
 			"&catpartner=" + keyJoin(catpartner).join(';') +
 			"&seller=" + keyJoin(seller).join(';') +
 			"&promo=" + keyJoin(promo).join(';') +
-			""}).trigger('reloadGrid');
+			"&orderby=" + orderby +
+			"",
+		}).trigger('reloadGrid');
 	});
 
 	//$("#dialog_progress").dialog("open");

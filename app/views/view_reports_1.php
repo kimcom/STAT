@@ -19,7 +19,8 @@ $(document).ready(function () {
 		showOn: "both", 
 		numberOfMonths: 3,
 		showButtonPanel: true, 
-		dateFormat: 'dd/mm/yy'
+		dateFormat: 'dd/mm/yy',
+		showWeek: true,
 	});
 	$("#DT_start").datepicker("setDate", dt);
 	dt = new Date();
@@ -28,7 +29,8 @@ $(document).ready(function () {
 		showOn: "both", 
 		numberOfMonths: 3,
 		showButtonPanel: true,
-		dateFormat: 'dd/mm/yy'
+		dateFormat: 'dd/mm/yy',
+		showWeek: true,
 	});
 	$("#DT_stop").datepicker("setDate", dt);
 	$(".ui-datepicker-trigger").addClass("hidden-print");

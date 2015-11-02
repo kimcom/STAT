@@ -15,7 +15,7 @@
 		url: "../goods/list?param=goods_list_where&col=goods_list&cat_id=0",
 	    datatype: "json",
 	    height: 'auto',
-	    colNames: ['GoodID', 'OPT_ID', 'SHOP_ID', 'KIEV_ID', 'Артикул', 'Название', 'Отдел', 'Макс.ск.', 'В упак.', 'Ед.изм.', 'Вес'],
+	    colNames: ['GoodID', 'OPT_ID', 'SHOP_ID', 'KIEV_ID', 'Артикул', 'Название', 'Отдел', 'Макс.ск.', 'В упак.', 'Ед.изм.', 'Кат.нац.'],
 	    colModel: [
 			{name: 'GoodID', index: 'g.GoodID', width: 80, align: "center", sorttype: "text", search: true},
 			{name: 'OPT_ID', index: 'OPT_ID', width: 80, align: "center", sorttype: "text", search: true},
@@ -30,8 +30,9 @@
 			{name: 'Unit_in_pack', index: 'Unit_in_pack', width: 60, align: "right", search: false,
 				formatter: 'number', formatoptions: {decimalSeparator: ".", decimalPlaces: 2}},
 			{name: 'Unit', index: 'Unit', width: 60, align: "center", sorttype: "text", search: false},
-			{name: 'Weight', index: 'Weight', width: 60, align: "right", search: false,
-				formatter: 'number', formatoptions: {decimalSeparator: ".", decimalPlaces: 2}}
+			{name: 'MarkupID', index: 'MarkupID', width: 60, align: "center", sorttype: "number", search: true},
+//			{name: 'Weight', index: 'Weight', width: 60, align: "right", search: false,
+//				formatter: 'number', formatoptions: {decimalSeparator: ".", decimalPlaces: 2}}
 	    ],
 	    gridComplete: function() {if(!fs) {fs = 1; filter_restore("#grid1");}},
 	    width: 'auto',

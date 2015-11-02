@@ -40,6 +40,10 @@ $(document).ready(function () {
 	$.post('../Engine/select2?action=unit&type=0', function (json) {
 		$("#select_unitID").select2({placeholder: "Выберите подразделение", data: {results: json, text: 'text'}});
 		$("#select_unitID").select2("val", 2);//значение по умолчанию Сисадмины
+		$("#select_unitID").select2().on("change", function(e) {
+			// mostly used event, fired to the original element when the value changes
+			console.log("change val=" + e.val);
+		});
 	});
 	//заполнение select2 - статусы
 	var a_status = [{id: 0, text: 'можно начинать'}, {id: 20, text: 'постановка задач'}, {id: 30, text: 'в работе'}, {id: 50, text: 'пауза'}, {id: 60, text: 'на проверке'}, {id: 100, text: 'завершено'}];

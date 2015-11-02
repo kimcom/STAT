@@ -19,6 +19,7 @@
 .minw200 {min-width: 200px;}
 .minw300 {min-width: 300px;}
 .minw400 {min-width: 400px;}
+.max200 {max-width: 200px;}
 .max600 {max-width: 600px;}
 
 .ui-corner-bottom0{
@@ -101,6 +102,7 @@
 .w135{width:135px;}
 .w140{width:140px;}
 .w150{width:150px;}
+.w160{width:160px;}
 .w180{width:180px;}
 .w200{width:200px;}
 .w230{width:230px;}
@@ -329,6 +331,43 @@ input[type='text'], input[type='password'], textarea {
     padding-bottom: 5px;
 }
 
+.line-legend li span{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
+.bar-legend li span{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
+.radar-legend li span{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
+.polararea-legend li span{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
+.pie-legend li span{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
+.doughnut-legend li span{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
+
 /*перебиваем bootstrap*/
 body {
     font-family: "trebuchet ms", Verdana, Tahoma, Arial, sans-serif;
@@ -484,8 +523,8 @@ li {
 .ui-jqdialog .ui-jqdialog-titlebar { height:auto; }
 .ui-jqgrid .ui-jqdialog { font-size:14px; }
 .ui-jqdialog { font-size:14px; }
-.ui-jqgrid .ui-jqgrid-toppager .ui-pager-control, .ui-jqgrid .ui-jqgrid-pager .ui-pager-control {height: 30px;}
-.ui-jqgrid .ui-jqgrid-toppager {height: 30px;}
+.ui-jqgrid .ui-jqgrid-toppager .ui-pager-control, .ui-jqgrid .ui-jqgrid-pager .ui-pager-control {height: 25px;}
+.ui-jqgrid .ui-jqgrid-toppager {height: 25px;}
 .ui-jqgrid .ui-pg-table {padding: 0px 0;}
 .ui-jqgrid .ui-pg-table td {padding:0px 1px;}
 .fm-button { height: auto; }

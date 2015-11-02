@@ -9,6 +9,8 @@ if (isset($_REQUEST['goodid'])) {
 	if (!$row) return;
 	$TypeSticker = $row['TypeSticker'];
 	if ($TypeSticker==null) $TypeSticker = -1;
+	$MarkupID = $row['MarkupID'];
+	if ($MarkupID==null) $MarkupID = -1;
 	$FoldOrder	 = $row['FoldOrder'];
 	if ($FoldOrder==null) $FoldOrder = -1;
 	$Visible	 = $row['Visible'];
@@ -125,6 +127,7 @@ $(document).ready(function () {
 			segment: $("#segment").val(),
 			visible: $("#select_visible").select2("val"),
 			visibleinorder: $("#select_visible_in_order").select2("val"),
+			markupid: $("#select_markup").select2("val"),
 			service: $("#service").val(),
 			division: $("#division").val(),
 			length: $("#length").val(),
@@ -276,6 +279,10 @@ $(document).ready(function () {
 	$("#select_type_sticker").select2({data: a_status, placeholder: "Выберите тип ценника"});
 	$("#select_type_sticker").select2("val", <?php echo $TypeSticker; ?>); 
 
+	var a_status = [{id: 0, text: 'категория наценки не указана'}, {id: 1, text: 'категория наценки №1'}, {id: 2, text: 'категория наценки №2'}, {id: 3, text: 'категория наценки №3'}, {id: 4, text: 'категория наценки №4'}];
+	$("#select_markup").select2({data: a_status, placeholder: "Выберите категорию наценки"});
+	$("#select_markup").select2("val", <?php echo $MarkupID; ?>); 
+
 	var a_status = [{id: 10, text: 'заказ только упаковкой'},  {id: 20, text: 'заказ по-штучно'}];
 	$("#select_fold_order").select2({data: a_status, placeholder: "Выберите кратность для заказа"});
 	$("#select_fold_order").select2("val", <?php echo $FoldOrder; ?>); 
@@ -405,6 +412,11 @@ $(document).ready(function () {
                 <div class="input-group input-group-sm w100p">
                     <span  class="input-group-addon w130 TAL">Доступ в заказе</span>
                     <div class="w100p" id="select_visible_in_order"></div>
+                    <span class="input-group-addon w32"></span>
+                </div>
+                <div class="input-group input-group-sm w100p">
+                    <span class="input-group-addon w130 TAL">Категория наценки</span>
+                    <div class="w100p" id="select_markup"></div>
                     <span class="input-group-addon w32"></span>
                 </div>
             </div>

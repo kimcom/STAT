@@ -36,7 +36,7 @@ $(document).ready(function () {
 		numberOfMonths: 1,
 		showButtonPanel: true, 
 		dateFormat: 'dd/mm/yy',
-		closeText: "Закрыть",
+		showWeek: true,
 		//showAnim: "fold"
 	});
 	$("#DT_start").datepicker("setDate", dt);
@@ -44,9 +44,9 @@ $(document).ready(function () {
 	dt.setDate(0);
     $("#DT_stop").datepicker({
 		//showOn: "both", 
-		regional:'ru',
 		numberOfMonths: 1,
 		showButtonPanel: true,
+		showWeek: true,
 		dateFormat: 'dd/mm/yy'
 	});
 	$("#DT_stop").datepicker("setDate", dt);

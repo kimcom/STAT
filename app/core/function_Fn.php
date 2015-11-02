@@ -114,5 +114,9 @@ class Fn {
 		return number_format($num, 2, '.', '').'%';
 	}
 
+	public static function isnull($var, $default = null) {
+		return is_null($var) ? $default : $var;
+	}
+
 }
 ?>

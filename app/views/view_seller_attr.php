@@ -51,7 +51,7 @@ if ($clientid == null)
 			);
 	});
 	// выбор должности 
-	var a_status = [{id: 1, text: 'администратор'}, {id: 2, text: 'старший продавец'}, {id: 3, text: 'продавец'}, {id: 4, text: 'экономист'}, {id: 5, text: 'грумер'}];
+	var a_status = [{id: 1, text: 'администратор'}, {id: 2, text: 'старший продавец'}, {id: 3, text: 'продавец'}, {id: 4, text: 'экономист'}, {id: 5, text: 'грумер'}, {id: 6, text: 'нач. отдела'}, {id: 7, text: 'бухгалтер'}, {id: 8, text: 'менеджер'}, {id: 9, text: 'водитель'}, {id: 10, text: 'экспедитор'}];
 	$("#select_post").select2({data: a_status, placeholder: "Выберите должность"});
 	$("#select_post").select2("val", <?php echo $postid; ?>);
 

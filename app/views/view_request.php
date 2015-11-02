@@ -20,6 +20,11 @@ $(document).ready(function () {
 	if ($(this).html() == '...')
 		$("#" + operid).datepicker("show");
 	});
+	//заполнение select2 через ajax - сотрудники
+	$.post('../Engine/select2?action=seller', function (json) {
+		$("#select_userID_resp").select2({placeholder: "Выберите сотрудника", data: {results: json, text: 'text'}});
+		$("#select_userID_resp").select2("val", 0);
+	});
 });
 </script>
 <input id="sellerID" name="sellerID" type="hidden" value="<?php echo $row['SellerID']; ?>">
@@ -30,7 +35,7 @@ $(document).ready(function () {
 </style>
 <div class="container center">
 	<ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
-		<li class="active"><a href="#tab_filter" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">Заявка на получение ДС</legend></a></li>
+		<li class="active"><a href="#tab_filter" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">Заявка на получение денежных средств</legend></a></li>
 	</ul>
 	<div class="floatL">
 		<button id="button_save" class="btn btn-sm btn-success frameL m0 h40 hidden-print font14">
@@ -41,51 +46,51 @@ $(document).ready(function () {
 		<div class="active tab-pane min530 w100p m0 ui-corner-all borderTop1 borderColor frameL border1" id="tab_filter">
 			<div class='p5 ui-corner-all frameL border0 w500' style='display1:table;'>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w20p TAL">Заявка на получение ДС:</span>
+					<span class="input-group-addon w160 TAL">Заявка на получение ДС:</span>
 					<span id="sellerID_span" class="input-group-addon form-control TAC"><?php echo $row['SellerID']; ?></span>
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w64"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w150 TAL">Дата подачи:</span>
+					<span class="input-group-addon w160 TAL">Дата подачи:</span>
 					<span id="kod1C_span" class="input-group-addon form-control TAC"><?php echo $row['Kod1C']; ?></span>
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w64"></span>
 				</div>
 				<div class="input-group input-group-sm w100p" id="datapickers">
-					<span class="input-group-addon w25p TAL">Дата получения средств:</span>
+					<span class="input-group-addon w160 TAL">Дата получения средств:</span>
 					<input id="DT_plan" name="DT_plan" type="text" class="form-control TAC" value="">
-					<span class="input-group-btn"><a class="btn btn-default w100p" type="button">X</a></span>
+					<span class="input-group-btn w32"><a class="btn btn-default w100p" type="button">X</a></span>
 					<span class="input-group-btn w32"><a class="btn btn-default w100p" type="button">...</a></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w150 TAL">Отдел:</span>
+					<span class="input-group-addon w160 TAL">Отдел:</span>
 					<span id="sellerID_span" class="input-group-addon form-control TAL"><?php echo $row['SellerID']; ?></span>
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w64"></span>
 				</div>               
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w150 TAL">Заявитель:</span>
+					<span class="input-group-addon w160 TAL">Заявитель:</span>
 					<span id="sellerID_span" class="input-group-addon form-control TAL"><?php echo $row['SellerID']; ?></span>
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w64"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w150 TAL">Получатель:</span>
-					<input id="nameValid" name="nameValid" type="text" class="form-control TAL" value="<?php echo $row['NameValid']; ?>">
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w160 TAL">Получатель:</span>
+					<div class="w100p" id="select_userID_resp"></div>
+					<span class="input-group-addon w64"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w150 TAL">Сумма заявки:</span>
+					<span class="input-group-addon w160 TAL">Сумма заявки:</span>
 					<input id="nameValid" name="nameValid" type="text" class="form-control TAR" value="<?php echo $row['NameValid']; ?>">
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w64"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w150 TAL">Назначение платежа:</span>
+					<span class="input-group-addon w160 TAL">Назначение платежа:</span>
 					<span id="sellerID_span" class="input-group-addon form-control TAL"><?php echo $row['SellerID']; ?></span>
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w64"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w150 TAL">Описание платежа:</span>
+					<span class="input-group-addon w160 TAL">Описание платежа:</span>
 					<textarea id="description" name="description" rows="6" type="text" style="height: auto;" class="form-control TAL p5">
 					</textarea>
-					<span class="input-group-addon w10p"></span>
+					<span class="input-group-addon w64"></span>
 				</div>
 			</div>
 			<!--*<input class="form-control2" type="text">********************-->

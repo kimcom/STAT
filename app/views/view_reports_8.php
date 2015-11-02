@@ -1,6 +1,6 @@
 <script type="text/javascript">
 $(document).ready(function () {
-	var reportID = 4; 
+	var reportID = 8; 
 //Object Converter
 	oconv	= function (a) {var o = {};for(var i=0;i<a.length;i++) {o[a[i]] = '';} return o;}
 	strJoin = function (obj){ var ar = []; for (key in obj){ar[ar.length] = obj[key];}return ar;}
@@ -16,7 +16,6 @@ $(document).ready(function () {
 	var point = new Object();
 	var seller = new Object();
 	var promo = new Object();
-	var card = new Object();
 	settings['grouping']=grouping;
 	settings['group']=group;
 	settings['good']=good;
@@ -26,8 +25,7 @@ $(document).ready(function () {
 	settings['point']=point;
 	settings['seller']=seller;
 	settings['promo']=promo;
-	settings['card']=card;
-	var colnames = ['Кол-во','Себест.','Оборот','Доход','% наценки','% скидки'];
+	var colnames = ['Кол-во','Себест.','Оборот','Доход','% наценки'];
 	$("#dialog").dialog({
 		autoOpen: false, modal: true, width: 400, //height: 300,
 		buttons: [{text: "Закрыть", click: function () {
@@ -46,8 +44,8 @@ $(document).ready(function () {
 		//showOn: "both", 
 		numberOfMonths: 1,
 		showButtonPanel: true, 
-		showWeek: true,
 		dateFormat: 'dd/mm/yy',
+		showWeek: true,
 		//showAnim: "fold"
 	});
 	$("#DT_start").datepicker("setDate", dt);
@@ -62,7 +60,16 @@ $(document).ready(function () {
 	});
 	$("#DT_stop").datepicker("setDate", dt);
 	$(".ui-datepicker-trigger").addClass("hidden-print");
-	
+
+	//заполнение интервалов
+	var interval = [{id: 'day', text: 'день'}, {id: 'week', text: 'неделя'}, {id: 'month', text: 'месяц'}, {id: 'year', text: 'год'}];
+	$("#select_interval").select2({data: interval, placeholder: "Выберите интервал", minimumResultsForSearch: Infinity});
+	$("#select_interval").select2("val", 'month');
+	//заполнение данных для анализа
+	var data = [{id: 'Quantity', text: 'количество'}, {id: 'Oborot', text: 'оборот'}, {id: 'Dohod', text: 'доход'}, {id: 'all', text: 'кол-во, оборот, доход'}];
+	$("#select_data").select2({data: data, placeholder: "Выберите данные для вывода в отчет", minimumResultsForSearch: Infinity});
+	$("#select_data").select2("val", 'qty');
+		
 	$.post('../Engine/setting_get?sid='+reportID, function (json) {
 		$("#select_report_setting").select2({
 		    createSearchChoice: function (term, data){
@@ -74,8 +81,8 @@ $(document).ready(function () {
 			placeholder: "Выберите настройку отчета",
 		    data: {results: json, text: 'text'}
 		});
-$("#select_report_setting").select2("val", "тест");
-$("#select_report_setting").click();
+		$("#select_report_setting").select2("val", "тест");
+		$("#select_report_setting").click();
     });
 
 	$("#select_report_setting").click(function () { 
@@ -91,6 +98,8 @@ $("#select_report_setting").click();
 				if(k[1]=='')continue;
 				if(k[0]=='DT_start') {if(json.UserID!=11)$("#DT_start").val(k[1]);continue;}
 				if(k[0]=='DT_stop') {if(json.UserID!=11)$("#DT_stop").val(k[1]);continue;}
+				if(k[0]=='interval') {	$("#select_interval").select2("val", k[1]);continue;}
+				if(k[0]=='data') {	$("#select_data").select2("val", k[1]);continue;}
 				var l = k[1].split('|');
 				var m = l[0].split(';');
 				var n = l[1].split(';');
@@ -136,8 +145,6 @@ $("#select_report_setting").click();
 			$("#seller").attr("title", strJoin(seller).join("\n"));
 			$("#promo").val(strJoin(promo).join(';'));
 			$("#promo").attr("title", strJoin(promo).join("\n"));
-			$("#card").val(strJoin(card).join(';'));
-			$("#card").attr("title", strJoin(card).join("\n"));
 //$('#button_report_run').click();
 		});
 	});
@@ -250,7 +257,7 @@ $("#select_report_setting").click();
 				if (datastr == 'point')	point[sel[key]] = node.field2;
 				if (datastr == 'seller')seller[sel[key]] = node.field2;
 				if (datastr == 'promo')	promo[sel[key]] = node.field2;
-				if (datastr == 'card')	card[sel[key]] = node.field1;
+//				if (datastr == 'card')	card[sel[key]] = node.field1;
 			}
 			if (datastr=='good'){
 				$("#good").val(strJoin(good).join(';'));
@@ -268,10 +275,10 @@ $("#select_report_setting").click();
 				$("#promo").val(strJoin(promo).join(';'));
 				$("#promo").attr("title", strJoin(promo).join("\n"));
 			}
-			if (datastr == 'card') {
-				$("#card").val(strJoin(card).join(';'));
-				$("#card").attr("title", strJoin(card).join("\n"));
-			}
+//			if (datastr == 'card') {
+//				$("#card").val(strJoin(card).join(';'));
+//				$("#card").attr("title", strJoin(card).join("\n"));
+//			}
 		}
 	});
 
@@ -284,14 +291,18 @@ $("#select_report_setting").click();
 	
 	$("#divGrid").hide();
 
-	$("#setting_filter a").click(function() {
+	$("#setting_filter a,#button_report9").click(function() {
 		operid = '';
 		var command = this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
 		if(command.tagName=='SPAN'){
 			command = this.parentNode.previousSibling.previousSibling;
+		}else if(this.id=="button_report9"){
+			command = this;
 		}
-//		console.log(command,$(this).html(),this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling.id);
+//console.log(command,$(this).html(),this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling.id);
 		if(command.tagName=="INPUT"){
+			operid = command.id;
+		}else if(command.id=="button_report9"){
 			operid = command.id;
 		}else if(command.tagName=="DIV"){
 			operid = this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling.id;
@@ -331,7 +342,9 @@ $("#select_report_setting").click();
 					"&point="	+ keyJoin(point).join(';')	+"|"+strJoin(point).join(';')+
 					"&seller="	+ keyJoin(seller).join(';')	+"|"+strJoin(seller).join(';')+
 					"&promo="	+ keyJoin(promo).join(';')	+"|"+strJoin(promo).join(';')+
-					"&card="	+ keyJoin(card).join(';')	+"|"+strJoin(card).join(';'),
+					"&interval="+ $("#select_interval").select2("val")+
+					"&data="	+ $("#select_data").select2("val"),
+//					"&card="	+ keyJoin(card).join(';')	+"|"+strJoin(card).join(';'),
 				{	sid:	reportID,
 					sname:	setting.text,
 				}, 
@@ -346,6 +359,45 @@ $("#select_report_setting").click();
 						$("#dialog").dialog("open");
 					}
 			});
+		}
+		if(operid=='button_report9'){
+			grouping = [];
+			$("#grouping li").each(function( index ) {if(index==0)grouping[index] = this.id;});
+
+		    report9_start = function () {
+				$.post("../reports/report9_setting" +
+					"?DT_start=" + $("#DT_start").val() +
+					"&DT_stop=" + $("#DT_stop").val() +
+					"&grouping=" + keyJoin(grouping).join(';') + "|" + strJoin(grouping).join(';') +
+					"&group=" + keyJoin(group).join(';') + "|" + strJoin(group).join(';') +
+					"&good=" + keyJoin(good).join(';') + "|" + strJoin(good).join(';') +
+					"&cat=" + keyJoin(cat).join(';') + "|" + strJoin(cat).join(';') +
+					"&cat_type=" + keyJoin(cat_type).join(';') + "|" + strJoin(cat_type).join(';') +
+					"&markup=" + keyJoin(markup).join(';') + "|" + strJoin(markup).join(';') +
+					"&point=" + keyJoin(point).join(';') + "|" + strJoin(point).join(';') +
+					"&seller=" + keyJoin(seller).join(';') + "|" + strJoin(seller).join(';') +
+					"&promo=" + keyJoin(promo).join(';') + "|" + strJoin(promo).join(';') +
+					"&interval=" + $("#select_interval").select2("val") +
+					"&data=" + $("#select_data").select2("val") +
+					"&chart=line",
+					{sid: 9,
+					},
+					function (data) {
+					    window.location = "../reports/report9_start";
+				});
+			}
+			var count = $("#grouping").children().length;
+			if (count > 1) {
+				$("#a_tab_group").tab('show');
+				$("#dialog").css('background-color', '');
+				$("#dialog>#text").html('График будет составлен только по первой группировке!');
+				$("#dialog").dialog("open");
+				$("#dialog").dialog({close: function( event, ui ) {
+					report9_start();
+				}});
+			}else{
+				report9_start();
+		    }
 		}
 		if(operid=='DT_start')
 			$("#DT_start").datepicker("show");
@@ -452,26 +504,17 @@ $("#select_report_setting").click();
 			$("#divTable").show();
 			$("#divGrid").show();
 	    }
-		if(operid=='card'){
-			$("#grid1").jqGrid('setLabel', "field1","Код карты");
-			$("#grid1").jqGrid('setLabel', "field2","ФИО клиента");
-			$("#grid1").jqGrid('setLabel', "field3","Процент");
-			$("#legendGrid").html('Выбор дисконтной карты:');
-			$("#grid1").jqGrid('setGridParam',{datastr:"card"});
-			$("#grid1").jqGrid('setCaption', 'Дисконтные карты');
-		    $("#grid1").showCol("field3");
-		    $(".ui-search-input>input").val("");
-			//$("#grid1").jqGrid("clearGridData", true).trigger("reloadGrid");
-		    $("#grid1").jqGrid('setGridParam', {datatype: "json", url: "../reports/jqgrid3?action=discountcards_list&f1=CardID&f2=Name&f3=PercentOfDiscount", page: 1}).trigger('reloadGrid');
-			$("#divTable").removeClass('ml10');
-			$("#divTree").hide();
-			$("#divTable").show();
-			$("#divGrid").show();
-	    }
 	});
 	$('#grouping_add').selectable({
 		selected: function(event, ui){
 			if(ui.selected.tagName!='LI') return;
+			var count = $("#grouping").children().length;
+			if (count==2) {
+				$("#dialog").css('background-color','linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
+				$("#dialog>#text").html('В данном отчете возможен выбор<br>только 2-ух группировок!');
+				$("#dialog").dialog("open");
+				return;
+			};
 			$(ui.selected).appendTo($('#grouping'));
 			$("#"+ui.selected.id+">#a2").removeClass('hide').addClass('show');
 			$("#"+ui.selected.id+">#a1").removeClass('show').addClass('hide');
@@ -486,251 +529,37 @@ $("#select_report_setting").click();
 		}
 	});
 
-// Creating gridRep
-	var gridRep = function(){
-	$("#gridRep").jqGrid({
-		sortable: true,
-	    //datatype: "json",
-//		multisort: true,
-//		sortname: 'field3 field1',
-//		sortorder: 'desc asc',
-		datatype: 'local',
-	    height: 'auto',
-//		width: 1140,
-	    colModel: [
-			{name: 'field0' , index: 'field0' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field1' , index: 'field1' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field2' , index: 'field2' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field3' , index: 'field3' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field4' , index: 'field4' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field5' , index: 'field5' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field6' , index: 'field6' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field7' , index: 'field7' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field8' , index: 'field8' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field9' , index: 'field9' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field10', index: 'field10', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} </b>'},
-			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'},
-			{name: 'field15', index: 'field15', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'},
-	    ],
-	    //width: 'auto',
-		frozen : true,
-	    shrinkToFit: true,
-		loadonce: true,
-		rowNum:10000000,
-	    gridview: true,
-		footerrow:true,
-		//userDataOnFooter: true,
-	    toppager: true,
-		loadComplete: function(data) {
-			//console.log(data);
-			if(data['error']){
-				$("#dialog_progress").dialog("close");
-				setTimeout(function () {
-					$("#dialog").css('background-color','linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
-					$("#dialog>#text").html("При выполнении запроса возникла ошибка: <br><br>"
-						+ data.error[2] + "<br><br>"
-						+ "Сообщите разработчику!");
-					$("#dialog").dialog("open");
-				},1200);
-				return;
-			}
-			if(data['total']>0&&data['records']==0){
-				$("#dialog_progress").dialog("close");
-				setTimeout(function () {
-					$("#dialog").css('background-color', 'linear-gradient(to bottom, #def0de 0%, #419641 100%)');
-					$("#dialog>#text").html("По Вашему запросу: <br><br>"
-						+ "Не найдено ни одной записи!");
-					$("#dialog").dialog("open");
-				},1200);
-			    return;
-			}
-			$("#grouping li").each(function( index ) {
-				var cl = this.className.substr(0,3);
-				$(".jqgroup.ui-row-ltr.gridRepghead_"+index).css("background-image","none");
-				$(".jqgroup.ui-row-ltr.gridRepghead_"+index).addClass(cl);
-			});
-			var ar = new Object();
-			for(i=10;i<15;i++){
-				var summary = $("#gridRep").jqGrid('getCol', "field"+i, false, 'sum');
-				ar["field"+i] = summary;
-			}
-			i = 14;
-			var summary = ar["field13"]*100/ar["field11"];
-			ar["field" + i] = summary;
-			$("#gridRep").jqGrid('footerData','set', ar);
-			$("#dialog_progress").dialog("close");
-			if(data.records>2000){
-				$("#dialog").css('background-color','');
-				$("#dialog>#text").html("По Вашему запросу найдено: "+data.records+" записей.<br><br>"
-						+ "В отчет выведены первые 2000 записей.<br><br>"
-						+ "Итоговые суммы рассчитаны только по выведенным записям.<br><br>"
-						+ "Вы можете исправить параметры отбора и группировки отчета "
-						+ "для получения правильных итоговых расчетов."
-				);
-			    $("#dialog").dialog("open");
-			}
-//			var test = data.query;
-//			test = test.replace(new RegExp("\t","g"),"&nbsp&nbsp&nbsp&nbsp&nbsp");
-//			test = test.replace(new RegExp("\r\n","g"),"<br>");
-//			$("#test").html(test);
-		},
-	    caption: 'Отчет "Продажи товаров в рознице"',
-	    pager: '#pgridRep',
-	});
-	$("#gridRep").jqGrid('navGrid', '#pgridRep', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
-	$("#gridRep").navButtonAdd("#gridRep_toppager",{
-		caption: 'Экспорт в Excel', 
-		title: 'to Excel', 
-		icon: "ui-extlink",
-		onClickButton: function () {
-			$("#dialog_progress").dialog( "option", "title", 'Ожидайте! Готовим данные для XLS файла');
-			$("#dialog_progress").dialog("open");
-			setTimeout(function () {
-				var gr = $("#gview_gridRep").clone();
-				$(gr).find("#pg_gridRep_toppager").remove();
-				$(gr).find("#gridRep_toppager").html($("#report_param_str").html());
-				$(gr).find("th").filter(function () {if ($(this).css('display') == 'none')$(this).remove();});
-				$(gr).find("td").filter(function () {if ($(this).css('display') == 'none')$(this).remove();});
-				$(gr).find("table").filter(function () {if ($(this).attr('border') == '0')$(this).attr('border', '1');});
-				$(gr).find("td").filter(function () {if ($(this).attr('colspan') > 1)$(this).attr('colspan', '6');});
-				$(gr).find("a").remove();
-				$(gr).find("div").removeAttr("id");
-				$(gr).find("div").removeAttr("style");
-				$(gr).find("div").removeAttr("class");
-				$(gr).find("div").removeAttr("role");
-				$(gr).find("div").removeAttr("dir");
-				$(gr).find("span").removeAttr("class");
-				$(gr).find("span").removeAttr("style");
-				$(gr).find("span").removeAttr("sort");
-				$(gr).find("table").removeAttr("id");
-				$(gr).find("table").removeAttr("class");
-				$(gr).find("table").removeAttr("role");
-				$(gr).find("table").removeAttr("tabindex");
-				$(gr).find("table").removeAttr("aria-labelledby");
-				$(gr).find("table").removeAttr("aria-multiselectable");
-				$(gr).find("th").removeAttr("id");
-				$(gr).find("th").removeAttr("class");
-				$(gr).find("th").removeAttr("role");
-				$(gr).find("tr").removeAttr("id");
-				$(gr).find("tr").removeAttr("class");
-				$(gr).find("tr").removeAttr("role");
-				$(gr).find("tr").removeAttr("tabindex");
-				$(gr).find("td").removeAttr("id");
-				$(gr).find("td").removeAttr("role");
-				$(gr).find("td").removeAttr("title");
-				$(gr).find("td").removeAttr("aria-describedby");
-				$(gr).find("table").removeAttr("style");
-				$(gr).find("th").removeAttr("style");
-				$(gr).find("tr").removeAttr("style");
-				$(gr).find("td").removeAttr("style");
-
-				var html = $(gr).html();
-				html = html.split(" грн.").join("");
-				html = html.split("<table ").join("<table border='1' ");
-				
-				var file_name = 'Продажи в рознице';
-				var report_name = 'report'+reportID;
-				$.ajax({
-					type: "POST",
-					data: ({report_name: report_name, file_name: file_name, html: html}),
-					url: '../Engine/set_file',
-					dataType: "html",
-					success: function (data) {
-						$("#dialog_progress").dialog("close");
-						var $frame = $('<iframe src="../Engine/get_file?report_name='+report_name+'&file_name='+file_name+'" style="display:none;"></iframe>');
-						$('html').append($frame);
-					}
-				});
-			}, 1000);
-		}
-	});
-	//	$("#gridRep").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true});
-	$("#pg_pgridRep").remove();
-	$("#pgridRep").removeClass('ui-jqgrid-pager');
-	$("#pgridRep").addClass('ui-jqgrid-pager-empty');
-//	$("#gridRep").gridResize();
-		
-	$('#myTab a').click(function (e) {
-		e.preventDefault();
-		$(this).tab('show');
-	});
-	}
-
-	$('#button_report_run').click(function (e) {
-		if($("#gridRep").jqGrid('getRowData').length>0) $.jgrid.gridUnload("#gridRep");
-		gridRep();
-		$("#dialog_progress").dialog( "option", "title", 'Ожидайте! Выполняется формирование отчета...');
+	$('#button_report_export').click(function (e) {
+		$("#dialog_progress").dialog( "option", "title", 'Ожидайте! Готовим данные для XLS файла');
 		$("#dialog_progress").dialog("open");
-		$("#a_tab_report").tab('show');
+		setTimeout(function () {
+			var file_name = 'Продажи товаров в рознице по периодам';
+			var html = file_name + "<br>" + $("#tab_report").html();
+			html = html.split("<table ").join("<table border='1' ");
+			var report_name = 'report' + reportID;
+			$.ajax({
+				type: "POST",
+				data: ({report_name: report_name, file_name: file_name, html: html}),
+				url: '../Engine/set_file',
+				dataType: "html",
+				success: function (data) {
+					$("#dialog_progress").dialog("close");
+					var $frame = $('<iframe src="../Engine/get_file?report_name=' + report_name + '&file_name=' + file_name + '" style="display:none;"></iframe>');
+					$('html').append($frame);
+				}
+			});
+		}, 1000);
+	});
+	
+	$('#button_report_run').click(function (e) {
+		if(this.id!='button_report9'){
+			$("#dialog_progress").dialog( "option", "title", 'Ожидайте! Выполняется формирование отчета...');
+			$("#dialog_progress").dialog("open");
+			$("#a_tab_report").tab('show');
+		}
 //return;
 		grouping = [];
-		$("#grouping li").each(function( index ) {grouping[index] = this.id;});
-		for(i=0; i<10; i++){
-			$("#gridRep").jqGrid('showCol',"field"+i);
-		}
-		var grlen = Object.keys(grouping).length;
-		var ar = [];
-		for(var id=0; id<grlen; id++){
-			if(id==grlen-1) break;
-			ar[id] = 'field'+id;
-			$("#gridRep").jqGrid('setLabel', "field"+id, grouping[id]);
-		}
-		if(grouping[id]=='groupName2') $("#gridRep").jqGrid('setLabel', "field"+id, "Группа товара (2 уровня)");
-		if(grouping[id]=='groupName3') $("#gridRep").jqGrid('setLabel', "field"+id, "Группа товара (3 уровня)");
-		if(grouping[id]=='catName')   $("#gridRep").jqGrid('setLabel', "field"+id, "Категория товара");
-		if(grouping[id]=='cattypeName')$("#gridRep").jqGrid('setLabel', "field"+id, "Кат.по виду животн.");
-		if(grouping[id]=='markupName')$("#gridRep").jqGrid('setLabel', "field"+id, "Категория наценки");
-		if(grouping[id]=='cc_checkID')$("#gridRep").jqGrid('setLabel', "field"+id, "Документ");
-		if(grouping[id]=='cc_promoID')$("#gridRep").jqGrid('setLabel', "field"+id, "Акция");
-		if(grouping[id]=='c_clientID')$("#gridRep").jqGrid('setLabel', "field"+id, "Торговая точка");
-		if(grouping[id]=='s_sellerID')$("#gridRep").jqGrid('setLabel', "field"+id, "Сотрудник");
-		if(grouping[id]=='cards_cardID')$("#gridRep").jqGrid('setLabel', "field"+id, "Дисконтная карта");
-		if(grouping[id]=='g_goodID'){
-			$("#gridRep").jqGrid('setLabel', "field"+id, "Артикул");
-			id++;
-			$("#gridRep").jqGrid('setLabel', "field"+id, "Название");
-		}
-		id++;
-		for(var fi=0; fi<6; fi++){
-			$("#gridRep").jqGrid('setLabel', "field"+(fi+10), colnames[fi]);
-		}
-		for(i=id; i<10; i++){
-			$("#gridRep").jqGrid('hideCol',"field"+i);
-		}
-		if(grlen<=1){
-			$("#gridRep").jqGrid('setGridParam', {
-				grouping: true,
-				groupingView : {
-					groupField: ar,
-					//groupColumnShow: [false, false, false, false, false, false, false, false, false, false],
-					groupColumnShow: [true, true, true, true, true, true, true, true, true, true],
-					groupText: ['<b>{0}</b>'],
-					//groupCollapse: false,
-					//groupDataSorted: true,
-					//groupOrder: ['asc', 'asc'],
-					groupSummary : [true, true, true, true, true, true, true, true, true, true],
-					showSummaryOnHide: true,
-				}
-			});
-		}else{
-			$("#gridRep").jqGrid('setGridParam', {
-				grouping: true,
-				groupingView : {
-					groupField: ar,
-					groupColumnShow: [false, false, false, false, false, false, false, false, false, false],
-					//groupColumnShow: [true, true, true, true, true, true, true, true, true, true],
-					groupText: ['<b>{0}</b>'],
-					//groupCollapse: false,
-					//groupDataSorted: true,
-					//groupOrder: ['asc', 'asc'],
-					groupSummary : [true,true,true,true,true,true,true,true,true,true],
-					showSummaryOnHide: true,
-				}
-			});
-		}
+		$("#grouping li").each(function(index) {grouping[index] = this.id;});
 		var grouping_str = '';
 		$("#grouping li span").each(function( index ) { grouping_str += ((grouping_str.length==0) ? '' : ', ') + $(this).html();});
 		prmRep = "<b>Отбор данных выполнен по критериям:</b> ";
@@ -743,37 +572,50 @@ $("#select_report_setting").click();
 		prmRep += (Object.keys(point).length == 0) ? "" : "<br>" + "Торговые точки: " + strJoin(point).join(', ');
 		prmRep += (Object.keys(seller).length == 0) ? "" : "<br>" + "Сотрудники: " + strJoin(seller).join(', ');
 		prmRep += (Object.keys(promo).length == 0) ? "" : "<br>" + "Акции: " + strJoin(promo).join(', ');
-		prmRep += (Object.keys(card).length == 0) ? "" : "<br>" + "Дисконтные карты: " + strJoin(card).join(', ');
 		prmRep += (grouping_str.length == 0) ? "" : "<br>" + "Группировки отчета: " + grouping_str;
-		$("#report_param_str").html(prmRep);
-//return;
-		orderby = ""; len = Object.keys(grouping).length-1;
-		for(id in grouping){
-			orderby += grouping[id].replace('_', '.') + " asc";
-			if (len != parseInt(id)) orderby += ', ';
+		prmRep += "<br>" + "Интервал: " + $("#select_interval").select2("data").text;
+		prmRep += ". Показатель: " + $("#select_data").select2("data").text + ".";
+
+		orderby = ""; groupName1 = ""; groupName2 = "";
+		if(grouping[0])	{
+			orderby += grouping[0].replace('_','.')+" asc,";
+			groupName1 = $("#"+grouping[0]+" span").html();
+		}
+		if(grouping[1])	{
+			orderby += grouping[1].replace('_','.')+" asc,";
+			groupName2 = $("#"+grouping[1]+" span").html();
 		}
 		orderby = orderby.split("g.goodID").join("g.Name");
 		orderby = orderby.split("c.clientID").join("c.NameShort");
 		orderby = orderby.split("s.sellerID").join("s.Name");
-		$("#gridRep").jqGrid('setGridParam', {datatype: "json", url: "../reports/report"+reportID+"_data" +
-			"?sid=" + reportID +
-			"&DT_start=" + $("#DT_start").val() +
-			"&DT_stop=" + $("#DT_stop").val() +
-			"&grouping=" + strJoin(grouping).join(';') +
-			"&group=" + keyJoin(group).join(';') +
-			"&good=" + keyJoin(good).join(';') +
-			"&cat=" + keyJoin(cat).join(';') +
-			"&cat_type=" + keyJoin(cat_type).join(';') +
-			"&markup=" + keyJoin(markup).join(';') +
-			"&point=" + keyJoin(point).join(';') +
-			"&seller=" + keyJoin(seller).join(';') +
-			"&promo=" + keyJoin(promo).join(';') +
-			"&card=" + keyJoin(card).join(';') +
-			"&UserID=<?php echo $_SESSION['UserID']; ?>" +
-			"&orderby=" + orderby +
-			"",
-		}).trigger('reloadGrid');
-		$("#gridRep").gridResize();
+
+		$("#report_param_str").html(prmRep);
+		$.post("../reports/report"+reportID+"_data" +
+				"?sid=" + reportID +
+				"&DT_start=" + $("#DT_start").val() +
+				"&DT_stop=" + $("#DT_stop").val() +
+				"&grouping=intervals;" + strJoin(grouping).join(';') +
+				"&group=" + keyJoin(group).join(';') +
+				"&good=" + keyJoin(good).join(';') +
+				"&cat=" + keyJoin(cat).join(';') +
+				"&cat_type=" + keyJoin(cat_type).join(';') +
+				"&markup=" + keyJoin(markup).join(';') +
+				"&point=" + keyJoin(point).join(';') +
+				"&seller=" + keyJoin(seller).join(';') +
+				"&promo=" + keyJoin(promo).join(';') +
+				"&interval=" + $("#select_interval").select2("val") +
+				"&data=" + $("#select_data").select2("val") +
+				"&groupName1=" + groupName1 +
+				"&groupName2=" + groupName2 +
+				"&UserID=<?php echo $_SESSION['UserID']; ?>" +
+				"&sidx="+orderby+" intervals asc", 
+				function (json) {
+					$('#div_report').html(json.table1);
+					setTimeout(function () {
+						$("#dialog_progress").dialog("close");
+						$("#button_report_export").removeClass("disabled");
+					}, 300);
+		});
 	});
 });
 
@@ -786,12 +628,22 @@ $("#select_report_setting").click();
 <div class="container center">
 	<ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
 		<li class="active"><a href="#tab_filter" role="tab" data-toggle="tab">Настройки отбора</a></li>
-		<li><a href="#tab_grouping"  role="tab" data-toggle="tab">Настройки группировок</a></li>
-		<li><a id="a_tab_report" href="#tab_report" role="tab" data-toggle="tab">Отчет "Продажи товаров в рознице"</a></li>
+		<li><a id="a_tab_group" href="#tab_grouping"  role="tab" data-toggle="tab">Настройки группировок</a></li>
+		<li><a id="a_tab_report" href="#tab_report" role="tab" data-toggle="tab">Отчет "Продажи товаров в рознице по периодам"</a></li>
 	</ul>
 	<div class="floatL">
 		<button id="button_report_run" class="btn btn-sm btn-info frameL m0 h40 hidden-print font14">
-			<span class="ui-button-text" style1='width:120px;height:22px;'>Сформировать отчет</span>
+			<span class="ui-button-text" >Сформировать отчет</span>
+		</button>
+	</div>
+	<div class="floatL">
+		<button id="button_report_export" class="btn btn-sm btn-default frameL m0 h40 hidden-print font14 w150 disabled">
+			<span class="ui-button-text" >Экспорт в EXCEL</span>
+		</button>
+	</div>
+	<div class="floatL">
+		<button id="button_report9" class="btn btn-sm btn-info frameL m0 h40 hidden-print font14 w150">
+			<span class="ui-button-text" >График</span>
 		</button>
 	</div>
 	<div class="tab-content">
@@ -805,8 +657,7 @@ $("#select_report_setting").click();
 						<a class="btn btn-default w100p" type="button">X</a>
 					</span>
 					<span class="input-group-btn w32">
-						<a class="btn btn-default w100p" type="button"><img class="img-rounded h20 m0" src="../../images/save-as.png">
-						</a>
+						<a class="btn btn-default w100p" type="button"><img class="img-rounded h20 m0" src="../../images/save-as.png"></a>
 					</span>
 				</div>
 				<div class="input-group input-group-sm mt5 w100p">
@@ -826,6 +677,16 @@ $("#select_report_setting").click();
 					<span class="input-group-btn w32">
 						<a class="btn btn-default w100p" type="button">...</a>
 					</span>
+				</div>
+				<div class="input-group input-group-sm mt5 w100p">
+					<span class="input-group-addon w130">Интервал:</span>
+					<div class="w100p" id="select_interval" name="select_interval"></div>
+					<span class="input-group-addon w32"></span>
+				</div>
+				<div class="input-group input-group-sm mt5 w100p">
+					<span class="input-group-addon w130">Показатель:</span>
+					<div class="w100p" id="select_data" name="select_data"></div>
+					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm mt20 w100p">
 					<span class="input-group-addon w130">Группа товара:</span>
@@ -907,7 +768,7 @@ $("#select_report_setting").click();
 						<a class="btn btn-default w100p" type="button">...</a>
 					</span>
 				</div>
-				<div class="input-group input-group-sm mt20 w100p">
+<!--				<div class="input-group input-group-sm mt20 w100p">
 					<span class="input-group-addon w130">Дисконтная карта:</span>
 					<input id="card" name="card" type="text" class="form-control">
 					<span class="input-group-btn w32">
@@ -916,7 +777,7 @@ $("#select_report_setting").click();
 					<span class="input-group-btn w32">
 						<a class="btn btn-default w100p" type="button">...</a>
 					</span>
-				</div>
+				</div>-->
 			</div>
 			<div id="divGrid" class='p5 ui-corner-all frameL ml5 border0'>
 				<legend id="legendGrid"></legend>
@@ -998,12 +859,8 @@ $("#select_report_setting").click();
 			</div>
 		</div>
 		<div class="tab-pane m0 w100p min530 borderColor borderTop1 frameL center border0" id="tab_report">
-			<div id='report_param_str' class="mt10 TAL font14">
-			</div>
-			<div id='div1' class='center frameL mt10'>
-				<table id="gridRep"></table>
-				<div id="pgridRep"></div>
-			</div>
+			<div id='report_param_str' class="mt10 TAL font14"></div>
+			<div id='div_report' class='center frame0 mt10'></div>
 		</div>
 	</div>
 </div>

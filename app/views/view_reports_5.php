@@ -109,7 +109,7 @@ $("#select_report_setting").click();
 		treedatatype: 'json',
 		datatype: "json",
 		mtype: "POST",
-		width: 250,
+		width: 230,
 		height: 380,
 		ExpandColumn: 'name',
 //		url: '../category/get_tree_NS?nodeid=20',
@@ -360,14 +360,14 @@ $("#select_report_setting").click();
 		datatype: 'local',
 	    height: 'auto',
 	    colModel: [
-			{name: 'field0' , index: 'field0' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field1' , index: 'field1' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field2' , index: 'field2' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field3' , index: 'field3' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field4' , index: 'field4' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field5' , index: 'field5' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field6' , index: 'field6' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field7' , index: 'field7' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field0' , index: 'field0' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field1' , index: 'field1' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field2' , index: 'field2' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field3' , index: 'field3' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field4' , index: 'field4' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field5' , index: 'field5' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field6' , index: 'field6' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field7' , index: 'field7' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field8' , index: 'field8' , width: 90, align: "center",sorttype: "text"},
 			{name: 'field9' , index: 'field9' , width: 90, align: "right", sorttype: "number", formatter:"number"},
 			{name: 'field10', index: 'field10', width: 90, align: "center",sorttype: "text"},
@@ -413,7 +413,7 @@ $("#select_report_setting").click();
 			});
 			var ar = new Object();
 			i = 14;
-			var summary = $("#gridRep").jqGrid('getCol', "field"+i, false, 'sum');
+			var summary = ar["field13"]*100 / ar["field11"];
 			ar["field" + i] = summary;
 			$("#gridRep").jqGrid('footerData','set', ar);
 			$("#dialog_progress").dialog("close");
@@ -471,7 +471,6 @@ $("#select_report_setting").click();
 				var html = $(gr).html();
 				html = html.split(" грн.").join("");
 				html = html.split("<table ").join("<table border='1' ");
-alert(html.length);
 				var file_name = 'Товарный ассортимент';
 				var report_name = 'report'+reportID;
 				$.ajax({
@@ -578,6 +577,13 @@ alert(html.length);
 		prmRep += (grouping_str.length == 0) ? "" : "<br>" + "Группировки отчета: " + grouping_str;
 		$("#report_param_str").html(prmRep);
 //return;
+		orderby = ""; len = Object.keys(grouping).length - 1;
+		for (id in grouping) {
+			orderby += grouping[id].replace('_', '.') + " asc";
+			if (len != parseInt(id))
+				orderby += ', ';
+		}
+		orderby = orderby.split("g.goodID").join("g.Name");
 		$("#gridRep").jqGrid('setGridParam', {datatype: "json", url: "../reports/report"+reportID+"_data" +
 			"?sid=" + reportID +
 			"&grouping=" + strJoin(grouping).join(';') +
@@ -586,7 +592,9 @@ alert(html.length);
 			"&cat=" + keyJoin(cat).join(';') +
 			"&markup=" + keyJoin(markup).join(';') +
 			"&matrix=" + keyJoin(matrix).join(';') +
-			""}).trigger('reloadGrid');
+			"&orderby=" + orderby +
+			"",
+		}).trigger('reloadGrid');
 	});
 });
 

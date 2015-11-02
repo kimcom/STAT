@@ -41,6 +41,7 @@ class Cnni {
 		$where = " 	Article  like \'%" . adds($Article) . "\'";
 		$where .= " and Name 	 like \'%" . adds($Name) . "\'";
 		$where .= " and Division like \'%" . adds($Division) . "\'";
+		$where .= " and MarkupID like \'%" . adds($MarkupID) . "\'";
 		$where .= " and g.GoodID like \'%" . adds($g_GoodID) . "\'";
 		$where .= " and OPT_ID 	 like \'%" . adds($OPT_ID) . "\'";
 		$where .= " and SHOP_ID  like \'%" . adds($SHOP_ID) . "\'";
@@ -99,7 +100,7 @@ class Cnni {
 			} elseif ($col == 'cat') {
 				$response->rows[$i]['cell'] = array($row['Article'], $row['Name']); //
 			} elseif ($col == 'goods_list') {
-				$response->rows[$i]['cell'] = array($row['GoodID'], $row['OPT_ID'], $row['SHOP_ID'], $row['KIEV_ID'], $row['Article'], $row['Name'], $row['Division'], $row['DiscountMax'], $row['Unit_in_pack'], $row['Unit'], $row['Weight']);
+				$response->rows[$i]['cell'] = array($row['GoodID'], $row['OPT_ID'], $row['SHOP_ID'], $row['KIEV_ID'], $row['Article'], $row['Name'], $row['Division'], $row['DiscountMax'], $row['Unit_in_pack'], $row['Unit'], $row['MarkupID']);
 			} elseif ($col == 'goods_barcode') {
 				$response->rows[$i]['id'] = $row['EAN13'];
 				$response->rows[$i]['cell'] = array($row['ID'], $row['Article'], $row['Name'], $row['EAN13']);

@@ -43,25 +43,30 @@ class Controller_Engine extends Controller {
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
 		$userFileName = $file_name;
 		$report_name = "Users\\Files\\" . $_SESSION['UserID'] . '_' . $report_name . ".xls";
-//		Fn::debugToLog('get file', $report_name.' '.  $file_name);
+//Fn::debugToLog('get file', $report_name.' '.  $file_name);
 		$path = 'php://output';
 		$userFileName = $userFileName.' '.date('Y-m-d H:i:s').'.xls';
 		$handle = @fopen($report_name, "r");
 		if ($handle != null) {
-//			Fn::debugToLog('get file', filesize($report_name));
+//Fn::debugToLog('get file', filesize($report_name));
 			$content = fread($handle, filesize($report_name));
-	        header("Pragma: public");
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/octet-stream');
+//			header("Content-Disposition: attachment; filename=$userFileName;");
+			header("Content-Disposition: attachment; filename=\"" . $userFileName . "\";");
+			header('Content-Transfer-Encoding: binary');
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			header("Content-type: application/vnd.ms-excel");
-			header("Content-Disposition: attachment; filename='$userFileName';");
+			header("Pragma: public");
+			header('Content-Length: ' . filesize($report_name));
+			//header("Content-type: application/vnd.ms-excel");
 			file_put_contents($path, $content);
 		}
-}
+	}
 	function action_set_file(){
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
 		$report_name = "Users\\Files\\" . $_SESSION['UserID'] . '_' . $report_name . ".xls";
-//		Fn::debugToLog('set file', $report_name);
+//Fn::debugToLog('set file', $report_name);
         $content = <<<EOF
 <html>
 <head>
@@ -73,7 +78,7 @@ class Controller_Engine extends Controller {
 </html>
 EOF;
 		$bl = file_put_contents($report_name, $content);
-		//Fn::debugToLog('set file',$bl);
+//Fn::debugToLog('set file',$bl);
 	}
 
 	function action_deletefile() {

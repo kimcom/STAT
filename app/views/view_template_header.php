@@ -16,6 +16,8 @@
 		<link rel="stylesheet" type="text/css" href="../../css/alik-theme/jquery-ui-1.10.3.custom.css">
 <!--		<link rel="stylesheet" type="text/css" href="../../css/alik-theme/correct.css">-->
 		<link rel="stylesheet" type="text/css" href="../../css/ui.jqgrid.css">
+<!--		<link rel="stylesheet" type="text/css" href="../../css/ui.jqgrid-bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="../../css/ui.jqgrid-bootstrap-ui.css">-->
         <link rel="stylesheet" type="text/css" href="../../css/jquery.dataTables.min.css">
         <link rel="stylesheet" type="text/css" href="../../css/fs.css">
 		<link rel="stylesheet" type="text/css" href="../../css/select2.css">
@@ -24,8 +26,10 @@
 		<script src="../../js/jquery-1.11.2.min.js" type="text/javascript"></script>
 		<script src="../../js/bootstrap.min.js" type="text/javascript"></script>
 		<script src="../../js/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+<!--		<script src="../../js/jquery-ui-1.10.3.custom.js" type="text/javascript"></script>-->
 		<script src="../../js/i18n/grid.locale-en.js" type="text/javascript"></script>
 		<script src="../../js/i18n/grid.locale-ru.js" type="text/javascript"></script>
+		<script src="../../js/i18n/datepicker-ru.js" type="text/javascript"></script>
 		<script src="../../js/jquery.jqGrid.min.js" type="text/javascript"></script>
 <!--		<script src="../../js/jquery.jqGrid.src.js" type="text/javascript"></script>-->
 		<script src="../../js/jqgrid-filter.js" type="text/javascript"></script>

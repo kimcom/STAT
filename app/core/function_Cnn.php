@@ -348,6 +348,7 @@ Fn::debugToLog('report4 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 		$action = '';
 		if ($sid=='4')  $action = 'sale';
 		if ($sid=='42') $action = 'sale42';
+		if ($sid=='8')  $action = 'sale';
 //Fn::debugToLog("report4", 'action='.$action);
 		//$url = 'ddd=1&'.urldecode($_SERVER['QUERY_STRING']);
 		//call pr_reports('avg_sum', @_id, '20141001', '20141031', '');
@@ -384,11 +385,11 @@ Fn::debugToLog('report4 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 						foreach ($rowset as $row) {
 							$response->rows[$i]['id'] = $row[0];
 							$ar = array();
-							for($f=0;$f<$columnCount-5;$f++){
+							for($f=0;$f<$columnCount-6;$f++){
 								$ar[] = $row[$f];
 							}
 							$ar = array_pad($ar,10,null);
-							for ($f = $columnCount - 5; $f < $columnCount; $f++) {
+							for ($f = $columnCount - 6; $f < $columnCount; $f++) {
 								$ar[] = $row[$f];
 							}
 							$response->rows[$i]['cell'] = $ar;
@@ -592,6 +593,338 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 			} while ($stmt->nextRowset());
 		}
 		return json_encode($response);
+	}
+	public function get_report8_data() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		Fn::debugToLog('report8 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::paramToLog();  
+//echo $DT_start.' '.  $DT_stop . '<br>';
+		if (isset($DT_start)) {
+			$dt1 = DateTime::createFromFormat('d?m?Y', $DT_start);
+			$date1 = $dt1->format('Ymd');
+		} else {
+			return;
+		}
+		if (isset($DT_stop)) {
+			$dt2 = DateTime::createFromFormat('d?m?Y', $DT_stop);
+			$date2 = $dt2->format('Ymd');
+		} else {
+			return;
+		}
+		$action = '';
+		if ($sid == '8') $action = 'sale8';
+		$stmt = $this->db->prepare("CALL pr_reports(?, @id, ?, ?, ?)");
+		$stmt->bindParam(1, $action, PDO::PARAM_STR);
+		$stmt->bindParam(2, $date1, PDO::PARAM_STR);
+		$stmt->bindParam(3, $date2, PDO::PARAM_STR);
+		$stmt->bindParam(4, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$response = new stdClass();
+		$response->error = '';
+		$response->table1 = '';
+
+		if (!Fn::checkErrorMySQLstmt($stmt)) $response->error = $stmt->errorInfo();
+		$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+		$dg = array();
+		$dgi = array();
+		$dgiall = array();
+		
+		if ($rowset) {
+			//данные из таблицы переносим в массив
+			foreach ($rowset as $row) {
+				$value1 = $row['Quantity'];
+				$value2 = $row['Oborot'];
+				$value3 = $row['Dohod'];
+				$dg[$row[0].$row[2]]['name1'] = $row[1];
+				$dg[$row[0].$row[2]]['name2'] = $row[3];
+				$dg[$row[0].$row[2]][$row['intervals']]['q'] = $value1;
+				$dg[$row[0].$row[2]][$row['intervals']]['o'] = $value2;
+				$dg[$row[0].$row[2]][$row['intervals']]['d'] = $value3;
+				$dg[$row[0].$row[2]]['ID1'] = $row[0];
+				$dgi[$row[0]]['name1'] = 'Итого:';
+				if (!isset($dgi[$row[0]][$row['intervals']]['q'])) $dgi[$row[0]][$row['intervals']['q']] = 0;
+				if (!isset($dgi[$row[0]][$row['intervals']]['o'])) $dgi[$row[0]][$row['intervals']['o']] = 0;
+				if (!isset($dgi[$row[0]][$row['intervals']]['d'])) $dgi[$row[0]][$row['intervals']['d']] = 0;
+				$dgi[$row[0]][$row['intervals']]['q'] += $value1;
+				$dgi[$row[0]][$row['intervals']]['o'] += $value2;
+				$dgi[$row[0]][$row['intervals']]['d'] += $value3;
+				if (!isset($dgiall[$row['intervals']]['q'])) $dgiall[$row['intervals']['q']] = 0;
+				if (!isset($dgiall[$row['intervals']]['o'])) $dgiall[$row['intervals']['o']] = 0;
+				if (!isset($dgiall[$row['intervals']]['d'])) $dgiall[$row['intervals']['d']] = 0;
+				$dgiall[$row['intervals']]['q'] += $value1;
+				$dgiall[$row['intervals']]['o'] += $value2;
+				$dgiall[$row['intervals']]['d'] += $value3;
+			}
+		}
+		
+//Fn::debugToLog('dg',json_encode($dg));
+
+		if ($interval=='day') {
+			$increment = '+1 day'; $dt_format = 'Ymd'; $dt_html = 'Y-m-d';
+		}elseif ($interval=='week') {
+			$increment = '+1 week'; $dt_format = 'Y_W'; $dt_html = 'W(нед.)';
+		}elseif ($interval=='month') {
+			$increment = '+1 month'; $dt_format = 'Ym'; $dt_html = 'Y-m';
+		}elseif ($interval=='year') {
+			$increment = '+1 year'; $dt_format = 'Y'; $dt_html = 'Y';
+		}
+		$cnt_group = substr_count($grouping,";");
+		$col = 1;
+		if ($data=='all') $col = 3;
+		//выводим шапку таблицы
+		$str = '';
+		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
+		$str .= '<thead><tr>
+				<th rowspan=2>'.$groupName1.'</th>';
+		if ($cnt_group==2) $str .= '<th rowspan=2>'.$groupName2.'</th>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+			$str .= '<th colspan='. $col .'>' . $dt->format($dt_html) . '</th>';
+		}
+		$str .= '</tr><tr>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+			if ($data == 'Quantity') $str .= '<th>Кол-во</th>';
+			if ($data == 'Oborot') $str .= '<th>Оборот</th>';
+			if ($data == 'Dohod') $str .= '<th>Доход</th>';
+			if ($data == 'all') {
+				$str .= '<th>Кол-во</th>';
+				$str .= '<th>Оборот</th>';
+				$str .= '<th>Доход</th>';
+			}
+		}
+		$str .= '</tr></thead>';
+		//выводим данные в таблице
+		$str .= '<tbody>';
+		$a = array_keys($dg);
+		$ai = array_keys($dgi);
+		$total = $dg[$a[0]]['ID1'];
+		for ($i = 0;$i<count($a);$i++){
+			$id1 = $dg[$a[$i]]['ID1'];
+			if ($total !== $id1 && $cnt_group == 2){
+				//выводим итоги
+				$str .= '<tr>';
+				$str .= '<th colspan=2 class="TAL">' . $dgi[$total][name1] . '</th>';
+				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+					if ($data == 'Quantity') $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['q']) . '</th>';
+					if ($data == 'Oborot') $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['o']) . '</th>';
+					if ($data == 'Dohod') $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['d']) . '</th>';
+					if ($data == 'all') {
+						$str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['q']) . '</th>';
+						$str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['o']) . '</th>';
+						$str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['d']) . '</th>';
+					}
+				}
+				$str .= '</tr>';
+				$str .= '<tr><td colspan='.$cnt_group.'></td>';
+				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+					$str .= '<td colspan='.$col.'></td>';
+				}
+				$str .= '</tr>';
+				$total = $id1;
+			}
+			//выводим строки таблицы
+			$str .= '<tr>';
+			$str .= '<td class="TAL max200">'.$dg[$a[$i]][name1].'</td>';
+			if ($cnt_group == 2) $str .= '<td class="TAL max200">'.$dg[$a[$i]][name2].'</td>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				if ($data == 'Quantity') $str .= '<td class="TAR">' . $dg[$a[$i]][$dt->format($dt_format)]['q'] . '</td>';
+				if ($data == 'Oborot')	 $str .= '<td class="TAR">' . $dg[$a[$i]][$dt->format($dt_format)]['o'] . '</td>';
+				if ($data == 'Dohod')	 $str .= '<td class="TAR">' . $dg[$a[$i]][$dt->format($dt_format)]['d'] . '</td>';;
+				if ($data == 'all') {
+					$str .= '<td class="TAR">'.$dg[$a[$i]][$dt->format($dt_format)]['q'] .'</td>';
+					$str .= '<td class="TAR">'.$dg[$a[$i]][$dt->format($dt_format)]['o'] .'</td>';
+					$str .= '<td class="TAR">'.$dg[$a[$i]][$dt->format($dt_format)]['d'] .'</td>';
+				}
+			}
+			$str .= '</tr>';
+		}
+		//выводим итоги последней группы
+		if ($cnt_group == 2){
+			$str .= '<tr>';
+			$str .= '<th colspan=2 class="TAL">' . $dgi[$total][name1] . '</th>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				if ($data == 'Quantity') $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['q']) . '</th>';
+				if ($data == 'Oborot')	 $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['o']) . '</th>';
+				if ($data == 'Dohod')	 $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['d']) . '</th>';
+				if ($data == 'all') {
+					$str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['q']) . '</th>';
+					$str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['o']) . '</th>';
+					$str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['d']) . '</th>';
+				}
+			}
+			$str .= '</tr>';
+		}
+		$str .= '<tr>';
+		$str .= '<th colspan='.$cnt_group.' class="TAL">Общие итоги:</th>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+			if ($data == 'Quantity') $str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['q']) . '</th>';
+			if ($data == 'Oborot')	 $str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['o']) . '</th>';
+			if ($data == 'Dohod')	 $str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['d']) . '</th>';
+			if ($data == 'all') {
+				$str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['q']) . '</th>';
+				$str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['o']) . '</th>';
+				$str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['d']) . '</th>';
+			}
+		}
+		$str .= '</tr>';
+		$str .= "</table>";
+		$response->table1 = $str;
+		header("Content-type: application/json;charset=utf8");
+		echo json_encode($response);
+	}
+	public function get_report9_data() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		Fn::debugToLog('report8 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::paramToLog();  
+//echo $DT_start.' '.  $DT_stop . '<br>';
+		if (isset($DT_start)) {
+			$dt1 = DateTime::createFromFormat('d?m?Y', $DT_start);
+			$date1 = $dt1->format('Ymd');
+		} else {
+			return;
+		}
+		if (isset($DT_stop)) {
+			$dt2 = DateTime::createFromFormat('d?m?Y', $DT_stop);
+			$date2 = $dt2->format('Ymd');
+		} else {
+			return;
+		}
+		$action = '';
+		if ($sid == '9')
+			$action = 'sale8';
+		$stmt = $this->db->prepare("CALL pr_reports(?, @id, ?, ?, ?)");
+		$stmt->bindParam(1, $action, PDO::PARAM_STR);
+		$stmt->bindParam(2, $date1, PDO::PARAM_STR);
+		$stmt->bindParam(3, $date2, PDO::PARAM_STR);
+		$stmt->bindParam(4, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$response = new stdClass();
+		$response->error = '';
+		$response->table1 = '';
+
+		if (!Fn::checkErrorMySQLstmt($stmt)) $response->error = $stmt->errorInfo();
+		$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+
+		$dg = array();
+		if ($rowset) {
+			//данные из таблицы переносим в массив
+			foreach ($rowset as $row) {
+				$value1 = $row['Quantity'];
+				$value2 = $row['Oborot'];
+				$value3 = $row['Dohod'];
+				$dg[$row[0] . $row[2]]['name1'] = $row[1];
+				$dg[$row[0] . $row[2]]['interval'] = $row['intervals'];
+				$dg[$row[0] . $row[2]][$row['intervals']]['q'] = $value1;
+				$dg[$row[0] . $row[2]][$row['intervals']]['o'] = $value2;
+				$dg[$row[0] . $row[2]][$row['intervals']]['d'] = $value3;
+				//$dg[$row[0] . $row[2]]['ID1'] = $row[0];
+			}
+		}
+		if ($interval == 'day') {
+			$increment = '+1 day';
+			$dt_format = 'Ymd';
+			$dt_html = 'Y-m-d';
+		} elseif ($interval == 'week') {
+			$increment = '+1 week';
+			$dt_format = 'Y_W';
+			$dt_html = 'W(нед.)';
+		} elseif ($interval == 'month') {
+			$increment = '+1 month';
+			$dt_format = 'Ym';
+			$dt_html = 'Y-m';
+		} elseif ($interval == 'year') {
+			$increment = '+1 year';
+			$dt_format = 'Y';
+			$dt_html = 'Y';
+		}
+
+		$a = array_keys($dg);
+		$res= array();
+		$lb = array();
+		$ds = array();
+		$el = array();
+		$i	= 0;
+		for ($dt = clone $dt1; $dt < $dt2; $dt->modify($increment)) {
+			$lb[$i]= $dt->format($dt_html);
+			$i++;
+		}
+//Fn::debugToLog("dg", json_encode($dg));
+//Fn::debugToLog("a", json_encode($a));
+//Fn::debugToLog("lb", json_encode($lb));
+		$opacity = 0.5;
+		if ($chart=='line')	$opacity = 0;
+		if ($chart=='bar')	$opacity = 1;
+		if ($chart=='radar')$opacity = 0.1;
+		if ($chart == 'polar' || $chart == 'pie' || $chart == 'doughnut') {
+			for ($i = 0;$i<count($a);$i++){
+				$red = rand(10, 235); $green = rand(10, 235); $blue = rand(10, 235);
+				$res[$i]['label'] = $lb[$i];
+				$res[$i]['color'] = sprintf("#%'.02X%'.02X%'.02X", $red, $green, $blue);
+				$res[$i]['highlight'] = sprintf("#%'.02X%'.02X%'.02X", $red+20, $green  + 20, $blue  + 20);
+				//$res[$i]['highlight'] = $res[$i]['color'];
+				if ($data == 'Quantity')
+					$res[$i]['value'] = Fn::isnull($dg[$a[$i]][$dg[$a[$i]]['interval']]['q'], 0);
+				if ($data == 'Oborot')
+					$res[$i]['value'] = Fn::isnull($dg[$a[$i]][$dg[$a[$i]]['interval']]['o'], 0);
+				if ($data == 'Dohod')
+					$res[$i]['value'] = Fn::isnull($dg[$a[$i]][$dg[$a[$i]]['interval']]['d'], 0);
+			}
+		}elseif ($chart == 'polar2' || $chart == 'pie2' || $chart == 'doughnut2') {
+			for ($i = 0;$i<count($a);$i++){
+				$red = rand(10, 235); $green = rand(10, 235); $blue = rand(10, 235);
+				$res[$i]['label'] = $dg[$a[$i]]['name1'];
+				$res[$i]['color'] = sprintf("#%'.02X%'.02X%'.02X", $red, $green, $blue);
+				$res[$i]['highlight'] = sprintf("#%'.02X%'.02X%'.02X", $red+20, $green  + 20, $blue  + 20);
+				//$res[$i]['highlight'] = $res[$i]['color'];
+				if (!isset($res[$i]['value'])) $res[$i]['value'] = 0;
+				if ($data == 'Quantity')
+					$res[$i]['value'] += Fn::isnull($dg[$a[$i]][$dg[$a[$i]]['interval']]['q'], 0);
+				if ($data == 'Oborot')
+					$res[$i]['value'] += Fn::isnull($dg[$a[$i]][$dg[$a[$i]]['interval']]['o'], 0);
+				if ($data == 'Dohod')
+					$res[$i]['value'] += Fn::isnull($dg[$a[$i]][$dg[$a[$i]]['interval']]['d'], 0);
+				Fn::debugToLog("res", json_encode($res[$i]));
+			}
+		}else{
+			$res['labels'] = $lb;
+			for ($i=0;$i<count($a);$i++){
+				$red = rand(0, 255); $green = rand(0, 255);	$blue = rand(0, 255);
+				$el['label'] = $dg[$a[$i]]['name1'];
+				$el['fillColor'] = "rgba($red,$green,$blue,$opacity)";
+				$el['strokeColor'] = "rgba($red,$green,$blue,1)";
+				$el['highlightFill'] = "rgba($red,$green,$blue,0.75)";
+				$el['highlightStroke'] = "rgba($red,$green,$blue,1)";
+				$el['pointColor'] = "rgba($red,$green,$blue,1)";
+				//$el['pointStrokeColor'] = "rgba($red,$green,$blue,1)";
+				$el['pointStrokeColor'] = "#fff";
+				$el['pointHighlightFill'] = "#fff";
+				$el['pointHighlightStroke'] = "rgba($red,$green,$blue,1)";
+				$set = array();
+				$n = 0;
+				for ($dt = clone $dt1; $dt < $dt2; $dt->modify($increment)) {
+					if ($data == 'Quantity')
+						$set[$n] = Fn::isnull($dg[$a[$i]][$dt->format($dt_format)]['q'],0);
+					if ($data == 'Oborot')
+						$set[$n] = Fn::isnull($dg[$a[$i]][$dt->format($dt_format)]['o'],0);
+					if ($data == 'Dohod')
+						$set[$n] = Fn::isnull($dg[$a[$i]][$dt->format($dt_format)]['d'],0);
+					$n++;
+				}
+	//$el['data'] = array(rand(0, 100),  rand(0, 100),  rand(0, 100),  rand(0, 100), rand(0, 100));
+				$el['data'] = $set;
+				$ds[$i] = $el;
+			}
+			$res['datasets'] = $ds;
+		}
+		$response->data = $res;
+//Fn::debugToLog("response", json_encode($response));
+//Fn::debugToLog("ar", json_encode($ar));
+//Fn::debugToLog("ds", json_encode($ds));
+		header("Content-type: application/json;charset=utf8");
+		echo json_encode($response);
 	}
 
 	public function get_pendel_data2() {
@@ -1024,6 +1357,13 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 	public function get_report_setting_byName() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
+		if (isset($_SESSION['report9_setting']) && $sid==9){
+			$response->Setting = $_SESSION['report9_setting'];
+			header("Content-type: application/json;charset=utf-8");
+			echo json_encode($response);
+			//unset($_SESSION['report9_setting']);
+			return;
+		}
 //Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
 //		$url = urldecode($_SERVER['QUERY_STRING']);
 		$stmt = $this->db->prepare("CALL pr_report_setting('get by name', @id, ?, ?, ?, ?)");
@@ -1043,6 +1383,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 				foreach ($rowset as $row) {
 					//Fn::debugToLog("get by name", explode("&", $row['Setting']));
 					$response->Setting = $row['Setting'];
+					$response->UserID = $_SESSION['UserID'];
 				}
 			}
 		} while ($stmt->nextRowset());
@@ -1112,7 +1453,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
 //Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
 //CALL pr_goods(action, _GoodID, _Good1C, _Article, _Name, _Division, _Unit_in_pack, _Unit, _Weight, _DiscountMax, _FreeBalance, _PriceBase, _Price1, _Price2, _Price3, _Price4, _id);
-		$stmt = $this->db->prepare("CALL pr_goods_site('info', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt = $this->db->prepare("CALL pr_goods_site('info', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $goodid, PDO::PARAM_STR);
 		$stmt->bindParam(2, $article, PDO::PARAM_STR);
 		$stmt->bindParam(3, $name, PDO::PARAM_STR);
@@ -1126,16 +1467,17 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$stmt->bindParam(11, $foldorder, PDO::PARAM_STR);
 		$stmt->bindParam(12, $segment, PDO::PARAM_STR);
 		$stmt->bindParam(13, $visible, PDO::PARAM_STR);
-		$stmt->bindParam(14, $service, PDO::PARAM_STR);
-		$stmt->bindParam(15, $division, PDO::PARAM_STR);
-		$stmt->bindParam(16, $length, PDO::PARAM_STR);
-		$stmt->bindParam(17, $width, PDO::PARAM_STR);
-		$stmt->bindParam(18, $height, PDO::PARAM_STR);
-		$stmt->bindParam(19, $weight, PDO::PARAM_STR);
-		$stmt->bindParam(20, $unit_in_pack, PDO::PARAM_STR);
-		$stmt->bindParam(21, $perioddelivery, PDO::PARAM_STR); 
-		$stmt->bindParam(22, $discountmax, PDO::PARAM_STR); 
-		$stmt->bindParam(23, $visibleinorder, PDO::PARAM_STR);
+		$stmt->bindParam(14, $markupid, PDO::PARAM_STR);
+		$stmt->bindParam(15, $service, PDO::PARAM_STR);
+		$stmt->bindParam(16, $division, PDO::PARAM_STR);
+		$stmt->bindParam(17, $length, PDO::PARAM_STR);
+		$stmt->bindParam(18, $width, PDO::PARAM_STR);
+		$stmt->bindParam(19, $height, PDO::PARAM_STR);
+		$stmt->bindParam(20, $weight, PDO::PARAM_STR);
+		$stmt->bindParam(21, $unit_in_pack, PDO::PARAM_STR);
+		$stmt->bindParam(22, $perioddelivery, PDO::PARAM_STR); 
+		$stmt->bindParam(23, $discountmax, PDO::PARAM_STR); 
+		$stmt->bindParam(24, $visibleinorder, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 		if (!Fn::checkErrorMySQLstmt($stmt))
@@ -1158,7 +1500,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 //		} else {
 //			$visible = false;
 //		}
-		$stmt = $this->db->prepare("CALL pr_goods_site('save', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt = $this->db->prepare("CALL pr_goods_site('save', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $goodid, PDO::PARAM_STR);
 		$stmt->bindParam(2, $article, PDO::PARAM_STR);
 		$stmt->bindParam(3, $name, PDO::PARAM_STR);
@@ -1172,16 +1514,17 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$stmt->bindParam(11, $foldorder, PDO::PARAM_STR);
 		$stmt->bindParam(12, $segment, PDO::PARAM_INT);
 		$stmt->bindParam(13, $visible, PDO::PARAM_STR);
-		$stmt->bindParam(14, $service, PDO::PARAM_STR);
-		$stmt->bindParam(15, $division, PDO::PARAM_STR);
-		$stmt->bindParam(16, $length, PDO::PARAM_STR);
-		$stmt->bindParam(17, $width, PDO::PARAM_STR);
-		$stmt->bindParam(18, $height, PDO::PARAM_STR);
-		$stmt->bindParam(19, $weight, PDO::PARAM_STR);
-		$stmt->bindParam(20, $unit_in_pack, PDO::PARAM_STR);
-		$stmt->bindParam(21, $perioddelivery, PDO::PARAM_STR);
-		$stmt->bindParam(22, $discountmax, PDO::PARAM_STR);
-		$stmt->bindParam(23, $visibleinorder, PDO::PARAM_STR);
+		$stmt->bindParam(14, $markupid, PDO::PARAM_STR);
+		$stmt->bindParam(15, $service, PDO::PARAM_STR);
+		$stmt->bindParam(16, $division, PDO::PARAM_STR);
+		$stmt->bindParam(17, $length, PDO::PARAM_STR);
+		$stmt->bindParam(18, $width, PDO::PARAM_STR);
+		$stmt->bindParam(19, $height, PDO::PARAM_STR);
+		$stmt->bindParam(20, $weight, PDO::PARAM_STR);
+		$stmt->bindParam(21, $unit_in_pack, PDO::PARAM_STR);
+		$stmt->bindParam(22, $perioddelivery, PDO::PARAM_STR);
+		$stmt->bindParam(23, $discountmax, PDO::PARAM_STR);
+		$stmt->bindParam(24, $visibleinorder, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 		$this->echo_response($stmt);
@@ -1756,10 +2099,10 @@ Fn::debugToLog('jqgrid3 url', $url);
 	public function select2() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
-		$type = $_SESSION['UserID'];
 //Fn::paramToLog();
 //Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
-		if($action=='point')$type = $_SESSION['UserID'];
+		//if ($action != 'unit') $type = $_SESSION['UserID'];
+		if ($action=='point') $type = $_SESSION['UserID'];
 		$stmt = $this->db->prepare("CALL pr_select2(?, @id, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $name, PDO::PARAM_STR);
