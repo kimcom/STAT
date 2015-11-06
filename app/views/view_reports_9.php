@@ -1029,6 +1029,11 @@ $(document).ready(function () {
 						<span class="pl5 floatL w80p">Документ</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
+					<li class="bc10 ui-corner-all" id="c_City">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Город</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
 				</ul>
 			</div>
 		</div>

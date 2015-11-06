@@ -78,9 +78,9 @@ $(document).ready(function(){
                         //console.log(subgrid_id, row_id, subgrid_table_id);
                         $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
                         $("#" + subgrid_table_id).jqGrid({
-                            url: "../engine/jqgrid3?action=doc_check_info&CheckID="+row_id+"&f1=GoodID&f2=Article&f3=Name&f4=Quantity&f5=PriceBase&f6=PriceDiscount&f7=DiscountPercent&f8=Price&f9=Summa",
+                            url: "../engine/jqgrid3?action=doc_check_info&CheckID="+row_id+"&f1=GoodID&f2=Article&f3=Name&f4=Quantity&f5=PriceBase&f6=PriceDiscount&f7=DiscountPercent&f8=Price&f9=Summa&f10=SellerName",
                             datatype: "json",
-                            colNames: ['GoodID', 'Артикул', 'Название', 'Кол-во', 'Цена баз.', 'Скидка', '% ск.', 'Цена', 'Сумма'],
+                            colNames: ['GoodID', 'Артикул', 'Название', 'Кол-во', 'Цена баз.', 'Скидка', '% ск.', 'Цена', 'Сумма', 'Продавец'],
                             colModel: [
                                 {name: "sc_GoodID", index: "sc.GoodID", width: 60, align: "center", sorttype: "number"},
                                 {name: "g_Article", index: "g.Article", width: 100, align: "left", sorttype: "text"},
@@ -91,6 +91,7 @@ $(document).ready(function(){
                                 {name: "sc_DiscountPercent", index: "sc.DiscountPercent", width: 60, align: "right", sorttype: "number"},
                                 {name: "sc_Price", index: "sc.Price", width: 60, align: "right", sorttype: "number"},
                                 {name: "Summa", index: "Summa", width: 80, align: "right", sorttype: "number"},
+                                {name: "s_Name", index: "s.Name", width: 200, align: "left", sorttype: "text"},
                             ],
                             rowNum: 20,
                             pager: pager_id,

@@ -42,23 +42,22 @@ class Route {
 			$controller_name != 'recovery' &&
 			$controller_name != 'register' &&
 			$controller_name != 'register_ok' &&
+			$controller_name != 'api' &&
 			$action_name != 'deletefile' 
 			) {
 			Fn::redirectToController('logon');
 			return;
 		}
-//		if ($controller_name == 'css') return;
-		if ($controller_name == 'favicon.ico')
-			return;
+		if ($controller_name == 'api') {
+			$action_name = str_replace('.','_', $action_name);
+		}
+		if ($controller_name == 'favicon.ico')	return;
 		if (!empty($routes[2]))
-			if ($routes[2] == 'favicon.ico')
-				return;
-		if ($controller_name == 'images')
-			return;
-		if ($action_name == 'favicon.ico')
-			return;
-		if ($action_name == 'captcha')
-			return;
+			if ($routes[2] == 'favicon.ico')	return;
+		if ($controller_name == 'images')		return;
+		if ($action_name == 'favicon.ico')		return;
+		if ($action_name == 'captcha')			return;
+		if ($action_name == 'images_goods')		return;
 		// добавляем префиксы
 		$model_name = 'Model_' . $controller_name;
 		$controller_name = 'Controller_' . $controller_name;
@@ -80,7 +79,7 @@ class Route {
 		if (file_exists($controller_path)) {
 			include "app/controllers/" . $controller_file;
 		} else {
-			Fn::debugToLog('route controller отсутствует:', $controller_name);
+			Fn::debugToLog('route controller отсутствует:', $controller_name.' url:'.  urldecode($_SERVER['REQUEST_URI']));
 			/*
 			  правильно было бы кинуть здесь исключение,
 			  но для упрощения сразу сделаем редирект на страницу 404
@@ -98,7 +97,7 @@ class Route {
 			$controller->$action();
 		} else {
 			//Fn::debugToLog('route controller:', $controller_name);
-			Fn::debugToLog('route action отсутствует:', $controller_name . '/' . $action);
+			Fn::debugToLog('route action отсутствует:', $controller_name . '/' . $action  . ' url:' . urldecode($_SERVER['REQUEST_URI']));
 			// здесь также разумнее было бы кинуть исключение
 			Route::ErrorPage404();
 			return;

@@ -508,14 +508,14 @@ $("#select_report_setting").click();
 			{name: 'field7' , index: 'field7' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field8' , index: 'field8' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field9' , index: 'field9' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field10', index: 'field10', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} </b>'},
-			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'},
-			{name: 'field15', index: 'field15', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'},
+			{name: 'field10', index: 'field10', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} </b>'	  , formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>', formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>', formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>', formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'	  , formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field15', index: 'field15', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'	  , formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
 	    ],
-	    //width: 'auto',
+		//width: 'auto',
 		frozen : true,
 	    shrinkToFit: true,
 		loadonce: true,
@@ -651,7 +651,7 @@ $("#select_report_setting").click();
 	$("#pg_pgridRep").remove();
 	$("#pgridRep").removeClass('ui-jqgrid-pager');
 	$("#pgridRep").addClass('ui-jqgrid-pager-empty');
-//	$("#gridRep").gridResize();
+	//$("#gridRep").gridResize();
 		
 	$('#myTab a').click(function (e) {
 		e.preventDefault();
@@ -686,6 +686,7 @@ $("#select_report_setting").click();
 		if(grouping[id]=='cc_checkID')$("#gridRep").jqGrid('setLabel', "field"+id, "Документ");
 		if(grouping[id]=='cc_promoID')$("#gridRep").jqGrid('setLabel', "field"+id, "Акция");
 		if(grouping[id]=='c_clientID')$("#gridRep").jqGrid('setLabel', "field"+id, "Торговая точка");
+		if(grouping[id]=='c_City')	  $("#gridRep").jqGrid('setLabel', "field"+id, "Город");
 		if(grouping[id]=='s_sellerID')$("#gridRep").jqGrid('setLabel', "field"+id, "Сотрудник");
 		if(grouping[id]=='cards_cardID')$("#gridRep").jqGrid('setLabel', "field"+id, "Дисконтная карта");
 		if(grouping[id]=='g_goodID'){
@@ -992,6 +993,11 @@ $("#select_report_setting").click();
 					<li class="bc9 ui-corner-all" id="cc_checkID">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Документ</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc10 ui-corner-all" id="c_City">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Город</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 				</ul>

@@ -1453,7 +1453,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
 //Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
 //CALL pr_goods(action, _GoodID, _Good1C, _Article, _Name, _Division, _Unit_in_pack, _Unit, _Weight, _DiscountMax, _FreeBalance, _PriceBase, _Price1, _Price2, _Price3, _Price4, _id);
-		$stmt = $this->db->prepare("CALL pr_goods_site('info', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt = $this->db->prepare("CALL pr_goods_site('info', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $goodid, PDO::PARAM_STR);
 		$stmt->bindParam(2, $article, PDO::PARAM_STR);
 		$stmt->bindParam(3, $name, PDO::PARAM_STR);
@@ -1478,6 +1478,8 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$stmt->bindParam(22, $perioddelivery, PDO::PARAM_STR); 
 		$stmt->bindParam(23, $discountmax, PDO::PARAM_STR); 
 		$stmt->bindParam(24, $visibleinorder, PDO::PARAM_STR);
+		$stmt->bindParam(25, $description, PDO::PARAM_STR);
+		$stmt->bindParam(26, $imageURL, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 		if (!Fn::checkErrorMySQLstmt($stmt))
@@ -1491,8 +1493,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 	}
 	public function good_save() {
 		foreach ($_REQUEST as $arg => $val){
-			${$arg} = $val;
-			if($val=='') ${$arg} = null;
+			${$arg} = $val;	if($val=='') ${$arg} = null;
 		}
 //Fn::paramToLog();
 //		if ($visible == 1)	{
@@ -1500,7 +1501,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 //		} else {
 //			$visible = false;
 //		}
-		$stmt = $this->db->prepare("CALL pr_goods_site('save', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt = $this->db->prepare("CALL pr_goods_site('save', @_id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $goodid, PDO::PARAM_STR);
 		$stmt->bindParam(2, $article, PDO::PARAM_STR);
 		$stmt->bindParam(3, $name, PDO::PARAM_STR);
@@ -1525,6 +1526,8 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$stmt->bindParam(22, $perioddelivery, PDO::PARAM_STR);
 		$stmt->bindParam(23, $discountmax, PDO::PARAM_STR);
 		$stmt->bindParam(24, $visibleinorder, PDO::PARAM_STR);
+		$stmt->bindParam(25, $description, PDO::PARAM_STR);
+		$stmt->bindParam(26, $imageURL, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 		$this->echo_response($stmt);
@@ -1534,7 +1537,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 			${$arg} = $val;
 			if ($val == '')	${$arg} = null;
 		}
-Fn::paramToLog();
+//Fn::paramToLog();
 
 		$stmt = $this->db->prepare("CALL pr_goods_param( ?, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
@@ -1562,8 +1565,12 @@ Fn::paramToLog();
 			$response->value_new = $row[5];
 		}
 //Fn::debugToLog("set param", json_encode($response));
-		header("Content-type: application/json;charset=utf-8");
-		echo json_encode($response);
+		if ($action!='ImageURL') {
+			header("Content-type: application/json;charset=utf-8");
+			echo json_encode($response);
+		} else {
+			return $response;
+		}
 	}
 //balance_min
 	public function balance_min_set(){

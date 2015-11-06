@@ -98,7 +98,43 @@ EOF;
 				echo "файл не найден ($dir_name$filename)\n";
 		}
 	}
-
+	function action_rename_image() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		$dir_name = "images_goods/";
+		$goodid = $new_name;
+		$ext = explode('.', $old_name);
+		$new_name .= '.' . $ext[1];
+		$response = new stdClass();
+		$response->error = '';
+		$response->success = false;
+		$response->url = '';
+		if (file_exists($dir_name.$old_name)){
+			if (rename($dir_name . $old_name,  $dir_name . $new_name)) {
+				$response->url = $_SERVER['HTTP_ORIGIN'].'/'.$dir_name . $new_name;
+				$response->success = true;
+				if($img_good) {
+					$response->success = false;
+					$_REQUEST['action'] = 'ImageURL';
+					$_REQUEST['goodid'] = $goodid;
+					$_REQUEST['value'] = $new_name;
+					$cnn = new Cnn();
+					$res = $cnn->good_param_save();
+					$response->success = $res->success;
+					if ($response->success===false) {
+						$response->error = 'Ошибка при записи данных в базу данных!';
+					}
+				}
+			} else {
+				$response->error = 'Ошибка при переименовании файла';
+			}
+		}else{
+				$response->error = "Ошибка!<br>Файл $dir_name$old_name не найден.";
+		}
+		header("Content-type: application/json;charset=utf8");
+		echo json_encode($response);
+	}
+	
 	function action_jqgrid3() {
 		$cnn = new Cnn();
 		return $cnn->get_jqgrid3();

@@ -51,7 +51,7 @@
 .bc7{background-color: #FF9999;}
 .bc8{background-color: #ABCDEF;}
 .bc9{background-color: #DDAADD;}
-.bc10{background-color:#FCFCFC;}
+.bc10{background-color:#FFDDAA;}
 .bc11{background-color:#F1F2F3;}
 
 .pl5{padding-left:5px;}
@@ -94,6 +94,7 @@
 .w64{width:64px;}
 .w70{width:70px;}
 .w80{width:80px;}
+.w78{width:78px;}
 .w90{width:90px;}
 .w100{width:100px;}
 .w120{width:120px;}
@@ -115,6 +116,7 @@
 .w330{width:330px;}
 .w350{width:350px;}
 .w400{width:400px;}
+.w430{width:430px;}
 .w450{width:450px;}
 .w500{width:500px;}
 .w550{width:550px;}
@@ -140,9 +142,13 @@
 .h350{height:350px;}
 .h370{height:370px;}
 .h400{height:400px;}
+.h450{height:450px;}
 .h500{height:500px;}
+.h530{height:530px;}
 .h550{height:550px;}
 .h570{height:570px;}
+.h80p{height:80%;}
+.h90p{height:90%;}
 .h100p{height:100%;}
 
 .fl{float:left;}
@@ -165,6 +171,7 @@
 .ml0{margin-left:0px;}
 .ml5{margin-left:5px;}
 .ml10{margin-left:10px;}
+.ml15{margin-left:15px;}
 .ml20{margin-left:20px;}
 .ml30{margin-left:30px;}
 .ml40{margin-left:40px;}

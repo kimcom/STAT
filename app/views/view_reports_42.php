@@ -27,7 +27,7 @@ $(document).ready(function () {
 	settings['seller']=seller;
 	settings['promo']=promo;
 	settings['card']=card;
-	var colnames = ['Кол-во','Себест.','Оборот','Доход','% наценки'];
+	var colnames = ['Кол-во','Себест.', 'Оборот', 'Доход', '% наценки', '% скидки'];
 	$("#dialog").dialog({
 		autoOpen: false, modal: true, width: 400, //height: 300,
 		buttons: [{text: "Закрыть", click: function () {
@@ -89,8 +89,8 @@ $("#select_report_setting").click();
 			for(key in aset){
 				var k = aset[key].split('=');
 				if(k[1]=='')continue;
-//				if(k[0]=='DT_start') {if(json.UserID!=11)$("#DT_start").val(k[1]);continue;}
-//				if(k[0]=='DT_stop') {if(json.UserID!=11)$("#DT_stop").val(k[1]);continue;}
+				if(k[0]=='DT_start') {if(json.UserID!=11)$("#DT_start").val(k[1]);continue;}
+				if(k[0]=='DT_stop') {if(json.UserID!=11)$("#DT_stop").val(k[1]);continue;}
 				var l = k[1].split('|');
 				var m = l[0].split(';');
 				var n = l[1].split(';');
@@ -280,7 +280,7 @@ $("#select_report_setting").click();
 	$("#pgrid1").addClass('ui-jqgrid-pager-empty');
 
 	$("#treeGrid").gridResize();
-	$("#grid1").gridResize();
+	//$("#grid1").gridResize();
 	
 	$("#divGrid").hide();
 
@@ -504,13 +504,15 @@ $("#select_report_setting").click();
 			{name: 'field7' , index: 'field7' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field8' , index: 'field8' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field9' , index: 'field9' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field10', index: 'field10', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} </b>'},
-			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'},
-			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'},
+			{name: 'field10', index: 'field10', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} </b>'		, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'	, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'	, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'	, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'		, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field15', index: 'field15', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'		, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
 	    ],
 	    //width: 'auto',
+		frozen : true,
 	    shrinkToFit: true,
 		loadonce: true,
 		rowNum:10000000,
@@ -672,13 +674,15 @@ $("#select_report_setting").click();
 			ar[id] = 'field'+id;
 			$("#gridRep").jqGrid('setLabel', "field"+id, grouping[id]);
 		}
-		if(grouping[id]=='groupName') $("#gridRep").jqGrid('setLabel', "field"+id, "Группа товара");
-		if(grouping[id]=='catName')   $("#gridRep").jqGrid('setLabel', "field"+id, "Категория товара");
-		if(grouping[id]=='cattypeName')$("#gridRep").jqGrid('setLabel', "field"+id, "Кат.по виду животн.");
+		if(grouping[id]=='groupName2')  $("#gridRep").jqGrid('setLabel', "field" + id, "Группа товара (2 уровня)");
+	    if(grouping[id] == 'groupName3')$("#gridRep").jqGrid('setLabel', "field" + id, "Группа товара (3 уровня)");
+		if(grouping[id]=='catName')     $("#gridRep").jqGrid('setLabel', "field"+id, "Категория товара");
+		if(grouping[id]=='cattypeName') $("#gridRep").jqGrid('setLabel', "field"+id, "Кат.по виду животн.");
 		if(grouping[id]=='markupName')$("#gridRep").jqGrid('setLabel', "field"+id, "Категория наценки");
 		if(grouping[id]=='cc_checkID')$("#gridRep").jqGrid('setLabel', "field"+id, "Документ");
 		if(grouping[id]=='cc_promoID')$("#gridRep").jqGrid('setLabel', "field"+id, "Акция");
 		if(grouping[id]=='c_clientID')$("#gridRep").jqGrid('setLabel', "field"+id, "Торговая точка");
+		if(grouping[id]=='c_City')	  $("#gridRep").jqGrid('setLabel', "field" + id, "Город");
 		if(grouping[id]=='s_sellerID')$("#gridRep").jqGrid('setLabel', "field"+id, "Сотрудник");
 		if(grouping[id]=='cards_cardID')$("#gridRep").jqGrid('setLabel', "field"+id, "Дисконтная карта");
 		if(grouping[id]=='g_goodID'){
@@ -687,7 +691,7 @@ $("#select_report_setting").click();
 			$("#gridRep").jqGrid('setLabel', "field"+id, "Название");
 		}
 		id++;
-		for(var fi=0; fi<5; fi++){
+		for(var fi=0; fi<6; fi++){
 			$("#gridRep").jqGrid('setLabel', "field"+(fi+10), colnames[fi]);
 		}
 		for(i=id; i<10; i++){
@@ -717,7 +721,7 @@ $("#select_report_setting").click();
 					//groupColumnShow: [true, true, true, true, true, true, true, true, true, true],
 					groupText: ['<b>{0}</b>'],
 					//groupCollapse: false,
-					groupDataSorted: true,
+					//groupDataSorted: true,
 					//groupOrder: ['asc', 'asc'],
 					groupSummary : [true,true,true,true,true,true,true,true,true,true],
 					showSummaryOnHide: true,
@@ -742,9 +746,8 @@ $("#select_report_setting").click();
 //return;
 		orderby = ""; len = Object.keys(grouping).length-1;
 		for (id in grouping) {
-		orderby += grouping[id].replace('_', '.') + " asc";
-		if (len != parseInt(id))
-			orderby += ', ';
+			orderby += grouping[id].replace('_', '.') + " asc";
+			if(len != parseInt(id)) orderby += ', ';
 		}
 		orderby = orderby.split("g.goodID").join("g.Name");
 		orderby = orderby.split("c.clientID").join("c.NameShort");
@@ -767,6 +770,7 @@ $("#select_report_setting").click();
 			"&orderby=" + orderby +
 			"",
 		}).trigger('reloadGrid');
+		$("#gridRep").gridResize();
 	});
 
 	//$("#dialog_progress").dialog("open");
@@ -931,17 +935,22 @@ $("#select_report_setting").click();
 			</div>
 		</div>
 		<div class="tab-pane m0 w100p min530 ui-corner-all borderColor frameL border1" id="tab_grouping">
-			<div id="divGridGrouping" class='p5 ui-corner-all frameL m10 border1'>
+			<div id="divGridGrouping" class='p5 ui-corner-all frameL m10 border1 w250'>
 				<legend>Выбранные группировки</legend>
 				<ol id="grouping" class="w100p selectable">
 				</ol>
 			</div>
-			<div id="divGridGrouping_add" class='p5 ui-corner-all frameL m10 border1'>
+			<div id="divGridGrouping_add" class='p5 ui-corner-all frameL m10 border1 w250'>
 				<legend>Возможные группировки</legend>
 				<ul id="grouping_add" class="w100p selectable">
-					<li class="bc1 ui-corner-all" id="groupName">
+					<li class="bc1 ui-corner-all" id="groupName2">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
-						<span class="pl5 floatL w80p">Группа товара</span>
+						<span class="pl5 floatL w80p">Группа товара (2 уровня)</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc1 ui-corner-all" id="groupName3">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Группа товара (3 уровня)</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 					<li class="bc2 ui-corner-all" id="g_goodID">
@@ -987,6 +996,11 @@ $("#select_report_setting").click();
 					<li class="bc9 ui-corner-all" id="cc_checkID">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Документ</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc10 ui-corner-all" id="c_City">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Город</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 				</ul>

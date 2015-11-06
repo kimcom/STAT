@@ -256,7 +256,7 @@ $(document).ready(function () {
 	// Creating gridL
 	$("#gridL").jqGrid({
 		sortable: true,
-		url: "../goods/list?param=goods_list_where&col=goods_list&cat_id=0",
+		url: "../api/good_getlist_data?param=goods_list_where&col=goods_list&cat_id=0",
 //		url: "../engine/jqgrid3?action=project_list&f1=ProjectID&f2=Name&pr.Status<>1000",
 		datatype: "json",
 		height: '500',
@@ -299,11 +299,11 @@ $(document).ready(function () {
 	$('#myTab a').click(function (e) {
 		e.preventDefault();
 		if (this.id == 'a_tab_barcode') {
-			$("#grid1").jqGrid('setGridParam', { url: "../goods/good_barcode?param=goods_barcode_short&GoodID=<?php echo $GoodID; ?>", page: 1});
+			$("#grid1").jqGrid('setGridParam', { url: "../api/good_barcode?param=goods_barcode_short&GoodID=<?php echo $GoodID; ?>", page: 1});
 			$("#grid1").trigger('reloadGrid');
 		}
 		if (this.id == 'a_tab_price') {
-			$("#grid2").jqGrid('setGridParam', {url:"../engine/jqgrid3?action=good_price&p.GoodID=<?php echo $GoodID; ?>&f1=ClientID&f2=NameShort&f3=City&f4=PriceShop", page: 1});
+			$("#grid2").jqGrid('setGridParam', {url:"../api/jqgrid3?action=good_price&p.GoodID=<?php echo $GoodID; ?>&f1=ClientID&f2=NameShort&f3=City&f4=PriceShop", page: 1});
 			$("#grid2").trigger('reloadGrid');
 		}
         if (this.id == 'a_tab_balance') {
@@ -379,7 +379,7 @@ $(document).ready(function () {
         </li>
     </ul>
     <div class="floatL">
-        <button id="button_save" class="btn btn-sm btn-success frameL m0 h40 hidden-print font14">
+        <button id="button_save" class="btn btn-sm btn-success frameL m0 h40 hidden-print font14 disabled">
             <span class="ui-button-text" style='width:120px;height:22px;'>Сохранить данные</span>
         </button>
     </div>
@@ -539,7 +539,7 @@ $(document).ready(function () {
 				<div id="progress" class="progress m5 invisible">
 					<div class="progress-bar progress-bar-info"></div>
 				</div>
-				<span class="btn btn-info fileinput-button">
+				<span class="btn btn-info fileinput-button disabled">
 					<i class="glyphicon glyphicon-plus"></i>
 					<span>Выбрать фото для товара ...</span>
 					<input id="fileupload" type="file" accept="image/jpeg,image/png,image/gif" name="files[]">
