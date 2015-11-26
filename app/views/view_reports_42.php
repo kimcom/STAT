@@ -683,6 +683,7 @@ $("#select_report_setting").click();
 		if(grouping[id]=='cc_promoID')$("#gridRep").jqGrid('setLabel', "field"+id, "Акция");
 		if(grouping[id]=='c_clientID')$("#gridRep").jqGrid('setLabel', "field"+id, "Торговая точка");
 		if(grouping[id]=='c_City')	  $("#gridRep").jqGrid('setLabel', "field" + id, "Город");
+		if(grouping[id]=='DiscountType')$("#gridRep").jqGrid('setLabel', "field" + id, "Вид скидки");
 		if(grouping[id]=='s_sellerID')$("#gridRep").jqGrid('setLabel', "field"+id, "Сотрудник");
 		if(grouping[id]=='cards_cardID')$("#gridRep").jqGrid('setLabel', "field"+id, "Дисконтная карта");
 		if(grouping[id]=='g_goodID'){
@@ -1001,6 +1002,11 @@ $("#select_report_setting").click();
 					<li class="bc10 ui-corner-all" id="c_City">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Город</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc11 ui-corner-all" id="DiscountType">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Вид скидки</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 				</ul>

@@ -156,7 +156,7 @@ Fn::DebugToLog('start: ',$ssql);
 	}
 	public static function GetPromoTypeList($dbi) {
 		$ssql = "CALL pr_promo_info('getPromoTypeList',0,'',null,'','','',null,null,null);";
-//DebugToLog('start: ',$ssql);
+//Fn::debugToLog('start: ',$ssql);
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))
 			return false;

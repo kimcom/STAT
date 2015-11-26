@@ -228,14 +228,13 @@ admin@" . $_SERVER['HTTP_HOST'] . "
 			$dt = DateTime::createFromFormat('d?m?Y', $DT_stop);
 			$date2 = $dt->format('Ymd');
 		}
-Fn::debugToLog('report4 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
-Fn::debugToLog('report4 user:' . $_SESSION['UserName'], "".$date1."	".  $date2);
+Fn::debugToLog('report1 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::debugToLog('report1 user:' . $_SESSION['UserName'], "".$date1."	".  $date2);
 		//call pr_reports('avg_sum', @_id, '20141001', '20141031', '');
-		$stmt = $this->db->prepare("CALL pr_reports('avg_sum', @id, ?, ?, null)");
+		$stmt = $this->db->prepare("CALL pr_reports('avg_sum', @id, ?, ?, ?)");
 		$stmt->bindParam(1, $date1, PDO::PARAM_STR);
 		$stmt->bindParam(2, $date2, PDO::PARAM_STR);
-		//$stmt->bindParam(3, '', PDO::PARAM_STR);
-		//$stmt->bindParam(3, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
+		$stmt->bindParam(3, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 		if (!Fn::checkErrorMySQLstmt($stmt))
@@ -269,6 +268,7 @@ Fn::debugToLog('report4 user:' . $_SESSION['UserName'], "".$date1."	".  $date2);
 			}
 		} while ($stmt->nextRowset());
 		//header("Content-type: application/json;charset=utf8");
+		Fn::debugToLog("resp", json_encode($response));
 		return json_encode($response);
 	}
 	public function get_report2_data() {
@@ -644,15 +644,15 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 				$dg[$row[0].$row[2]][$row['intervals']]['d'] = $value3;
 				$dg[$row[0].$row[2]]['ID1'] = $row[0];
 				$dgi[$row[0]]['name1'] = 'Итого:';
-				if (!isset($dgi[$row[0]][$row['intervals']]['q'])) $dgi[$row[0]][$row['intervals']['q']] = 0;
-				if (!isset($dgi[$row[0]][$row['intervals']]['o'])) $dgi[$row[0]][$row['intervals']['o']] = 0;
-				if (!isset($dgi[$row[0]][$row['intervals']]['d'])) $dgi[$row[0]][$row['intervals']['d']] = 0;
+				if (!isset($dgi[$row[0]][$row['intervals']]['q'])) $dgi[$row[0]][$row['intervals']]['q'] = 0;
+				if (!isset($dgi[$row[0]][$row['intervals']]['o'])) $dgi[$row[0]][$row['intervals']]['o'] = 0;
+				if (!isset($dgi[$row[0]][$row['intervals']]['d'])) $dgi[$row[0]][$row['intervals']]['d'] = 0;
 				$dgi[$row[0]][$row['intervals']]['q'] += $value1;
 				$dgi[$row[0]][$row['intervals']]['o'] += $value2;
 				$dgi[$row[0]][$row['intervals']]['d'] += $value3;
-				if (!isset($dgiall[$row['intervals']]['q'])) $dgiall[$row['intervals']['q']] = 0;
-				if (!isset($dgiall[$row['intervals']]['o'])) $dgiall[$row['intervals']['o']] = 0;
-				if (!isset($dgiall[$row['intervals']]['d'])) $dgiall[$row['intervals']['d']] = 0;
+				if (!isset($dgiall[$row['intervals']]['q'])) $dgiall[$row['intervals']]['q'] = 0;
+				if (!isset($dgiall[$row['intervals']]['o'])) $dgiall[$row['intervals']]['o'] = 0;
+				if (!isset($dgiall[$row['intervals']]['d'])) $dgiall[$row['intervals']]['d'] = 0;
 				$dgiall[$row['intervals']]['q'] += $value1;
 				$dgiall[$row['intervals']]['o'] += $value2;
 				$dgiall[$row['intervals']]['d'] += $value3;
@@ -683,6 +683,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 			$str .= '<th colspan='. $col .'>' . $dt->format($dt_html) . '</th>';
 		}
 		$str .= '</tr><tr>';
+		$cnt_col = 0;
 		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 			if ($data == 'Quantity') $str .= '<th>Кол-во</th>';
 			if ($data == 'Oborot') $str .= '<th>Оборот</th>';
@@ -691,7 +692,9 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 				$str .= '<th>Кол-во</th>';
 				$str .= '<th>Оборот</th>';
 				$str .= '<th>Доход</th>';
+				$cnt_col+=2;
 			}
+			$cnt_col ++;
 		}
 		$str .= '</tr></thead>';
 		//выводим данные в таблице
@@ -699,10 +702,14 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 		$a = array_keys($dg);
 		$ai = array_keys($dgi);
 		$total = $dg[$a[0]]['ID1'];
+		$cnt_in_grp = 0;
 		for ($i = 0;$i<count($a);$i++){
 			$id1 = $dg[$a[$i]]['ID1'];
+			if ($total !== $id1 && $cnt_group == 2)	$cnt_in_grp = 0;
+//Fn::debugToLog("row", $total.'	'.$id1.'	'.  $cnt_in_grp.'	'.  $cnt_group.'	cnt_col='.  $cnt_col);
 			if ($total !== $id1 && $cnt_group == 2){
 				//выводим итоги
+				//$cnt_in_grp = 0;
 				$str .= '<tr>';
 				$str .= '<th colspan=2 class="TAL">' . $dgi[$total][name1] . '</th>';
 				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
@@ -723,10 +730,20 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 				$str .= '</tr>';
 				$total = $id1;
 			}
+			if ($cnt_in_grp == 0 && $cnt_group == 2) {
+				$str .= '<tr>';
+				$str .= '<th colspan=' . ($cnt_col + 2) . ' class="TAL">' . $dg[$a[$i]][name1] . '</th>';
+				$str .= '</tr>';
+			}
+			$cnt_in_grp ++;
 			//выводим строки таблицы
 			$str .= '<tr>';
-			$str .= '<td class="TAL max200">'.$dg[$a[$i]][name1].'</td>';
-			if ($cnt_group == 2) $str .= '<td class="TAL max200">'.$dg[$a[$i]][name2].'</td>';
+			if ($cnt_group == 2) {
+				$str .= '<td class="TAL max200"></td>';
+				$str .= '<td class="TAL max200">'.$dg[$a[$i]][name2].'</td>';
+			}else{
+				$str .= '<td class="TAL max200">'.$dg[$a[$i]][name1].'</td>';
+			}
 			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 				if ($data == 'Quantity') $str .= '<td class="TAR">' . $dg[$a[$i]][$dt->format($dt_format)]['q'] . '</td>';
 				if ($data == 'Oborot')	 $str .= '<td class="TAR">' . $dg[$a[$i]][$dt->format($dt_format)]['o'] . '</td>';
@@ -1358,6 +1375,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
 		if (isset($_SESSION['report9_setting']) && $sid==9){
+			$response = new stdClass();
 			$response->Setting = $_SESSION['report9_setting'];
 			header("Content-type: application/json;charset=utf-8");
 			echo json_encode($response);
@@ -1376,7 +1394,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		if (!Fn::checkErrorMySQLstmt($stmt))
 			return false;
 		$result = false;
-		//$response = new stdClass();
+		$response = new stdClass();
 		do {
 			$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
 			if ($rowset) {

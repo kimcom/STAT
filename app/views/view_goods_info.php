@@ -329,7 +329,7 @@ $(document).ready(function () {
 	$("#select_visible").select2("val", <?php echo $Visible; ?>); 
 	
 	var a_status = [{id: 1, text: 'товар доступен'},  {id: 0, text: 'товар не доступен'}];
-	$("#select_visible_in_order").select2({data: a_status, placeholder: "Выберите доступность товара а заказе"});
+	$("#select_visible_in_order").select2({data: a_status, placeholder: "Выберите доступность товара в заказе"});
 	$("#select_visible_in_order").select2("val", <?php echo $VisibleInOrder; ?>); 
 	
 //	setTimeout(function(){

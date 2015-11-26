@@ -18,56 +18,13 @@
         <div class="navbar-collapse collapse">
 <?php 
 if ($_SESSION['access'] and $_SESSION['AccessLevel'] > 0) {
-	$name = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_FILENAME);
+	//$name = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_FILENAME);
 	$controller = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_DIRNAME);
-//	Fn::debugToLog('menu', $name.'	'.  $controller);
-	if ($name == "category1" ||
-		$name == "category2" ||
-		$name == "category3" ||
-		$name == "cat_partner3" ||
-		$controller == "/category") {
-		$active_menu1 = 'active';
-	}else if (
-		$name == "goods" || 
-		$name == "barcodes" || 
-		$name == "without_barcodes" || 
-		$name == "barcode_verify" ||
-		$name == "promo_list" ||
-		$name == "points" ||
-		$name == "sellers" ||
-		$name == "discountCards" ||
-		$name == "user_list" || 
-		$name == "promo_list" ||
-		$controller == "/goods" ||
-		$controller == "/lists" ||
-		substr($name,0,13) == "promo_control"){
-		$active_menu2 = 'active';
-	}else if (
-		$controller == "/reports"){
-		$active_menu5 = 'active';
-	}else if (
-		$controller == "/reports_fin"){
-		$active_menu9 = 'active';
-	}else if (
-		$controller == "/documents"){
-		$active_menu10 = 'active';
-	}else if (
-		$controller == "/project") {
-		$active_menu6 = 'active';
-	}else if (
-		$controller == "/helper") {
-		$active_menu8 = 'active';
-	} else if (
-		$controller == "/documents") {
-		$active_menu10 = 'active';
-	}else if (
-		$controller == "/task") {
-		$active_menu7 = 'active';
-	}  else if (
-        $controller == "/register") {
-        $active_menu11 = 'active';
-    }
-//$_SESSION['AccessLevel'] = 2000;
+//Fn::debugToLog("url", $_SERVER['REQUEST_URI']);
+//$routes = explode('/', $_SERVER['REQUEST_URI']);
+//Fn::debugToLog("rout", json_encode($routes));
+//Fn::debugToLog('menu', $name.'	'.  $controller);
+//Fn::debugToLog('REDIRECT_URL', $_SERVER['REDIRECT_URL']);
 	$cnn = new Cnn();
 	$rowset = $cnn->menu_list();
 	$cur_level = 1;
@@ -77,8 +34,13 @@ if ($_SESSION['access'] and $_SESSION['AccessLevel'] > 0) {
 			continue;
 		if ($cur_level > $row['Level'])
 			echo '      </ul></li>';
+//Fn::debugToLog("row", json_encode($row));
+//		$pos = strpos($row['Action'],'/'.$controller);
+		$active_menu = '';
+//		if ($pos !== FALSE) $active_menu = 'active';
+//Fn::debugToLog("row", 'action:'.$row['Action'].  '	'.$pos.'	'.  $active_menu);
 		if ($row['ParentID'] == null) {
-			echo '   <li class = "menu-item dropdown ' . $active_menu1000 . '">';
+			echo '   <li class = "menu-item dropdown ' . $active_menu . '">';
 			echo '      <a href = "#" class = "dropdown-toggle" data-toggle = "dropdown">' . $row['Name'] . '<b class = "caret"></b></a>';
 			echo '      <ul class="dropdown-menu">';
 		} else {
@@ -106,3 +68,6 @@ if ($_SESSION['access'] and $_SESSION['AccessLevel'] > 0) {
         </div><!--/.nav-collapse -->
     </div>
 </nav>
+<?php 
+	//echo phpinfo();
+?>

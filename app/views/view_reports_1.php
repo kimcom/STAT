@@ -78,7 +78,7 @@ $(document).ready(function () {
 	$("#button_submit").click(function() {
 		$("#dialog_progress").dialog("option", "title", 'Ожидайте! Выполняется формирование отчета...');
 	    $("#dialog_progress").dialog("open");
-		table.ajax.url('../reports/report1_data?DT_start=' + $("#DT_start").val() + '&DT_stop=' + $("#DT_stop").val()).load();
+		table.ajax.url('../reports/report1_data?DT_start=' + $("#DT_start").val() + '&DT_stop=' + $("#DT_stop").val() + "&UserID=<?php echo $_SESSION['UserID']; ?>").load();
 	});
 });
 </script>

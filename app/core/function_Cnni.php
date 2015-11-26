@@ -5,7 +5,7 @@ class Cnni {
 		return $this->dbi;
 	}
 	public function __construct() {
-		$this->dbi = new mysqli("localhost", "shop", "149521", $_SESSION['dbname']);
+		$this->dbi = new mysqli("localhost", $_SESSION['server_user'], $_SESSION['server_pass'], $_SESSION['dbname']);
 		if($this->dbi->connect_errno){
 			Fn::errorToLog("MySQLi error!: ", $this->dbi->connect_errno." ".$this->dbi->connect_error);
 			die();
@@ -81,6 +81,7 @@ class Cnni {
 			$result = Shop::GetGoodsList($this->dbi, $param, $sidx, $sord, 0, $start, $limit, $GoodID, $Article, $Name, $EAN13, $cat_id);
 		}
 		// Создаем объект response
+		$response = new stdClass();
 		$response->page = $page;
 		$response->total = $total_pages;
 		$response->records = $count;
@@ -121,6 +122,7 @@ class Cnni {
 	}
 	public function good_info_save() {
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
+		$response = new stdClass();
 		$response->success = Shop::SetGoodInfo($this->dbi, $goodid, $Article, $Name, $Division, $Unit_in_pack, $Unit, $Weight, $DiscountMax);
 		$response->message = 'Возникла ошибка при внесении информации!<br>Сообщите разработчику!';
 		$response->new_id = 0;
@@ -169,6 +171,7 @@ class Cnni {
 
 		$result = Shop::GetGoodBarcode($this->dbi, $param, $sidx, $sord, 0, $start, $limit, $GoodID);
 		// Создаем объект response
+		$response = new stdClass();
 		$response->page = $page;
 		$response->total = $total_pages;
 		$response->records = $count;
@@ -184,6 +187,7 @@ class Cnni {
 	}
 	public function synchro_info_save() {
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
+		$response = new stdClass();
 		$response->success = Shop::SetSynchroInfo($this->dbi, 'edit', $goodid, $OPT_ID, $SHOP_ID, $KIEV_ID);
 		$response->message = 'Возникла ошибка при внесении информации!<br>Сообщите разработчику!';
 		$response->new_id = 0;
@@ -192,6 +196,7 @@ class Cnni {
 	}
 	public function good_delete() {
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
+		$response = new stdClass();
 		if ($_SESSION['AccessLevel'] >= 1000) {
 			$response->success = Shop::GoodDelete($this->dbi, $goodid); //удалить товар
 			$response->message = 'Этот товар удалить невозможно, т.к. он уже продавался в магазинах!';
@@ -209,6 +214,7 @@ class Cnni {
 //barcode
 	public function get_barcode_edit(){
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
+		$response = new stdClass();
 		if ($oper == 'add') {
 			$response->success = Shop::BarcodeAddDelEdit($this->dbi, 'barcode_add', $goodid, $EAN13); //добавить ШК
 			$response->message = 'Возникла ошибка при внесении информации!<br>Сообщите разработчику!';
@@ -240,6 +246,7 @@ class Cnni {
 		} else {
 			$n_level = 0;
 		}
+		$response = new stdClass();
 		$response->page = 1;
 		$response->total = 1;
 		$response->records = 1;
@@ -328,6 +335,7 @@ class Cnni {
 		} else {
 			$n_level = 0;
 		}
+		$response = new stdClass();
 		$response->page = 1;
 		$response->total = 1;
 		$response->records = 1;
@@ -415,6 +423,7 @@ class Cnni {
 		} else {
 			$n_level = 0;
 		}
+		$response = new stdClass();
 		$response->page = 1;
 		$response->total = 1;
 		$response->records = 1;
@@ -444,6 +453,7 @@ class Cnni {
 	public function category_tree_oper() {
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
 //Fn::paramToLog();
+		$response = new stdClass();
 		if ($oper == 'add') {
 			$id = Shop::CreateNewElementTreeNS($this->dbi, 'category', $id, $parent_id, $name);
 			if ($id == false) {
@@ -496,6 +506,7 @@ class Cnni {
 		} else {
 			$n_level = 0;
 		}
+		$response = new stdClass();
 		$response->page = 1;
 		$response->total = 1;
 		$response->records = 1;
@@ -526,6 +537,7 @@ class Cnni {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
 		$result = Shop::GetPromoInfo($this->dbi, $id);
 		$i = 0;
+		$response = new stdClass();
 		while ($row = $result->fetch_array(MYSQLI_BOTH)) {
 			$response->PromoID = $row['PromoID'];
 			$response->Name = $row['Name'];
@@ -554,16 +566,18 @@ class Cnni {
 		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
 		$result = Shop::GetPromoTypeList($this->dbi);
 		$i = 0;
+		//$response = new stdClass();
 		while ($row = $result->fetch_array(MYSQLI_BOTH)) {
 			$response[$i] = array('id' => $row['TypeID'], 'text' => $row['Name']);
 			$i++;
 		}
-//DebugToLog('',json_encode($response));
+//Fn::debugToLog('promo_type',json_encode($response));
 		header("Content-type: application/json;charset=utf-8");
 		echo json_encode($response);
 	}
 	public function promo_tree_oper() {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+		$response = new stdClass();
 		if ($oper == 'add') {
 			$id = Shop::CreateNewElementTreeNS($this->dbi, 'promo', $id, $parent_id, $name);
 			if ($id == false) {
@@ -625,6 +639,7 @@ class Cnni {
 		$x = 0;
 		$id_group = 0;
 		if($colNames == "ID,NameShort"){
+			$response = new stdClass();
 			while ($row = $result->fetch_array(MYSQLI_BOTH)) {
 				if ($row['isgroup'] == 1) continue;
 				$response->rows[$i]['id'] = $row['PromoID'];
@@ -633,6 +648,7 @@ class Cnni {
 				$i++;
 			}
 		}else{
+			$response = array();
 			while ($row = $result->fetch_array(MYSQLI_BOTH)) {
 //$response[$i] = array('id'=>$row['PromoID'],'text'=>$row['Name']);
 				if ($row['isgroup'] == 1) {
@@ -700,6 +716,7 @@ class Cnni {
 
 		$result = Shop::GetPointsList($this->dbi, $param, $sidx, $sord, 0, $start, $limit, $ClientID, $City, $Name);
 		// Создаем объект response
+		$response = new stdClass();
 		$response->page = $page;
 		$response->total = $total_pages;
 		$response->records = $count;
@@ -748,6 +765,7 @@ class Cnni {
 	}
 	public function goods_add2_in_promo() {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+		$response = new stdClass();
 		if($oper == 'add'){
 			$response->success = Shop::AddGoodsAndPriceToPromo($this->dbi, $promo_id, $Article, $PricePromo); //добавить товар в акцию и уст.цену
 			$response->message = 'Возникла ошибка при внесении информации!<br>Сообщите разработчику!';
@@ -761,6 +779,7 @@ class Cnni {
 	}
 	public function del_goods_from_promo() {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+		$response = new stdClass();
 		if ($oper == 'del') {
 			$response->success = Shop::DelGoodsFromPromo($this->dbi, $promo_id, $source); //удаление товаров из категории
 			$response->message = 'Возникла ошибка при удалении!<br>Сообщите разработчику!';
@@ -770,6 +789,7 @@ class Cnni {
 	}
 	public function del_goods_from_promo_action() {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+		$response = new stdClass();
 		if ($oper == 'del') {
 			$response->success = Shop::DelGoodsFromPromoAction($this->dbi, $promo_id, $source); //удаление товаров из категории
 			$response->message = 'Возникла ошибка при удалении!<br>Сообщите разработчику!';
@@ -779,6 +799,7 @@ class Cnni {
 	}
 	public function del_cats_from_promo() {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+		$response = new stdClass();
 		if ($oper == 'del') {
 			$response->success = Shop::DelCatsFromPromo($this->dbi, $promo_id, $source); //удаление товаров из категории
 			$response->message = 'Возникла ошибка при удалении!<br>Сообщите разработчику!';
@@ -788,6 +809,7 @@ class Cnni {
 	}
 	public function del_cats_from_promo2() {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+		$response = new stdClass();
 		if ($oper == 'del') {
 			$response->success = Shop::DelCatsFromPromo2($this->dbi, $promo_id, $source); //удаление товаров из категории
 			$response->message = 'Возникла ошибка при удалении!<br>Сообщите разработчику!';
@@ -855,6 +877,7 @@ class Cnni {
 
 		$result = Shop::GetCatsList($this->dbi, $param, $sidx, $sord, 0, $start, $limit, $Name, $cat_id);
 		// Создаем объект response
+		$response = new stdClass();
 		$response->page = $page;
 		$response->total = $total_pages;
 		$response->records = $count;
@@ -874,6 +897,7 @@ class Cnni {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
 		//Fn::debugToLog('test', 'cardid:' . $cardid . '	name:' . $name . '	dateOfIssue:' . $dateOfIssue.'	dateOfCancellation:'.  $dateOfCancellation);
+		$response = new stdClass();
 		$response->success = Shop::SetDiscountCardInfo($this->dbi, 'info_edit', $cardid, $name, $dateOfIssue, $dateOfCancellation, $clientID, $address, $eMail, $phone, $animal, $startPercent, $startSum, $dopSum, $percentOfDiscount, $howWeLearn, $notes);
 		$response->message = 'Возникла ошибка при внесении информации!<br>Сообщите разработчику!';
 		$response->new_id = 0;
