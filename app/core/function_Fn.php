@@ -106,7 +106,7 @@ class Fn {
 	
 	public static function nfPendel($num) {
 		if ($num == 0) return '';
-		return number_format($num, 2, '.', '');
+		return number_format($num, 0, '.', '');
 	}
 
 	public static function nfPendelP($num) {

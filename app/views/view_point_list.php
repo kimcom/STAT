@@ -9,14 +9,16 @@ $(document).ready(function(){
 // Creating grid1
 	$("#grid1").jqGrid({
 		sortable: true,
-		url:"../engine/jqgrid3?action=point_list_full&f1=ClientID&f2=DateAct&f3=AppVersion&f4=1C&f5=BalanceActivity&f6=NameShort&f7=NameValid&f8=City&f9=Address\n\
-			&f10=Telephone&f11=Label&f12=CountTerminal&f13=PriceType&f14=Matrix&UserID=<?php echo $_SESSION['UserID']; ?>",
+		url:"../engine/jqgrid3?action=point_list_full&f1=ClientID&f2=CurrentIP&f3=DateAct&f4=AppVersion&f5=1C&f6=BalanceActivity&f7=NameShort&f8=NameValid&f9=City&f10=Address\n\
+			&f11=Telephone&f12=Label&f13=CountTerminal&f14=PriceType&f15=Matrix&UserID=<?php echo $_SESSION['UserID']; ?>",
 //		url:"../lists/get_points_list?param=list",
 		datatype: "json",
 		height:'auto',
-		colNames:['Код','Дата ост.','Версия','1C','Контроль','Торговая точка','Название','Город','Адрес','Телефон','Вид собств.','К-во комп.','Тип цены','Матрица'],
+		width:'auto',
+		colNames:['Код','IP адрес','Дата ост.','Версия','1C','Контроль','Торговая точка','Название','Город','Адрес','Телефон','Вид собств.','К-во комп.','Тип цены','Матрица'],
 		colModel:[
 			{name:'ClientID',	index:'ClientID', width: 60, align:"center", sorttype:"text", search:true},
+			{name:'CurrentIP',	index:'CurrentIP', width: 100, align:"center", sorttype:"text", search:true},
 			{name:'DateAct',	index:'DateAct',  width: 80, align:"center", sorttype:"date", search:true},
 			{name:'AppVersion',	index:'AppVersion',width:90, align:"center", sorttype:"text", search:true},
 			{name:'1С',			index:'1C',		  width: 50, align:"center", sorttype:"text", search:true},
@@ -24,14 +26,13 @@ $(document).ready(function(){
 			{name:'NameShort',	index:'NameShort',width:150, sorttype:"text", search:true},
 			{name:'NameValid',	index:'NameValid',width:120, sorttype:"text", search:true},
 			{name:'City',		index:'City',	  width: 80, sorttype:"text", search:true},
-			{name:'Address',	index:'Address',  width:150, sorttype:"text", search:true},
+			{name:'Address',	index:'Address',  width:130, sorttype:"text", search:true},
 			{name:'Telephone',  index:'Telephone',width: 80, sorttype:"text", search:true},
 			{name:'Label',		index:'Label',	  width: 70, align:"left", search:true},
 			{name:'Status',		index:'Status',	  width: 50, align:"left", search:true},
 			{name:'PriceType',	index:'PriceType',width: 50, align:"center", search:true},
 			{name:'Matrix',		index:'MatrixID', width: 70, align:"left", search:false}
 		],
-		width:'auto',
 		shrinkToFit:false,
 //		loadonce: true,
 //		rowNum:10000000,
@@ -81,12 +82,10 @@ $(document).ready(function(){
 	$("#grid1").gridResize();
 });
 </script>
-<div class="container min570">
-	<div style='display:table;'>
-		<div id='div1' class='frameL pt5'>
-			<table id="grid1"></table>
-			<div id="pgrid1"></div>
-		</div>
+<div class="container-fluid center-block center min570">
+	<div id='div1' class='frameL ml40 pt5 center-block'>
+		<table id="grid1" ></table>
+		<div id="pgrid1"></div>
 	</div>
 </div>
 <div id="dialog" title="ВНИМАНИЕ!">

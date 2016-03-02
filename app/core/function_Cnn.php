@@ -966,16 +966,20 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$response = new stdClass();
 		$response->error = '';
 		$response->table1 = '';
+		if($interval=='%Y-%v')	{$increment = '+1 week'; $formatdt = 'Y-W';}
+		if($interval=='%Y-%m')	{$increment = '+1 month'; $formatdt = 'Y-m';}
+		if($interval=='%Y')		{$increment = '+1 year';  $formatdt = 'Y';}
 		$str = '';
 		$part = 4;
 		$cnt_tbl = 0;
 		if($part == 4){
-//Fn::debugToLog('pendel', $dateStart . '	' . $dateStop.'	'.$part);
+//Fn::debugToLog('pendel', $dateStart . '	' . $dateStop.'	'.$part  . '	' . $interval.'	'.  $increment);
 //запрос валовый доход
-			$stmt = $this->db->prepare("CALL pr_reports_pendel(?, @id, ?, ?)");
+			$stmt = $this->db->prepare("CALL pr_reports_pendel(?, @id, ?, ?, ?)");
 			$stmt->bindParam(1, $part, PDO::PARAM_STR);
 			$stmt->bindParam(2, $dateStart, PDO::PARAM_STR);
 			$stmt->bindParam(3, $dateStop, PDO::PARAM_STR);
+			$stmt->bindParam(4, $interval, PDO::PARAM_STR);
 			// вызов хранимой процедуры
 			$stmt->execute();
 			if (!Fn::checkErrorMySQLstmt($stmt))
@@ -990,15 +994,15 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 //Fn::debugToLog('$dg_max_id_row', $dg_max_id_row.'	$cnt_tbl:'.$cnt_tbl);
 				if ($dg_max_id_row != 0){
 //конвертируем полученный rowset в удобный нам формат в array
-					for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-						$period = $dt->format('Y-m');
+					for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+						$period = $dt->format($formatdt);
 						$dataGross[$dg_max_id_row][$period]['Sebest'] = 0;
 						$dataGross[$dg_max_id_row][$period]['Oborot'] = 0;
 						$dataGross[$dg_max_id_row][$period]['Dohod'] = 0;
 					}
 					for ($tr = 0; $tr < $dg_max_id_row; $tr++) {
-						for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-							$period = $dt->format('Y-m');
+						for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+							$period = $dt->format($formatdt);
 							for ($row = 1; $row < $rowCount; $row++) {
 								if ($gross[$row][0] != $tr + 1 || $period != $gross[$row]['Period']) continue;
 								$dataGross[$tr]['Field1']['Name'] = $gross[$row]['Stream'];
@@ -1022,13 +1026,14 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 //Fn::objectToLog($dataGross);
 
 //запрос по затратам
-//Fn::debugToLog('pendel', $dateStart . '	' . $dateStop.'	'.$action);
-//Fn::debugToLog('pendel', 'dt1='.$dt1->format('Y-m') . '	dt2=' . $dt2->format('Y-m'));
+//Fn::debugToLog('pendel', $dateStart . '	' . $dateStop.'	'.$action.'	'.  $interval.'	'.  $increment);
+//Fn::debugToLog('pendel', 'dt1='.$dt1->format($formatdt) . '	dt2=' . $dt2->format($formatdt));
 		$spent = array();
-		$stmt = $this->db->prepare("CALL pr_reports_pendel(?, @id, ?, ?)");
+		$stmt = $this->db->prepare("CALL pr_reports_pendel(?, @id, ?, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $dateStart, PDO::PARAM_STR);
 		$stmt->bindParam(3, $dateStop, PDO::PARAM_STR);
+		$stmt->bindParam(4, $interval, PDO::PARAM_STR);
 		$stmt->execute();
 		if (!Fn::checkErrorMySQLstmt($stmt))
 			$response->error = $stmt->errorInfo();
@@ -1045,14 +1050,14 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 //Fn::debugToLog("spent t=", $t."	".$columnCount."	".$rowCount  . "	" . $rowset[0]['Stream']."		".  $rowset[$rowCount - 1][0]);
 				//if ($max_id_row == 0) continue;
 //конвертируем полученный rowset в удобный нам формат в array
-				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-					$period = $dt->format('Y-m');
+				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+					$period = $dt->format($formatdt);
 //Fn::debugToLog("", $t." ".$max_id_row." ".$period);
 					$spent[$t][$max_id_row][$period]['SumSpent'] = 0;
 				}
 				for ($tr = 0; $tr < $max_id_row; $tr++) {
-					for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-						$period = $dt->format('Y-m');
+					for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+						$period = $dt->format($formatdt);
 						for ($row = 1; $row < $rowCount; $row++) {
 							if ($rowset[$row][0] != $tr + 1 || $period != $rowset[$row]['Period']) continue;
 							$spent[$t][$tr]['Field1']['Name'] = $rowset[$row]['Stream'];
@@ -1072,8 +1077,8 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 //		$count_spent = ($count_t < 5 ? $count_t : 5);
 		$count_spent = ($count_t < $cnt_tbl ? $count_t : $cnt_tbl);
 		for ($t = 0; $t < $count_spent; $t++) {
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-				$period = $dt->format('Y-m');
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				$period = $dt->format($formatdt);
 //				Fn::debugToLog("итоги", $t.'   '.$period);
 //				Fn::debugToLog("итоги", Fn::nfPendel($spent[$t][$spent[$t]['max_id_row']][$period]['SumSpent']));
 				$dataGross[$t][$period]['SumSpent'] = $spent[$t][$spent[$t]['max_id_row']][$period]['SumSpent'];
@@ -1081,21 +1086,20 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		}
 //Fn::objectToLog($spent);
 //Fn::objectToLog($dataGross);
-
 		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
 //формируем шапку Валовый доход
 			$str .= '<thead><tr>
 				<th rowspan=2>№ п-п</th>
-				<th rowspan=2>Валовый доход</th>';
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-				$str .= '<th colspan=4>' . $dt->format('Y-m') . '</th>';
+				<th rowspan=2 style="border-right-width:5px;">Валовый доход</th>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				$str .= '<th colspan=4 style="border-right-width:5px;">' . $dt->format($formatdt) . '</th>';
 			}
 			$str .= '</tr><tr>';
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 				$str .= '<th>Оборот</th>
 				<th>Себест.</th>
 				<th>Маржа</th>
-				<th>Прибыль</th>
+				<th style="border-right-width:5px;">Прибыль</th>
 			   ';
 			}
 			$str .= '</tr></thead>';
@@ -1104,25 +1108,28 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 			for ($tr = 0; $tr < $dg_max_id_row; $tr++) {
 				$str .= '<tr>';
 				$str .= '<td>' . ($tr + 1) . '</td>';
-				$str .= '<td class="TAL">' . $dataGross[$tr]['Field1']['Name'] . '</td>';
-				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-					$period = $dt->format('Y-m');
+				$str .= '<td class="TAL" style="border-right-width:5px;">' . $dataGross[$tr]['Field1']['Name'] . '</td>';
+				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+					$period = $dt->format($formatdt);
 					$str .= '<td class="TAR"><a href="javascript:history(\'../reports_fin/pendel_dop?'
 							. 'catid=' . $dataGross[$tr][$period]['CatID']
 							. '&partner_period=' . $dataGross[$tr][$period]['Period']
+							. '&interval='. $interval
 							. '\');">'
 							. Fn::nfPendel($dataGross[$tr][$period]['Oborot'])
 							. '</a></td>';
 					$str .= '<td class="TAR"><a href="javascript:history(\'../reports_fin/pendel_dop?'
 							. 'catid=' . $dataGross[$tr][$period]['CatID']
 							. '&partner_period=' . $dataGross[$tr][$period]['Period']
+							. '&interval=' . $interval
 							. '\');">'
 							. Fn::nfPendel($dataGross[$tr][$period]['Sebest'])
 							. '</a></td>';
 					$str .= '<td class="TAR">'.Fn::nfPendelP($dataGross[$tr][$period]['Percent']).'</td>';
-					$str .= '<td class="TAR"><a href="javascript:history(\'../reports_fin/pendel_dop?'
+					$str .= '<td class="TAR" style="border-right-width:5px;"><a href="javascript:history(\'../reports_fin/pendel_dop?'
 							. 'catid=' . $dataGross[$tr][$period]['CatID']
 							. '&partner_period=' . $dataGross[$tr][$period]['Period']
+							. '&interval=' . $interval
 							. '\');">'
 							. Fn::nfPendel($dataGross[$tr][$period]['Dohod'])
 							. '</a></td>';
@@ -1134,9 +1141,9 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 			$str .= '<thead>';
 			$str .= '<tr>';
 			$str .= '<th></th>';
-			$str .= '<th class="TAL">' . $dataGross[$tr]['Field1']['Name'] . '</th>';
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-				$period = $dt->format('Y-m');
+			$str .= '<th class="TAL" style="border-right-width:5px;">' . $dataGross[$tr]['Field1']['Name'] . '</th>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				$period = $dt->format($formatdt);
 				$percent = 0;
 				if($dataGross[$tr][$period]['Oborot']<>0){
 					$percent = round(100 * (1-$dataGross[$tr][$period]['Sebest']/$dataGross[$tr][$period]['Oborot']),2);
@@ -1144,7 +1151,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 				$str .= '<th class="TAR">' . Fn::nfPendel($dataGross[$tr][$period]['Oborot']) . '</th>';
 				$str .= '<th class="TAR">' . Fn::nfPendel($dataGross[$tr][$period]['Sebest']) . '</th>';
 				$str .= '<th class="TAR">' . Fn::nfPendelP($percent).'</th>';
-				$str .= '<th class="TAR">' . Fn::nfPendel($dataGross[$tr][$period]['Dohod']) . '</th>';
+				$str .= '<th class="TAR" style="border-right-width:5px;">' . Fn::nfPendel($dataGross[$tr][$period]['Dohod']) . '</th>';
 			}
 			$str .= '</tr>';
 			$str .= "</thead>";
@@ -1153,19 +1160,19 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 //формируем шапку Валовая прибыль
 		$str .= '<thead><tr>
 				<th rowspan=2>№ п-п</th>
-				<th rowspan=2>Валовая прибыль</th>';
-		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-			$str .= '<th colspan=4>' . $dt->format('Y-m') . '</th>';
+				<th rowspan=2 style="border-right-width:5px;">Валовая прибыль</th>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+			$str .= '<th colspan=4 style="border-right-width:5px;">' . $dt->format($formatdt) . '</th>';
 			$total[$period]['Dohod'] = 0;
 			$total[$period]['SumSpent'] = 0;
 			$total[$period]['Prib'] = 0;
 		}
 		$str .= '</tr><tr>';
-		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 			$str .= '<th>Вал.прибыль</th>
 					<th>Затраты</th>
 					<th>% затрат</th>
-					<th>Прибыль</th>
+					<th style="border-right-width:5px;">Прибыль</th>
 				   ';
 		}
 		$str .= '</tr></thead>';
@@ -1175,9 +1182,9 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		for ($tr = 0; $tr < $dg_max_id_row; $tr++) {
 			$str .= '<tr>';
 			$str .= '<td>' . ($tr + 1) . '</td>';
-			$str .= '<td class="TAL">' . $dataGross[$tr]['Field1']['Name'] . '</td>';
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-				$period = $dt->format('Y-m');
+			$str .= '<td class="TAL" style="border-right-width:5px;">' . $dataGross[$tr]['Field1']['Name'] . '</td>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				$period = $dt->format($formatdt);
 				$dohod = $dataGross[$tr][$period]['Dohod'];
 				$sumspent = $dataGross[$tr][$period]['SumSpent'];
 				$total[$period]['Dohod'] += $dohod;
@@ -1189,7 +1196,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 				$str .= '<td class="TAR">'.Fn::nfPendel($dohod).'</a></td>';
 				$str .= '<td class="TAR">'.Fn::nfPendel($sumspent).'</a></td>';
 				$str .= '<td class="TAR">'.Fn::nfPendelP($percent).'</a></td>';
-				$str .= '<td class="TAR">'.Fn::nfPendel($dohod - $sumspent).'</a></td>';
+				$str .= '<td class="TAR" style="border-right-width:5px;">'.Fn::nfPendel($dohod - $sumspent).'</a></td>';
 			}
 			$str .= '</tr>';
 		}
@@ -1198,120 +1205,130 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$str .= '<thead>';
 		$str .= '<tr>';
 		$str .= '<th></th>';
-		$str .= '<th class="TAL">' . $dataGross[$tr]['Field1']['Name'] . '</th>';
-		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-			$period = $dt->format('Y-m');
+		$str .= '<th class="TAL" style="border-right-width:5px;">' . $dataGross[$tr]['Field1']['Name'] . '</th>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+			$period = $dt->format($formatdt);
 			$percent = 0;
 			if ($total[$period]['Dohod'] <> 0) $percent = round(100 * $total[$period]['SumSpent'] / $total[$period]['Dohod'], 2);
 			$str .= '<th class="TAR">' . Fn::nfPendel($total[$period]['Dohod']) . '</th>';
 			$str .= '<th class="TAR">' . Fn::nfPendel($total[$period]['SumSpent']) . '</th>';
 			$str .= '<th class="TAR">' . Fn::nfPendelP($percent) . '</th>';
-			$str .= '<th class="TAR">' . Fn::nfPendel($total[$period]['Prib']) . '</th>';
+			$str .= '<th class="TAR" style="border-right-width:5px;">' . Fn::nfPendel($total[$period]['Prib']) . '</th>';
 		}
 		$str .= '</tr>';
 		$str .= "</thead>";
 //отступ
-		$str .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
+		$str2 = '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
 //формируем шапку Затраты
-		$str .= '<thead><tr>
+		$str2 .= '<thead><tr>
 				<th rowspan=1>№ п-п</th>
-				<th rowspan=1>Затраты</th>';
-//		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-//			$str .= '<th colspan=4>' . $dt->format('Y-m') . '</th>';
+				<th rowspan=1 style="border-right-width:5px;">Затраты</th>';
+//		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+//			$str .= '<th colspan=4>' . $dt->format($formatdt) . '</th>';
 //		}
 //		$str .= '</tr><tr>';
-		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-			$str .= '<th colspan=4>Сумма затрат '.  $dt->format('Y-m') .'</th>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+			$str2 .= '<th colspan=4 style="border-right-width:5px;">Сумма затрат '.  $dt->format($formatdt) .'</th>';
 		}
-		$str .= '</tr></thead>';
+		$str2 .= '</tr></thead>';
 
 //отступ
-		$str .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
-//		$str .= '</table><table id="example" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
+		$str2 .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
+//		$str2 .= '</table><table id="example" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
 //формируем шапку ЗАТРАТЫ Переменные расходы
-			$str .= '<thead><tr><th></th>
-					<th>Переменные расходы</th>';
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-				$period = $dt->format('Y-m');
+			$str2 .= '<thead><tr><th></th>
+					<th style="border-right-width:5px;">Переменные расходы</th>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				$period = $dt->format($formatdt);
 				$total[$period]['SumSpent'] = 0;
-				$str .= '<th colspan=4></th>';
+				$str2 .= '<th colspan=4 style="border-right-width:5px;"></th>';
 			}
-			$str .= '</tr>';
-			$str .= '</thead>';
+			$str2 .= '</tr>';
+			$str2 .= '</thead>';
 		
+		$str3 = '<thead><tr class="bc12"><th></th><th style="border-right-width:5px;">EBITDA</th>';
 		for($t = 0; $t < $count_t; $t++){
 			$max_id_row = $spent[$t]['max_id_row'];
 //отступ
-			if(!strpos($spent[$t]['name'],'EBITDA')){
-				$str .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
+//			if(!strpos($spent[$t]['name'],'EBITDA')){
+			if ($t <= 9){
+				$str2 .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
 			}
 //формируем шапку для таблиц затрат (их может быть много)
-			$str .= '<thead><tr><th></th>
-					<th>'.$spent[$t]['name'].'</th>';
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-				$period = $dt->format('Y-m');
+			$str2 .= '<thead><tr><th></th>
+					<th style="border-right-width:5px;">'.$spent[$t]['name'].'</th>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				$period = $dt->format($formatdt);
 				if(!strpos($spent[$t]['name'],'EBITDA')){
-					$str .= '<th colspan=4></th>';
+					$str2 .= '<th colspan=4 style="border-right-width:5px;"></th>';
 				}else{
 //					Fn::debugToLog("$period", $total[$period]['Prib'].'	'.$total[$period]['SumSpent']);
-					$str .= '<th colspan=4>'.Fn::nfPendel($total[$period]['Prib'] - $total[$period]['SumSpent']).'</th>';
+					$str2 .= '<th colspan=4 style="border-right-width:5px;">'.Fn::nfPendel($total[$period]['Prib'] - $total[$period]['SumSpent']).'</th>';
+					$str3 .= '<th colspan=4 style="border-right-width:5px;">'.Fn::nfPendel($total[$period]['Prib'] - $total[$period]['SumSpent']).'</th>';
 				}
 			}
-			$str .= '</tr>';
-			$str .= '</thead>';
+			if(!strpos($spent[$t]['name'],'EBITDA')){}else{
+				$str3 .= '</tr>';
+				$str3 .= '</thead>';
+			}
+			$str2 .= '</tr>';
+			$str2 .= '</thead>';
 //формируем таблицу 3
-			$str .= '<tbody>';
+			$str2 .= '<tbody>';
 			for ($tr = 0; $tr < $max_id_row; $tr++) {
-				$str .= '<tr>';
-				$str .= '<td>' . ($tr + 1) . '</td>';
-				$str .= '<td class="TAL">' . $spent[$t][$tr]['Field1']['Name'] . '</td>';
-				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-					$period = $dt->format('Y-m');
-					$str .= '<td colspan=4>'
+				$str2 .= '<tr>';
+				$str2 .= '<td>' . ($tr + 1) . '</td>';
+				$str2 .= '<td class="TAL" style="border-right-width:5px;">' . $spent[$t][$tr]['Field1']['Name'] . '</td>';
+				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+					$period = $dt->format($formatdt);
+					$str2 .= '<td colspan=4 style="border-right-width:5px;">'
 							. '<a href="javascript:history(\'../reports_fin/pendel_dop?'
 							. 'catid=' . $spent[$t][$tr][$period]['CatID']
 							. '&spent_period=' . $spent[$t][$tr][$period]['Period']
+							. '&interval=' . $interval
 							. '\');">'
 							. Fn::nfPendel($spent[$t][$tr][$period]['SumSpent'])
 							. '</a>'
 							. '</td>';
 				}
-				$str .= '</tr>';
+				$str2 .= '</tr>';
 			}
-			$str .= "</tbody>";
+			$str2 .= "</tbody>";
 //формируем итоги 3
-			$str .= '<thead>';
-			$str .= '<tr>';
-			$str .= '<th></th>';
-			$str .= '<th class="TAL">' . $spent[$t][$tr]['Field1']['Name'] . '</th>';
-			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-				$period = $dt->format('Y-m');
+			$str2 .= '<thead>';
+			$str2 .= '<tr>';
+			$str2 .= '<th></th>';
+			$str2 .= '<th class="TAL" style="border-right-width:5px;">' . $spent[$t][$tr]['Field1']['Name'] . '</th>';
+			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+				$period = $dt->format($formatdt);
 				if($t >= $cnt_tbl){ 
 //					Fn::debugToLog("вошло:	$t	$tr	$period	SumSpent=", $spent[$t][$tr][$period]['SumSpent']);
 					$total[$period]['SumSpent'] += $spent[$t][$tr][$period]['SumSpent'];
 				}
-				$str .= '<th colspan=4>' . Fn::nfPendel($spent[$t][$tr][$period]['SumSpent']) . '</th>';
+				$str2 .= '<th colspan=4 style="border-right-width:5px;">' . Fn::nfPendel($spent[$t][$tr][$period]['SumSpent']) . '</th>';
 			}
-			$str .= '</tr>';
-			$str .= "</thead>";
+			$str2 .= '</tr>';
+			$str2 .= "</thead>";
 		}
 //отступ
-		if (!strpos($spent[$t]['name'], 'EBITDA'))
-			$str .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
+//		if (!strpos($spent[$t]['name'], 'EBITDA'))
+//			$str2 .= '<thead><tr><th colspan=1000 class="h10"></th></tr></thead>';
 //формируем конечный итог
-		$str .= '<thead>';
-		$str .= '<tr>';
-		$str .= '<th></th>';
-		$str .= '<th class="TAL">ИТОГО ЧИСТАЯ ПРИБЫЛЬ:</th>';
-		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 month')) {
-			$period = $dt->format('Y-m');
+		$str41 .= '<thead><tr>';
+		$str42 .= '<thead><tr class="bc13">';
+		$str5 .= '<th></th>';
+		$str5 .= '<th class="TAL" style="border-right-width:5px;">ИТОГО ЧИСТАЯ ПРИБЫЛЬ:</th>';
+		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
+			$period = $dt->format($formatdt);
 			//$total[$period]['SumSpent'] -= $spent[$t][$tr][$period]['SumSpent'];
-			$str .= '<th colspan=4>' . Fn::nfPendel($total[$period]['Prib']-$total[$period]['SumSpent']) . '</th>';
+			$str5 .= '<th colspan=4 style="border-right-width:5px;">' . Fn::nfPendel($total[$period]['Prib']-$total[$period]['SumSpent']) . '</th>';
 		}
-		$str .= '</tr>';
-		$str .= "</thead>";
+		$str5 .= '</tr>';
+		$str5 .= "</thead>";
+		$str .= $str3.$str42.$str5.$str2.$str41.$str5;
 		$str .= "</table>";
 		$response->table1 = $str;
+//Fn::debugToLog("", $str3);
 		header("Content-type: application/json;charset=utf8");
 		echo json_encode($response);
 	}
@@ -2187,6 +2204,25 @@ Fn::debugToLog('jqgrid3 url', $url);
 		$stmt = $this->db->prepare("CALL pr_menu('menu_users_save',@id,?,?,?)");
 		$stmt->bindParam(1, $menuid, PDO::PARAM_STR);
 		$stmt->bindParam(2, $userid, PDO::PARAM_STR);
+		$stmt->bindParam(3, $value, PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$this->echo_response($stmt);
+	}
+//reasons - основания для ручной скидки
+	public function reasons_save() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		if (isset($oper)){
+			$reason = $Reason;
+			$value = $NoShow;
+			if ($oper == 'edit') $typeReasonID = $id;
+			if ($oper == 'add')  $typeReasonID = null;
+		}
+		$stmt = $this->db->prepare("CALL pr_reason('reasons_save',@id,?,?,?)");
+		$stmt->bindParam(1, $typeReasonID, PDO::PARAM_STR);
+		$stmt->bindParam(2, $reason, PDO::PARAM_STR);
 		$stmt->bindParam(3, $value, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();

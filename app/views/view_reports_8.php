@@ -552,6 +552,13 @@ $(document).ready(function () {
 	});
 	
 	$('#button_report_run').click(function (e) {
+		var count = $("#grouping").children().length;
+		if (count == 0) {
+			$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
+			$("#dialog>#text").html('Необходимо выбрать группировку!');
+			$("#dialog").dialog("open");
+			return;
+	    }
 		if(this.id!='button_report9'){
 			$("#dialog_progress").dialog( "option", "title", 'Ожидайте! Выполняется формирование отчета...');
 			$("#dialog_progress").dialog("open");

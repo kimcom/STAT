@@ -80,7 +80,7 @@ if (isset($_REQUEST['userID'])) {
 			},
 			function (data) {
 				if (data == false) {
-					$("#dialog>#text").html('Возникла ошибка при сохранении кодов товаров.<br><br>Сообщите разработчику!');
+					$("#dialog>#text").html('Возникла ошибка при сохранении.<br><br>Сообщите разработчику!');
 					$("#dialog").dialog("open");
 				}else{
 					$("#grid1").trigger('reloadGrid');

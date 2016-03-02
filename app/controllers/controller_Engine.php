@@ -67,10 +67,11 @@ class Controller_Engine extends Controller {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
 		$report_name = "Users\\Files\\" . $_SESSION['UserID'] . '_' . $report_name . ".xls";
 //Fn::debugToLog('set file', $report_name);
-        $content = <<<EOF
+		$html = iconv('utf-8', 'cp1251', $html);
+		$content = <<<EOF
 <html>
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf8">
+	<meta http-equiv="content-type" content="text/html; charset=windows-1251">
 </head>
 <body>
 	{$html}
@@ -216,5 +217,11 @@ EOF;
 		$cnn = new Cnn();
 		return $cnn->balance_min_set_auto();
 	}
+
+	function action_reasons_save() {
+		$cnn = new Cnn();
+		return $cnn->reasons_save();
+	}
+
 }
 ?>

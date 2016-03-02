@@ -7,8 +7,13 @@
  Deny from all
 </FilesMatch>
 
+Options -Indexes
+
 DefaultLanguage ru
 AddDefaultCharset UTF-8
+
+php_value session.gc_maxlifetime 7200
+php_value session.save_path "E:/Sites/SESSION/STAT"
 
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f

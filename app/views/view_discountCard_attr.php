@@ -217,11 +217,118 @@ if (isset($_REQUEST['cardid'])) {
 
 	$("#grid1").gridResize();
 
+	fs2 = 0;
+// Creating grid2
+	$("#grid2").jqGrid({
+		sortable: true,
+		datatype: "json",
+		height: 'auto',
+		colNames: ['Код чека', 'Дата', 'Магазин', 'Тип оплаты', 'Сумма без скидки', 'Скидка', 'К оплате'],
+		colModel: [
+			{name: 'cl_CheckID', index: 'cl.CheckID', width: 80, align: "center", sorttype: "number", search: true},
+			{name: 'cl_CloseDateTime', index: 'cl.CloseDateTime', width: 120, align: "center", sorttype: "date", search: true},
+			{name: 'c_NameShort', index: 'c.NameShort', width: 300, align: "left", sorttype: "text", search: true},
+			{name: 'cl_TypePayment', index: 'cl.TypePayment', width: 80, align: "center", stype: 'select', searchoptions: {value: ":любой;1:без нал.;0:нал."}},
+			{name: 'SumFull', index: 'SumFull', width: 100, align: "right", sorttype: "number", search: false},
+			{name: 'SumDiscount', index: 'SumDiscount', width: 100, align: "right", sorttype: "number", search: false},
+			{name: 'Sum', index: 'Sum', width: 100, align: "right", sorttype: "number", search: false},
+		],
+		gridComplete: function () {if (!fs2) {fs2 = 1; filter_restore("#grid2");}},
+		width: 'auto',
+		shrinkToFit: false,
+//		loadonce: true,
+//		rowNum:10000000,
+		rowNum: 20,
+		rowList: [20, 30, 40, 50, 100],
+		sortname: "cl.CloseDateTime",
+		sortorder: "desc",
+		viewrecords: true,
+		gridview: true,
+		toppager: true,
+		caption: "Список чеков",
+		pager: '#pgrid2',
+		// subGrid
+		subGrid: true,
+		subGridOptions: {
+		plusicon: "ui-icon-triangle-1-e",
+		minusicon: "ui-icon-triangle-1-s",
+		openicon: "ui-icon-arrowreturn-1-e",
+		// load the subgrid data only once	
+		// and the just show/hide
+		reloadOnExpand: false,
+		// select the row when the expand column is clicked
+		selectOnExpand: true
+		},
+		subGridRowExpanded: function (subgrid_id, row_id) {
+		var subgrid_table_id, pager_id;
+		subgrid_id = subgrid_id.replace('.', '_');
+		row_id = row_id.replace('_', '.');
+		subgrid_table_id = subgrid_id + "_t";
+		pager_id = "p_" + subgrid_table_id;
+		$("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+		$("#" + subgrid_table_id).jqGrid({
+			url: "../engine/jqgrid3?action=doc_check_info&sc.CheckID=" + row_id + "&f1=GoodID&f2=Article&f3=Name&f4=Quantity&f5=PriceBase&f6=PriceDiscount&f7=DiscountPercent&f8=Price&f9=Summa",
+			datatype: "json",
+			colNames: ['GoodID', 'Артикул', 'Название', 'Кол-во', 'Цена баз.', 'Скидка', '% ск.', 'Цена', 'Сумма'],
+			colModel: [
+			{name: "sc_GoodID", index: "sc.GoodID", width: 60, align: "center", sorttype: "number"},
+			{name: "g_Article", index: "g.Article", width: 100, align: "left", sorttype: "text"},
+			{name: "g_Name", index: "g.Name", width: 200, align: "left", sorttype: "text"},
+			{name: "sc_Quantity", index: "sc.Quantity", width: 80, align: "right", sorttype: "number"},
+			{name: "sc_PriceBase", index: "sc.PriceBase", width: 80, align: "right", sorttype: "number"},
+			{name: "sc_PriceDiscount", index: "sc.PriceDiscount", width: 80, align: "right", sorttype: "number"},
+			{name: "sc_DiscountPercent", index: "sc.DiscountPercent", width: 80, align: "right", sorttype: "number"},
+			{name: "sc_Price", index: "sc.Price", width: 80, align: "right", sorttype: "number"},
+			{name: "Summa", index: "Summa", width: 100, align: "right", sorttype: "number"},
+			],
+			rowNum: 20,
+			pager: pager_id,
+			sortname: "sc.DT_modi",
+			height: '100%',
+		});
+		$("#" + subgrid_table_id).jqGrid('navGrid', "#" + pager_id, {edit: false, add: false, del: false})
+		$("#pg_" + pager_id).remove();
+		$("#" + pager_id).removeClass('ui-jqgrid-pager');
+		$("#" + pager_id).addClass('ui-jqgrid-pager-empty');
+		}
+	});
+	$("#grid2").jqGrid('navGrid', '#pgrid2', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
+	$("#grid2").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true, beforeSearch: function () {filter_save("#grid2");}});
+	$("#grid2").navButtonAdd('#grid2_toppager', {
+		title: 'Добавить чек в историю', buttonicon: "ui-icon-pencil", caption: 'Добавить чек в историю', position: "last",
+		onClickButton: function () {
+			$("#inputbox").dialog("open");
+		}
+	});
+	$("#grid2").navButtonAdd('#grid2_toppager', {
+		title: 'Удалить чек из истории', buttonicon: "ui-icon-pencil", caption: 'Удалить чек из истории', position: "last",
+		onClickButton: function () {
+		    var id = $("#grid2").jqGrid('getGridParam', 'selrow');
+		    var node = $("#grid2").jqGrid('getRowData', id);
+			//console.log(id,node,node.Name);
+		    if (node.cl_CheckID != ''){
+				$("#checkid").val(node.cl_CheckID);
+				$("#inputbox2>#text").html("Удалить из истории чек № "+node.cl_CheckID+"?");
+				$("#inputbox2").dialog("open");
+			}
+		}
+	});
+
+	$("#pg_pgrid2").remove();
+	$("#pgrid2").removeClass('ui-jqgrid-pager');
+	$("#pgrid2").addClass('ui-jqgrid-pager-empty');
+
+	$("#grid2").gridResize();
+
 	$('#myTab a').click(function (e) {
 		e.preventDefault();
 		if (this.id == 'a_tab_history') {
 			$("#grid1").jqGrid('setGridParam', {url: "../engine/jqgrid3?action=discountcards_history&cl.CardID=" + $("#cardid").val() + "&grouping=cl.CheckID&f1=CheckID&f2=DT_check&f3=ClientName&f4=TypePaymentName&f5=SumFull&f6=SumDiscount&f7=Sum", page: 1});
 			$("#grid1").trigger('reloadGrid');
+		}
+		if (this.id == 'a_tab_history_parent') {
+			$("#grid2").jqGrid('setGridParam', {url: "../engine/jqgrid3?action=discountcards_history&cl.CardID=" + $("#parent_cardid").val() + "&grouping=cl.CheckID&f1=CheckID&f2=DT_check&f3=ClientName&f4=TypePaymentName&f5=SumFull&f6=SumDiscount&f7=Sum", page: 1});
+			$("#grid2").trigger('reloadGrid');
 		}
 	});
 
@@ -230,6 +337,7 @@ if (isset($_REQUEST['cardid'])) {
 });
 </script>
 <input id="cardid" name="cardid" type="hidden" value="<?php echo $row['CardID']; ?>">
+<input id="parent_cardid" name="parent_cardid" type="hidden" value="<?php echo $row['ParentCardID']; ?>">
 <style>
 	#feedback { font-size: 12px; }
 	.selectable { list-style-type: none; margin: 0; padding: 0; width: 100%; }
@@ -239,6 +347,7 @@ if (isset($_REQUEST['cardid'])) {
 	<ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
 		<li class="active"><a id="a_tab_filter" href="#tab_filter" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">Информация о дисконтной карте</legend></a></li>
 		<li><a id="a_tab_history" href="#tab_history" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">История покупок</legend></a></li>
+		<li class="<?php echo $row['ParentCardID']==''?'hide':''; ?>"><a id="a_tab_history_parent" href="#tab_history_parent" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">История покупок (врем.карта)</legend></a></li>
 	</ul>
 	<div class="floatL">
 		<button id="button_save" class="btn btn-sm btn-success frameL m0 h40 hidden-print font14">
@@ -251,6 +360,11 @@ if (isset($_REQUEST['cardid'])) {
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w25p TAL">Дисконтная карта:</span>
 					<span class="input-group-addon form-control TAL"><?php echo $row['CardID']; ?></span>
+					<span class="input-group-addon w32"></span>
+				</div>
+				<div class="input-group input-group-sm w100p">
+					<span class="input-group-addon w25p TAL">№ врем.карты: </span>
+					<span class="input-group-addon form-control TAL"><?php echo $row['ParentCardID']; ?></span>
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
@@ -348,6 +462,16 @@ if (isset($_REQUEST['cardid'])) {
 					<div id='div1' class='frameL pt5'>
 						<table id="grid1"></table>
 						<div id="pgrid1"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane min530 m0 w100p ui-corner-all borderTop1 borderColor frameL border1" id="tab_history_parent">
+			<div class="container min570">
+				<div style='display:table;'>
+					<div id='div2' class='frameL pt5'>
+						<table id="grid2"></table>
+						<div id="pgrid2"></div>
 					</div>
 				</div>
 			</div>

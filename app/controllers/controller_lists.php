@@ -33,6 +33,9 @@ class Controller_Lists extends Controller {
 	function action_sellers() {
 		$this->view->generate('view_seller_list.php', 'view_template.php');
 	}
+	function action_reasons() {
+		$this->view->generate('view_reason_list.php', 'view_template.php');
+	}
 	function action_discountCards() {
 		$this->view->generate('view_discountCard_list.php', 'view_template.php');
 	}

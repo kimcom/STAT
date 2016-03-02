@@ -1,25 +1,25 @@
 <?php
-session_save_path("e:\\sites\\Session");
+//session_save_path("e:\\sites\\Session");
 session_start();
 	$_SESSION['nav_style'] = 'default';
 	//$_SESSION['nav_style'] = 'inverse';
-    $_SESSION['DT_sebest'] = '04/03/2015';
+    $_SESSION['DT_sebest'] = '25-10-2015';
 
 	$_SESSION['server_port'] = '3306';
 	$_SESSION['server_user'] = 'sau';
 	$_SESSION['server_pass'] = '149521';
 
-if (!isset($_SESSION['sitename']))
+//if (!isset($_SESSION['sitename']))
     $_SESSION['sitename'] = 'Система анализа статистики<br/>и управления продажами. (Сокращенно САУ)<br/>Сузирье'.'&trade;';
-if (!isset($_SESSION['titlename']))
+//if (!isset($_SESSION['titlename']))
     $_SESSION['titlename'] = 'Система анализа статистики и управления продажами компании Сузирье'.'&trade;';
-if (!isset($_SESSION['company']))
+//if (!isset($_SESSION['company']))
 	$_SESSION['company'] = 'Сузирье™';
-if (!isset($_SESSION['dbname']))
+//if (!isset($_SESSION['dbname']))
 	$_SESSION['dbname'] = 'shop';
-if (!isset($_SESSION['siteEmail']))
-	$_SESSION['siteEmail'] = 'stat@tor.pp.ua';
-if (!isset($_SESSION['adminEmail']))
+//if (!isset($_SESSION['siteEmail']))
+	$_SESSION['siteEmail'] = 'stat@priroda.ua';
+//if (!isset($_SESSION['adminEmail']))
 	$_SESSION['adminEmail'] = 'kimcom@ukr.net';
 if (!isset($_SESSION['UserID']))
     $_SESSION['UserID'] = 0;

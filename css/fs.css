@@ -42,6 +42,7 @@
 /*    нельзя включать!!! border:1px #AAAAAA solid;*/
     border-color: rgb(221, 221, 221);
 }
+
 .bc1{background-color: #00A5FF;}
 .bc2{background-color: #FFA500;}
 .bc3{background-color: #A5FF00;}
@@ -53,6 +54,8 @@
 .bc9{background-color: #DDAADD;}
 .bc10{background-color:#FFDDAA;}
 .bc11{background-color:#C1C1C1;}
+.bc12{background-color:#FFFFCC;} /*lightyellow*/
+.bc13{background-color:#F0FFFF;} /*Aquamarine*/
 
 .pl5{padding-left:5px;}
 .pl10{padding-left:10px;}

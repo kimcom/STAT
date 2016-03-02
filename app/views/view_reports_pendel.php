@@ -52,6 +52,11 @@ $(document).ready(function () {
 	$("#DT_stop").datepicker("setDate", dt);
 	$(".ui-datepicker-trigger").addClass("hidden-print");
 	
+	//заполнение интервалов
+	var interval = [{id: '%Y-%v', text: 'неделя'}, {id: '%Y-%m', text: 'месяц'}, {id: '%Y', text: 'год'}];
+	$("#select_interval").select2({data: interval, placeholder: "Выберите интервал", minimumResultsForSearch: Infinity});
+	$("#select_interval").select2("val", '%Y-%m');
+
 	$.post('../Engine/setting_get?sid='+reportID, function (json) {
 		$("#select_report_setting").select2({
 		    createSearchChoice: function (term, data){
@@ -78,8 +83,9 @@ $(document).ready(function () {
 			for(key in aset){
 				var k = aset[key].split('=');
 				if(k[1]=='')continue;
-				if(k[0]=='DT_start') {$("#DT_start").val(k[1]);continue;}
+				if(k[0]=='DT_start'){$("#DT_start").val(k[1]);continue;}
 				if(k[0]=='DT_stop') {$("#DT_stop").val(k[1]);continue;}
+				if(k[0]=='interval'){$("#select_interval").select2("val", k[1]);continue;}
 			}
 //$('#button_report_run').click();
 		});
@@ -120,7 +126,8 @@ $(document).ready(function () {
 			}
 			$.post("../Engine/setting_set"+
 					"?DT_start="+ $("#DT_start").val()+
-					"&DT_stop="	+ $("#DT_stop").val(),
+					"&DT_stop="	+ $("#DT_stop").val()+
+					"&interval="+ $("#select_interval").select2("val"),
 				{	sid:	reportID,
 					sname:	setting.text,
 				}, 
@@ -150,7 +157,7 @@ $(document).ready(function () {
 	$('#button_report_run').click(function (e) {
 		$("#dialog_progress").dialog( "option", "title", 'Ожидайте! Выполняется формирование отчета...');
 		$("#dialog_progress").dialog("open");
-		$.post("../reports_fin/pendel_data2?action=3&DT_start=" + $("#DT_start").val() + "&DT_stop=" + $("#DT_stop").val(), function (json) {
+		$.post("../reports_fin/pendel_data2?action=3&DT_start=" + $("#DT_start").val() + "&DT_stop=" + $("#DT_stop").val() + "&interval=" + $("#select_interval").select2("val"), function (json) {
 			$('#div_report').html(json.table1);
 			//if($('#example1').hasClass('dataTable'))$('#example1').dataTable().fnDestroy();
 			//$('#example1').html(json.table1);
@@ -225,6 +232,11 @@ function history(url){
 					<span class="input-group-btn w32">
 						<a class="btn btn-default w100p" type="button">...</a>
 					</span>
+				</div>
+				<div class="input-group input-group-sm mt5 w100p">
+					<span class="input-group-addon w130">Интервал:</span>
+					<div class="w100p" id="select_interval" name="select_interval"></div>
+					<span class="input-group-addon w32"></span>
 				</div>
 			</div>
 		</div>

@@ -340,7 +340,6 @@ var source_id_copy 	= 0;
 		autoOpen: false, modal: true, width: 400,
 		buttons: [{text: "Закрыть", click: function() {$( this ).dialog( "close" );}}]
 	});
-
 });
 </script>
 <div class="min570">

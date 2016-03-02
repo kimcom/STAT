@@ -647,6 +647,13 @@ $("#select_report_setting").click();
 	}
 
 	$('#button_report_run').click(function (e) {
+		var count = $("#grouping").children().length;
+		    if (count == 0) {
+			$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
+			$("#dialog>#text").html('Необходимо выбрать группировку!');
+			$("#dialog").dialog("open");
+			return;
+	    }
 		if($("#gridRep").jqGrid('getRowData').length > 0) $.jgrid.gridUnload("#gridRep");
 		gridRep();
 		$("#dialog_progress").dialog( "option", "title", 'Ожидайте! Выполняется формирование отчета...');

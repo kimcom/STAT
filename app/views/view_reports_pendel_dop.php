@@ -5,8 +5,8 @@ foreach ($_REQUEST as $arg => $val)
 if(isset($partner_period)){
 	$url = '../engine/jqgrid3?action=partner_total&cat_partner_id='.$catid;
 	if ($catid == '10000')
-	$url = '../engine/jqgrid3?action=partner_total&cat_partner_noid=' . $catid;
-	$url .= '&partner_period=' . $partner_period . '&grouping=ca.CatID,dl.PartnerID&f1=PartnerID&f2=CatName&f3=PartnerName&f4=Oborot&f5=Sebest&f6=Dohod';
+		$url = '../engine/jqgrid3?action=partner_total&cat_partner_noid=' . $catid;
+	$url .= '&pendel_interval=' . $interval . '&partner_period=' . $partner_period . '&grouping=ca.CatID,dl.PartnerID&f1=PartnerID&f2=CatName&f3=PartnerName&f4=Oborot&f5=Sebest&f6=Dohod';
 ?>
 <script type="text/javascript">
 function start() {
@@ -43,7 +43,7 @@ if(isset($spent_period)){
 	$url = '../engine/jqgrid3?action=spent_total&cat_spent_id='.$catid;
 	if($catid=='10000')
 		$url = '../engine/jqgrid3?action=spent_total&cat_spent_noid='.$catid;
-	$url .= '&spent_period='.$spent_period.'&grouping=ca.CatID,dc.SpentID&f1=SpentID&f2=CatName&f3=SpentName&f4=Summa';
+	$url .= '&pendel_interval=' . $interval . '&spent_period='.$spent_period.'&grouping=ca.CatID,dc.SpentID&f1=SpentID&f2=CatName&f3=SpentName&f4=Summa';
 ?>
 <script type="text/javascript">
 function start() {

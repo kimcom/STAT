@@ -5,10 +5,11 @@ class Mail {
 //настройки подключения к серверу
 		$config['smtp_username'] = 'Администрация сайта ' . $_SESSION['company'];  //Смените на имя своего почтового ящика.
 		$config['smtp_port'] = '25'; // Порт работы. Не меняйте, если не уверены.
-		$config['smtp_host'] = '192.168.1.1';  //сервер для отправки почты(для наших клиентов менять не требуется)
+		$config['smtp_host'] = '192.168.10.202';  //сервер для отправки почты(для наших клиентов менять не требуется)
 		//$config['smtp_host'] = '1c.priroda.com.ua';  //сервер для отправки почты(для наших клиентов менять не требуется)
+		$config['smtp_from'] = $_SESSION['siteEmail']; //Ваше имя - или имя Вашего сайта. Будет показывать при прочтении в поле "От кого"
 		$config['smtp_login'] = $_SESSION['siteEmail']; //Ваше имя - или имя Вашего сайта. Будет показывать при прочтении в поле "От кого"
-		$config['smtp_password'] = 'x1234';  //Измените пароль
+		$config['smtp_password'] = '14952178';  //Измените пароль
 		$config['smtp_debug'] = true;  //Если Вы хотите видеть сообщения ошибок, укажите true вместо false
 //		$config['smtp_charset'] = 'Windows-1251';   //кодировка сообщений. (или UTF-8, итд)
 		$config['smtp_charset'] = 'UTF-8';   //кодировка сообщений. (или UTF-8, итд)
@@ -29,7 +30,7 @@ class Mail {
 		$SEND .= "X-Priority: 3";
 		$SEND .= "X-Mailer: PHP/" . phpversion();
 		$SEND .= $message . "\r\n";
-
+//Fn::debugToLog('mail',$SEND);
 		if (!$socket = fsockopen($config['smtp_host'], $config['smtp_port'], $errno, $errstr, 30)) {
 			if ($config['smtp_debug'])
 				Fn::errorToLog("email robot", $errno . ":" . $errstr);
