@@ -36,10 +36,11 @@ $(document).ready(function(){
 				$("#PromoID").val(json.PromoID);
 			}
 		);
-		$("#grid1").jqGrid('setGridParam',{url:"../goods/list?col=gift&param=in promo_goods_item&cat_id="+row_id,page:1});
+		$("#grid1").jqGrid('setGridParam',{url:"../goods/get_cats_list?param=in promo_cats_item&cat_id="+row_id,page:1});
 		$("#grid1").trigger('reloadGrid');
-		$("#grid2").jqGrid('setGridParam',{url:"../goods/list?col=gift&param=no promo_goods_item&cat_id="+row_id,page:1});
+		$("#grid2").jqGrid('setGridParam', {url: "../goods/get_cats_list?param=no promo_cats_item&cat_id=" + row_id, page: 1});
 		$("#grid2").trigger('reloadGrid');
+
 		$("#grid3").jqGrid('setGridParam',{url:"../goods/list?col=gift&param=in promo_goods_action&cat_id="+row_id,page:1});
 		$("#grid3").trigger('reloadGrid');
 		$("#grid4").jqGrid('setGridParam',{url:"../goods/list?col=gift&param=no promo_goods_action&cat_id="+row_id,page:1});
@@ -49,123 +50,129 @@ $(document).ready(function(){
 // Creating grid1
 	$("#grid1").jqGrid({
 		sortable: true,
-		//url:"post_goods.php?action=get_goods_list&param=in promo_goods_item&cat_id=-1",
-		datatype: "json",
-		height: '230px',
-		colNames:['Артикул','Название'],
-		colModel:[
-			{name:'Article', index:'Article', width:100, sorttype:"text", search:true},
-			{name:'Name', index:'Name', width:320, sorttype:"text", search:true}
-		],
-		width:666,
-		shrinkToFit:false,
-		rowNum:10,
-		rowList:[10,20,30,40,50,100,200,300],
-		sortname: "Name",
-		viewrecords: true,
-		multiselect: true,
-		gridview : true,
-		toppager: true,
-		hiddengrid: true,
-		caption: "Список товаров на которые действует акция:",
-		pager: '#pgrid1'
+		//url:"post_goods.php?action=get_cats_list&param=in promo_cats_item&promo_id=-1",
+	    datatype: "json",
+	    height: '230px',
+	    colNames: ['Название'],
+	    colModel: [
+		//{name:'GoodID', index:'GoodID', width:80, sorttype:"text", search:true},
+		{name: 'Name', index: 'Name', width: 425, sorttype: "text", search: true}
+		// {name:'DiscountPromo',index:'DiscountPromo', width:60, align:"right", search:false, editable: true, edittype:"text", editoptions:{size:"10",maxlength:"10"}}
+	    ],
+	    width: 666,
+	    shrinkToFit: false,
+	    rowNum: 10,
+	    rowList: [10, 20, 30, 40, 50, 100, 200, 300],
+	    sortname: "Name",
+	    viewrecords: true,
+	    multiselect: true,
+	    gridview: true,
+	    toppager: true,
+	    hiddengrid: true,
+	    caption: "Список категорий на которые действует акция:",
+	    pager: '#pgrid1',
+	    beforeSaveCell: function (rowid, cellname, value, iRow, iCol) {
+		$("#grid1").jqGrid('setGridParam', {cellurl: "../goods/edit_discount_cat?promoid=" + $("#PromoID").val()});
+	    },
+	    cellEdit: true,
+	    cellsubmit: 'remote'
 	});
-	$("#grid1").jqGrid('navGrid','#pgrid1', {edit:false, add:false, del:false, search:false, refresh: true, cloneToTop: true});
-	$("#grid1").jqGrid('filterToolbar', { autosearch: true,	searchOnEnter: true	});
+	$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
+	$("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true});
 
-	$("#grid1").navButtonAdd('#grid1_toppager',{
-		title:'Удалить из акции', buttonicon:"ui-icon-minusthick", caption:'из акции', position:"last",
-		onClickButton: function(){ 
-			id=$("#select_promo_list").select2("val");
-			if(id==null){
-				$("#dialog>#text").html('Вы не указали акцию!');
-				$("#dialog").dialog( "open" );
-				return;
-			}
-			var sel;
-			sel = jQuery("#grid1").jqGrid('getGridParam','selarrrow');
-			if(sel==''){
-				$("#dialog>#text").html('Вы не выбрали ни одной записи!');
-				$("#dialog").dialog( "open" );
-				return;
-			}
-			$("#grid1").jqGrid('delGridRow', id, {
-				modal:true,
-				closeOnEscape:true,
-				closeAfterDel:true,
-				reloadAfterSubmit: true,
-				msg: 'Удалить выбранные товары из акции<br/>'+$("#select_promo_list").select2("data").text+'?',
-				url: '../goods/del_goods_from_promo?promo_id='+id+'&source='+sel,
-				savekey : [ true, 13 ],
-				afterSubmit : function(json, postdata) {
-					var result=$.parseJSON(json.responseText);
-					if(result.success)$("#grid2").trigger("reloadGrid");
-					return [result.success,result.message,result.new_id];
-				}
-				} 
-			);
+	$("#grid1").navButtonAdd('#grid1_toppager', {
+	    title: 'Удалить из акции', buttonicon: "ui-icon-minusthick", caption: 'из акции', position: "last",
+	    onClickButton: function () {
+		id = $("#select_promo_list").select2("val");
+		if (id == null) {
+		    $("#dialog>#text").html('Вы не указали акцию!');
+		    $("#dialog").dialog("open");
+		    return;
 		}
+		var sel;
+		sel = jQuery("#grid1").jqGrid('getGridParam', 'selarrrow');
+		if (sel == '') {
+		    $("#dialog>#text").html('Вы не выбрали ни одной записи!');
+		    $("#dialog").dialog("open");
+		    return;
+		}
+
+		$("#grid1").jqGrid('delGridRow', id, {
+		    modal: true,
+		    closeOnEscape: true,
+		    closeAfterDel: true,
+		    reloadAfterSubmit: true,
+		    msg: 'Удалить выбранные товары из акции<br/>' + $("#select_promo_list").select2("data").text + '?',
+		    url: '../goods/del_cats_from_promo?promo_id=' + id + '&source=' + sel,
+		    savekey: [true, 13],
+		    afterSubmit: function (json, postdata) {
+			var result = $.parseJSON(json.responseText);
+			if (result.success)
+			    $("#grid2").trigger("reloadGrid");
+			return [result.success, result.message, result.new_id];
+		    }
+		}
+		);
+	    }
 	});
-	
+
 	$("#pg_pgrid1").remove();
 	$("#pgrid1").removeClass('ui-jqgrid-pager');
 	$("#pgrid1").addClass('ui-jqgrid-pager-empty');
 
 // Creating grid2
 	$("#grid2").jqGrid({
-		sortable: true,
-		//url:"post_goods.php?action=get_goods_list&param=no promo_goods_item&cat_id=-1",
-		datatype: "json",
-		mtype: "POST",
-		height: '230px',
-		colNames:['Артикул','Название'],
-		colModel:[
-			//{name:'GoodID', index:'GoodID', width:80, sorttype:"text", search:true},
-			{name:'Article', index:'Article', width:100, sorttype:"text", search:true},
-			{name:'Name', index:'Name', width:320, sorttype:"text", search:true}
-		],
-		width:471,
-		shrinkToFit:false,
-		rowNum:10,
-		rowList:[10,20,30,40,50,100,200,300],
-		sortname: "Name",
-		viewrecords: true,
-		multiselect: true,
-		gridview : true,
-		toppager: true,
-		hiddengrid: true,
-		caption: "Список товаров для добавления в акцию:",
-		pager: '#pgrid2'
+	    sortable: true,
+	    //url:"post_goods.php?action=get_cats_list&param=no promo_cats_item&cat_id=-1",
+	    datatype: "json",
+	    mtype: "POST",
+	    height: '230px',
+	    colNames: ['Название'],
+	    colModel: [
+		{name: 'Name', index: 'Name', width: 425, sorttype: "text", search: true}
+	    ],
+	    width: 471,
+	    shrinkToFit: false,
+	    rowNum: 10,
+	    rowList: [10, 20, 30, 40, 50, 100, 200, 300],
+	    sortname: "Name",
+	    viewrecords: true,
+	    multiselect: true,
+	    gridview: true,
+	    toppager: true,
+	    hiddengrid: true,
+	    caption: "Список категорий для добавления в акцию:",
+	    pager: '#pgrid2'
 	});
-	$("#grid2").jqGrid('navGrid','#pgrid2', {edit:false, add:false, del:false, search:false, refresh: true,	cloneToTop: true});
-	$("#grid2").jqGrid('filterToolbar', { autosearch: true,	searchOnEnter: true	});
+	$("#grid2").jqGrid('navGrid', '#pgrid2', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
+	$("#grid2").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true});
 
-	$("#grid2").navButtonAdd('#grid2_toppager',{
-		title:'Добавить в акцию', buttonicon:"ui-icon-plusthick", caption:'в акцию', position:"last",
-		onClickButton: function(){ 
-			id=$("#select_promo_list").select2("val");
-			if(id==null){
-				$("#dialog>#text").html('Вы не указали акцию!');
-				$("#dialog").dialog( "open" );
-				return;
-			}
-			var sel;
-			sel = jQuery("#grid2").jqGrid('getGridParam','selarrrow');
-			if(sel==''){
-				$("#dialog>#text").html('Вы не выбрали ни одной записи!');
-				$("#dialog").dialog( "open" );
-				return;
-			}
-			$.post('../goods/goods_add_in_promo?promo_id='+id+'&source='+sel,function(data){
-				if(data==0){
-					$("#dialog>#text").html('Возникла ошибка.<br/>Сообщите разработчику!');
-					$("#dialog").dialog( "open" );
-				}else{
-					$("#grid1").trigger("reloadGrid");
-					$("#grid2").trigger("reloadGrid");
-				}
-			});
+	$("#grid2").navButtonAdd('#grid2_toppager', {
+	    title: 'Добавить в акцию', buttonicon: "ui-icon-plusthick", caption: 'в акцию', position: "last",
+	    onClickButton: function () {
+		id = $("#select_promo_list").select2("val");
+		if (id == null) {
+		    $("#dialog>#text").html('Вы не указали акцию!');
+		    $("#dialog").dialog("open");
+		    return;
 		}
+		var sel;
+		sel = jQuery("#grid2").jqGrid('getGridParam', 'selarrrow');
+		if (sel == '') {
+		    $("#dialog>#text").html('Вы не выбрали ни одной записи!');
+		    $("#dialog").dialog("open");
+		    return;
+		}
+		$.post('../goods/cats_add_in_promo?promo_id=' + id + '&source=' + sel, function (data) {
+		    if (data == 0) {
+			$("#dialog>#text").html('Возникла ошибка.<br/>Сообщите разработчику!');
+			$("#dialog").dialog("open");
+		    } else {
+			$("#grid1").trigger("reloadGrid");
+			$("#grid2").trigger("reloadGrid");
+		    }
+		});
+	    }
 	});
 	$("#pg_pgrid2").remove();
 	$("#pgrid2").removeClass('ui-jqgrid-pager');
@@ -309,7 +316,7 @@ $(document).ready(function(){
 	$("#grid4").gridResize();
 });
 </script>
-<div class="container min570">
+<div class="container-fluid min570">
 	<div class='p5 ui-corner-all frameL border1' style='display:block;'>
 		<div class='frameL ml10' style='display:table;'>
 			<label for="select_promo_list">Акция:</label>

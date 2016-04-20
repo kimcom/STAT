@@ -1,6 +1,8 @@
 <?php
 $promoid = 0;
+$typeid = 0;
 if(isset($_REQUEST['promoid'])) $promoid = $_REQUEST['promoid'];
+if(isset($_REQUEST['typeid']))  $typeid  = $_REQUEST['typeid'];
 ?>
 <script src="../../js/jquery.validate.min.js"></script>
 <script type="text/javascript">
@@ -11,7 +13,7 @@ $(document).ready(function(){
 		buttons: [{text: "Закрыть", click: function() {$( this ).dialog( "close" );}}]
 	});
 
-	$.post('../lists/get_promo_list',{promo_type:'40'},function(json){
+	$.post('../lists/get_promo_list',{promo_type:'<?php echo $typeid; ?>'},function(json){
 		$("#select_promo_list").select2({
 			placeholder: "Выберите акцию",
 			data: {results: json, text: 'text'}

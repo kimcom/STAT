@@ -248,9 +248,8 @@ var source_id_copy 	= 0;
 				url: '../category/del_from_cat_partner?cat_id='+id+'&source='+sel,
 				savekey : [ true, 13 ],
 				afterSubmit : function(json, postdata) {
-					var result=$.parseJSON(json.responseText);
-					if(result.success)$("#grid4").trigger("reloadGrid");
-					return [result.success,result.message,result.new_id];
+					if(json.responseText=='1')$("#grid4").trigger("reloadGrid");
+					return [true,'',0];
 				}
 				} 
 			);

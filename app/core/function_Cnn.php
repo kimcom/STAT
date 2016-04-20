@@ -660,6 +660,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 		}
 		
 //Fn::debugToLog('dg',json_encode($dg));
+//Fn::debugToLog('dgi',json_encode($dgi));
 
 		if ($interval=='day') {
 			$increment = '+1 day'; $dt_format = 'Ymd'; $dt_html = 'Y-m-d';
@@ -701,6 +702,8 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 		$str .= '<tbody>';
 		$a = array_keys($dg);
 		$ai = array_keys($dgi);
+//Fn::debugToLog('a', json_encode($a));
+//Fn::debugToLog('ai', json_encode($ai));
 		$total = $dg[$a[0]]['ID1'];
 		$cnt_in_grp = 0;
 		for ($i = 0;$i<count($a);$i++){
@@ -1301,8 +1304,8 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 			$str2 .= '<th class="TAL" style="border-right-width:5px;">' . $spent[$t][$tr]['Field1']['Name'] . '</th>';
 			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 				$period = $dt->format($formatdt);
-				if($t >= $cnt_tbl){ 
-//					Fn::debugToLog("вошло:	$t	$tr	$period	SumSpent=", $spent[$t][$tr][$period]['SumSpent']);
+				if($t >= $cnt_tbl && $t<>10){ 
+					//Fn::debugToLog("вошло:	$t	$tr	$period	SumSpent=", $spent[$t][$tr][$period]['SumSpent']);
 					$total[$period]['SumSpent'] += $spent[$t][$tr][$period]['SumSpent'];
 				}
 				$str2 .= '<th colspan=4 style="border-right-width:5px;">' . Fn::nfPendel($spent[$t][$tr][$period]['SumSpent']) . '</th>';

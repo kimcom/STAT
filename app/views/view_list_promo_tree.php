@@ -232,8 +232,23 @@ var source_id_copy 	= 0;
 			section = "promo_control_1plus1";
 		}else if(promo_type_id=='60'){//фикс.сумма
 			section = "promo_control_fixsumma";
+		}else if(promo_type_id=='100'){//50% на второй более дешевый товар
+			section = "promo_control_disc";
+		}else if(promo_type_id=='110'){//20% за покупку 2-ух товаров из разных списков
+			section = "promo_control_disc";
+		}else if(promo_type_id=='120'){//Игрушки 2шт -20%, 3шт -30% (более 3 шт тоже 30%)
+			section = "promo_control_disc";
+		}else if(promo_type_id=='130'){//Подарок, если сумма
+			section = "promo_control_disc";
+		}else if(promo_type_id=='140'){//Фикс. сумма скидки, на товар из списка
+			section = "promo_control_disc";
+		}else if(promo_type_id=='150'){//Фикс. сумма скидки, на товар из списка
+			section = "promo_control_disc";
+			//section = "promo_control_gift";
+			//section = "promo_control_1plus1";
+			//section = "promo_control_fixsumma";
 		}else{return;}
-		window.location = "../lists/"+section+"?promoid="+$("#PromoID").val();
+		window.location = "../lists/"+section+"?promoid="+$("#PromoID").val()+"&typeid="+promo_type_id;
 	});
 	promo_info(<?php echo $promoid;?>);
 });

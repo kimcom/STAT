@@ -58,7 +58,7 @@ $(document).ready(function(){
 		onClickButton: function () {
 		    var id = $("#grid1").jqGrid('getGridParam', 'selrow');
 			var node = $("#grid1").jqGrid('getRowData', id);
-		    console.log(id,node,node.Name,node.TypeID);
+		    //console.log(id,node,node.Name,node.TypeID);
 			if (id != '' && node.TypeID != ''){
 				section = "";
 				promo_type_id = node.TypeID;
@@ -78,6 +78,16 @@ $(document).ready(function(){
 				section = "promo_control_1plus1";
 				} else if (promo_type_id == '60'){//фикс.сумма
 				section = "promo_control_fixsumma";
+				} else if (promo_type_id=='100') {//50% на второй более дешевый товар
+				section = "promo_control_disc";
+			    } else if (promo_type_id == '110') {//20% за покупку 2-ух товаров из разных списков
+				section = "promo_control_disc";
+			    } else if (promo_type_id == '120') {//Игрушки 2шт -20%, 3шт -30% (более 3 шт тоже 30%)
+				section = "promo_control_disc";
+			    } else if (promo_type_id == '130') {//Подарок, если сумма
+				section = "promo_control_disc";
+			    } else if (promo_type_id == '140') {//Фикс. сумма скидки, на товар из списка
+				section = "promo_control_disc";
 				} else{return; }
 				window.location = "../lists/"+section+ "?promoid=" + id;
 			}
