@@ -1,36 +1,39 @@
 <?php
 class Mail {
-	public static function smtpmail($mail_to, $fio, $subject, $message) {
+	public static function smtpmail($mail_to, $mail_reply, $fio, $subject, $message) {
 		static $config = Array();
 //настройки подключения к серверу
-		$config['smtp_username'] = 'Администрация сайта ' . $_SESSION['company'];  //Смените на имя своего почтового ящика.
+		$config['smtp_username'] = 'Администрация сайта ' . $_SESSION['titlename'];  //Смените на имя своего почтового ящика.
 		$config['smtp_port'] = '25'; // Порт работы. Не меняйте, если не уверены.
-		$config['smtp_host'] = '192.168.10.202';  //сервер для отправки почты(для наших клиентов менять не требуется)
+		$config['smtp_host'] = '192.168.10.209';  //сервер для отправки почты(для наших клиентов менять не требуется)
 		//$config['smtp_host'] = '1c.priroda.com.ua';  //сервер для отправки почты(для наших клиентов менять не требуется)
 		$config['smtp_from'] = $_SESSION['siteEmail']; //Ваше имя - или имя Вашего сайта. Будет показывать при прочтении в поле "От кого"
 		$config['smtp_login'] = $_SESSION['siteEmail']; //Ваше имя - или имя Вашего сайта. Будет показывать при прочтении в поле "От кого"
 		$config['smtp_password'] = '14952178';  //Измените пароль
-		$config['smtp_debug'] = true;  //Если Вы хотите видеть сообщения ошибок, укажите true вместо false
+		$config['smtp_debug'] = false;  //Если Вы хотите видеть сообщения ошибок, укажите true вместо false
 //		$config['smtp_charset'] = 'Windows-1251';   //кодировка сообщений. (или UTF-8, итд)
 		$config['smtp_charset'] = 'UTF-8';   //кодировка сообщений. (или UTF-8, итд)
 //формируем сообщение
 		$SEND = "Date: " . date("D, d M Y H:i:s") . " UT\r\n";
+		$SEND .= 'From: =?'.$config['smtp_charset'].'?B?'.  base64_encode($config['smtp_username'])."=?=<".$config['smtp_login'].">\r\n";
+		//$SEND .= 'From: =?'.$config['smtp_charset'].'?B?'.base64_encode($fio." <".$mail_to.">")."=?=\r\n";
+		//$SEND .= "From: \"" . $config['smtp_username'] . "\" <" . $config['smtp_login'] . ">\r\n";
+		//$SEND .= 'Reply-To: =?'.$config['smtp_charset'].'?B?'. base64_encode($fio." <".$mail_to.">")."=?=\r\n";
+		$SEND .= 'Reply-To:   =?'.$config['smtp_charset'].'?B?'.base64_encode($fio)."=?= <".$mail_reply.">\r\n";
+		$SEND .= 'To:   =?'.$config['smtp_charset'].'?B?'.base64_encode($fio)."=?= <".$mail_to.">\r\n";
+		//$SEND .= "To: \"" . $fio . "\" <" . $mail_to . ">\r\n";
+//		$SEND .= "CC: \"" . $fio . "\" <" . $_SESSION['adminEmail'] . ">\r\n";
+		//$SEND .= "Reply-To: " . $config['smtp_from'] . "\r\n";
 		$SEND .= 'Subject: =?' . $config['smtp_charset'] . '?B?' . base64_encode($subject) . "=?=\r\n";
-//		$headers =  "To: \"Administrator\" <$mail_to>\r\n".
-//					"From: \"$replyto\" <$mail_from>\r\n".
-//					"Reply-To: $replyto\r\n".
-//					"Content-Type: text/$type; charset=\"$charset\"\r\n";
-		$SEND .= "To: \"" . $fio . "\" <" . $mail_to . ">\r\n";
-		$SEND .= "From: \"" . $config['smtp_username'] . "\" <" . $config['smtp_login'] . ">\r\n";
-		$SEND .= "Reply-To: " . $config['smtp_login'] . "\r\n";
 		$SEND .= "Sender: <" . $config['smtp_login'] . ">\r\n";
 		$SEND .= "MIME-Version: 1.0\r\n";
 		$SEND .= "Content-Type: text/plain; charset=\"" . $config['smtp_charset'] . "\"\r\n";
 		$SEND .= "Content-Transfer-Encoding: 8bit\r\n";
-		$SEND .= "X-Priority: 3";
-		$SEND .= "X-Mailer: PHP/" . phpversion();
+		$SEND .= "X-Priority: 3\r\n";
+		$SEND .= "X-Mailer: PHP/" . phpversion(). "\r\n";
 		$SEND .= $message . "\r\n";
-//Fn::debugToLog('mail',$SEND);
+//Fn::debugToLog("send", $SEND);
+//return false;
 		if (!$socket = fsockopen($config['smtp_host'], $config['smtp_port'], $errno, $errstr, 30)) {
 			if ($config['smtp_debug'])
 				Fn::errorToLog("email robot", $errno . ":" . $errstr);

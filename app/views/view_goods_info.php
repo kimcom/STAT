@@ -312,11 +312,11 @@ $(document).ready(function () {
 		}
 	});
  // select
-	var a_status = [{id: 10, text: 'стикер'},  {id: 20, text: 'ценовая планка'}];
+	var a_status = [{id: 10, text: 'стикер'},  {id: 20, text: 'ценовая планка'},  {id: 30, text: 'стикер "Клубная цена"'},  {id: 40, text: 'ценовая планка "Клубная цена"'}];
 	$("#select_type_sticker").select2({data: a_status, placeholder: "Выберите тип ценника"});
 	$("#select_type_sticker").select2("val", <?php echo $TypeSticker; ?>); 
 
-	var a_status = [{id: 0, text: 'категория наценки не указана'}, {id: 1, text: 'категория наценки №1'}, {id: 2, text: 'категория наценки №2'}, {id: 3, text: 'категория наценки №3'}, {id: 4, text: 'категория наценки №4'}];
+	var a_status = [{id: 0, text: 'категория наценки не указана'}, {id: 1, text: 'категория наценки №1'}, {id: 2, text: 'категория наценки №2'}, {id: 3, text: 'категория наценки №3'}, {id: 4, text: 'категория наценки №4'}, {id: 5, text: 'категория наценки №5'}];
 	$("#select_markup").select2({data: a_status, placeholder: "Выберите категорию наценки"});
 	$("#select_markup").select2("val", <?php echo $MarkupID; ?>); 
 
@@ -388,17 +388,17 @@ $(document).ready(function () {
             <div class='p5 ui-corner-all frameL border0 w600' style='display:table;'>
                 <div class="input-group input-group-sm w100p">
                     <span class="input-group-addon w130 TAL">Артикул:</span>
-                    <input id="article" type="text" class="form-control TAL" value='<?php echo $row['Article']; ?>'>
+                    <input id="article" type="text" class="form-control TAL" value="<?php echo $row['Article']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
                     <span class="input-group-addon w130 TAL">Наименование:</span>
-                    <input id="name" type="text" class="form-control TAL" value='<?php echo ($row['Name']); ?>'>
+                    <input id="name" type="text" class="form-control TAL" value="<?php echo ($row['Name']); ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
                     <span class="input-group-addon w130 TAL">Наим. для ценника:</span>
-                    <input id="namestickers" type="text" class="form-control TAL" value='<?php echo $row['NameSticker']; ?>'>
+                    <input id="namestickers" type="text" class="form-control TAL" value="<?php echo $row['NameSticker']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
@@ -408,7 +408,7 @@ $(document).ready(function () {
                 </div>
                 <div class="input-group input-group-sm w100p">
                     <span class="input-group-addon w130 TAL">Торговая марка:</span>
-                    <input id="trademark" type="text" class="form-control TAL" value='<?php echo $row['Trademark']; ?>'>
+                    <input id="trademark" type="text" class="form-control TAL" value="<?php echo $row['Brand']; ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">

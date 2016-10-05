@@ -107,13 +107,13 @@ class Cnn {
 ------------------
 admin@" . $_SERVER['HTTP_HOST'] . "
 ";
-			$sended = Mail::smtpmail($email, $fio, $subject, $message);
+			$sended = Mail::smtpmail($email, $_SESSION['adminEmail'], $fio, $subject, $message);
 			if (!$sended) {
 				$_SESSION['error_msg'] = "<h4 class='center list-group-item list-group-item-danger m0'>"
 						. "ВНИМАНИЕ!<br><small>При отправке сообщения по e-mail возникли проблемы!</small></h4>";
 				return false;
 			}
-			$sended = Mail::smtpmail($_SESSION['adminEmail'], $fio, $subject, $message.'E-mail:'.$email);
+			$sended = Mail::smtpmail($_SESSION['adminEmail'], $email, $fio, $subject, $message . 'E-mail:' . $email);
 			return true;
 		}
 	}
@@ -156,13 +156,13 @@ admin@" . $_SERVER['HTTP_HOST'] . "
 ------------------
 admin@" . $_SERVER['HTTP_HOST'] . "
 ";
-			$sended = Mail::smtpmail($email, $fio, $subject, $message);
+			$sended = Mail::smtpmail($email, $_SESSION['siteEmail'], $fio, $subject, $message);
 			if (!$sended) {
 				$_SESSION['error_msg'] = "<h4 class='center list-group-item list-group-item-danger m0'>"
 						. "ВНИМАНИЕ!<br><small>При отправке сообщения по e-mail возникли проблемы!</small></h4>";
 				return false;
 			}
-			$sended = Mail::smtpmail($_SESSION['adminEmail'], $fio, $subject, $message.'E-mail:'. $email);
+			$sended = Mail::smtpmail($_SESSION['adminEmail'], $email, $fio, $subject, $message . 'E-mail:' . $email);
 			return true;
 		}
 	}
@@ -204,13 +204,13 @@ admin@" . $_SERVER['HTTP_HOST'] . "
 ------------------
 admin@" . $_SERVER['HTTP_HOST'] . "
 ";
-			$sended = Mail::smtpmail($email, $fio, $subject, $message);
+			$sended = Mail::smtpmail($email, $_SESSION['siteEmail'], $fio, $subject, $message);
 			if (!$sended) {
 				$_SESSION['error_msg'] = "<h4 class='center list-group-item list-group-item-danger m0'>"
 						. "ВНИМАНИЕ!<br><small>При отправке сообщения по e-mail возникли проблемы!</small></h4>";
 				return false;
 			}
-			$sended = Mail::smtpmail($_SESSION['adminEmail'], $fio, $subject, $message . 'E-mail:' . $email);
+			$sended = Mail::smtpmail($_SESSION['adminEmail'], $email, $fio, 'Регистрация: ' . $fio, $message_admin);
 			return true;
 		}
 	}
@@ -268,7 +268,7 @@ Fn::debugToLog('report1 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 			}
 		} while ($stmt->nextRowset());
 		//header("Content-type: application/json;charset=utf8");
-		Fn::debugToLog("resp", json_encode($response));
+		//Fn::debugToLog("resp", json_encode($response));
 		return json_encode($response);
 	}
 	public function get_report2_data() {
@@ -284,6 +284,7 @@ Fn::debugToLog('report1 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 		//echo $dt->format('Ymd');
 			$date2 = $dt->format('Ymd');
 		}else{return;}
+Fn::debugToLog('report2 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 		//call pr_reports('avg_sum', @_id, '20141001', '20141031', '');
 		$stmt = $this->db->prepare("CALL pr_reports('sale_Trixie', @id, ?, ?, null)");
 		$stmt->bindParam(1, $date1, PDO::PARAM_STR);
@@ -406,9 +407,7 @@ Fn::debugToLog('report4 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 	public function get_report5_data() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
-//Fn::debugToLog('report5 user:'.  $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
-//Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['REQUEST_URI']));
-Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['QUERY_STRING']));
+Fn::debugToLog('report5 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 		$stmt = $this->db->prepare("CALL pr_reports('goods', @id, ?, ?, ?)");
 		$stmt->bindParam(1, $date1, PDO::PARAM_STR);
 		$stmt->bindParam(2, $date2, PDO::PARAM_STR);
@@ -464,7 +463,7 @@ Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['QUERY_STRING']));
 			${$arg} = $val;
 //Fn::debugToLog('report5 user:'.  $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 //Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['REQUEST_URI']));
-Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['QUERY_STRING']));
+Fn::debugToLog('report6 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 		$stmt = $this->db->prepare("CALL pr_reports('goods_action', @id, ?, ?, ?)");
 		$stmt->bindParam(1, $date1, PDO::PARAM_STR);
 		$stmt->bindParam(2, $date2, PDO::PARAM_STR);
@@ -796,7 +795,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 	public function get_report9_data() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
-		Fn::debugToLog('report8 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+		Fn::debugToLog('report9 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 //Fn::paramToLog();  
 //echo $DT_start.' '.  $DT_stop . '<br>';
 		if (isset($DT_start)) {
@@ -943,6 +942,300 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 //Fn::debugToLog("response", json_encode($response));
 //Fn::debugToLog("ar", json_encode($ar));
 //Fn::debugToLog("ds", json_encode($ds));
+		header("Content-type: application/json;charset=utf8");
+		echo json_encode($response);
+	}
+	public function get_report10_data() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+Fn::debugToLog('report10 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::paramToLog();  
+//echo $DT_start.' '.  $DT_stop . '<br>';
+		if (isset($DT_start)) {
+			$dt1 = DateTime::createFromFormat('d?m?Y', $DT_start);
+			$date1 = $dt1->format('Ymd');
+		} else {
+			return;
+		}
+		if (isset($DT_stop)) {
+			$dt2 = DateTime::createFromFormat('d?m?Y', $DT_stop);
+			$date2 = $dt2->format('Ymd');
+		} else {
+			return;
+		}
+		
+		$action = 'discount_'.$repid;
+		$stmt = $this->db->prepare("CALL pr_reports(?, @id, ?, ?, ?)");
+		$stmt->bindParam(1, $action, PDO::PARAM_STR);
+		$stmt->bindParam(2, $date1, PDO::PARAM_STR);
+		$stmt->bindParam(3, $date2, PDO::PARAM_STR);
+		$stmt->bindParam(4, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$response = new stdClass();
+		$response->error = '';
+		$response->table1 = '';
+
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			$response->error = $stmt->errorInfo();
+		$rowset = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$dg = array(); $total = array(); $total['cnt'] = 0;	$total['Qty'] = 0; $total['Sum'] = 0;
+		if ($repid == 'rep1') {$grouping = 'cl.ClientID'; $groupkey = $grouping;}
+		if ($repid == 'rep2') {$grouping = 'cl.ClientID'; $groupkey = $grouping;}
+		if ($repid == 'rep3') {$grouping = 'cl.ClientID'; $groupkey = $grouping;}
+		if ($repid == 'rep4') {$grouping = 'cl.ClientID'; $groupkey = $grouping;}
+		if ($grouping == 'cl.ClientID')	$groupkey = $grouping;
+		if ($grouping == 'GoodID')		$groupkey = $grouping;
+		if ($grouping == 'g.Brand')		$groupkey = 'Brand';
+		if ($grouping == 's.SellerID')	$groupkey = 'SellerName';
+		if ($grouping == 'p.PromoID')	$groupkey = 'PromoName';
+		if ($grouping == 'ch.CheckID')	$groupkey = 'CheckID';
+		if ($grouping == 'cl.City')		$groupkey = 'City';
+		if ($grouping == 'catName')		$groupkey = 'CatName';
+		if ($rowset) {
+			//данные из таблицы переносим в массив
+			foreach ($rowset as $row) {
+				if ($dg[$row[$groupkey]]==null) $dg[$row[$groupkey]] = 0;
+				$dg[$row[$groupkey]] += $row['cnt'];
+				$total['cnt'] += $row['cnt'];
+				$total['Qty'] += $row['Qty'];
+				$total['Sum'] += $row['Sum'];
+			}
+		}
+//Fn::debugToLog("dg", json_encode($dg));
+		//выводим шапку таблицы
+		$str = '';
+		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
+		$str .= '<thead><tr>';
+		if($repid == 'rep3'){
+			$str .= '<th>Торговая точка (где была активна карта)</th>';
+			$str .= '<th>Кол-во карт</th>';
+			$str .= '<th>% стартовый</th>';
+			$str .= '<th>% текущий</th>';
+		}elseif($repid == 'rep5'){
+			if ($grouping == 'cl.ClientID')	$str .= '<th>Торговая точка (где совершена покупка)</th>';
+			if ($grouping == 'GoodID')		$str .= '<th>Товар</th>';
+			if ($grouping == 'g.Brand')		$str .= '<th>Бренд</th>';
+			if ($grouping == 's.SellerID')	$str .= '<th>Сотрудник</th>';
+			if ($grouping == 'p.PromoID')	$str .= '<th>Акция</th>';
+			if ($grouping == 'ch.CheckID')	$str .= '<th>Чек</th>';
+			if ($grouping == 'cl.City')		$str .= '<th>Город</th>';
+			if ($grouping == 'catName')		$str .= '<th>Категория товара</th>';
+			if ($grouping == 'cattypeName')	$str .= '<th>Вид животного</th>';
+			$str .= '<th>Кол-во карт</th>';
+			$str .= '<th>Кол-во товара</th>';
+			$str .= '<th>Сумма товара</th>';
+		}else{
+			$str .= '<th>Торговая точка (которая выдала карту)</th>';
+			$str .= '<th>Кол-во карт</th>';
+			$str .= '<th>% стартовый</th>';
+			$str .= '<th>% текущий</th>';
+		}
+		$str .= '</tr></thead>';
+		//выводим данные в таблице
+		$id = 0; 
+		$str .= '<tbody>';
+		foreach ($rowset as $row) {
+			//выводим итоги группы
+			if ($id != $row[$groupkey]){
+				if ($dg[$id]!=null && $repid!='rep4' && $repid != 'rep2' && $repid != 'rep5') {
+					$str .= '<tr><th>ИТОГО:</th><th class="TAC">'.$dg[$id].'</th><th colspan=2></th></tr>';
+					$str .= '<tr><th colspan=4></th></tr>';
+				}
+				$id = $row[$groupkey];
+			}
+			$str .= '<tr>';
+			if ($grouping == 'cl.ClientID')	$str .= '<td class="TAL">' . $row['NameShort'] . '</td>';
+			if ($grouping == 'GoodID')		$str .= '<td class="TAL">' . $row['Article'] .'<br>'. $row['Name']. '</td>';
+			if ($grouping == 'g.Brand')		$str .= '<td class="TAL">' . $row['Brand'] . '</td>';
+			if ($grouping == 's.SellerID')	$str .= '<td class="TAL">' . $row['SellerName'] . '</td>';
+			if ($grouping == 'p.PromoID')	$str .= '<td class="TAL">' . $row['PromoName'] . '</td>';
+			if ($grouping == 'ch.CheckID')	$str .= '<td class="TAL">' . $row['CheckID'] .'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$row['NameShort']. '</td>';
+			if ($grouping == 'cl.City')		$str .= '<td class="TAL">' . $row['City'] . '</td>';
+			if ($grouping == 'catName')		$str .= '<td class="TAL">' . $row['CatName'] . '</td>';
+			if ($grouping == 'cattypeName')	$str .= '<td class="TAL">' . $row['CattypeName'] . '</td>';
+			$str .=		'<td>'.$row['cnt'].'</td>';
+			if($repid != 'rep5'){
+				$str .=		'<td>'.$row['StartPercent'].'</td>';
+				$str .=		'<td>'.$row['PercentOfDiscount'].'</td>';
+			}else{
+				$str .= '<td>'.$row['Qty'].'</td>';
+				$str .= '<td>'.$row['Sum'].'</td>';
+			}
+			$str .= '</tr>';
+		}
+		//выводим итоги последней группы
+		if ($dg[$id] != null && $repid != 'rep4' && $repid != 'rep2' && $repid != 'rep5')
+			$str .= '<tr><th>ИТОГО:</th><th class="TAC">' . $dg[$id] . '</th><th colspan=2></th></tr>';
+		if ($repid == 'rep1' || $repid == 'rep2' || $repid == 'rep3' || $repid == 'rep4')
+			$str .= '<tr><th><strong>ОБЩИЕ ИТОГИ:</strong></th><th class="TAC fontb">' . $total['cnt'] .'</th><th colspan=2></th></tr>';
+		if ($repid == 'rep5')
+			$str .= '<tr><th><strong>ОБЩИЕ ИТОГИ:</strong></th><th class="TAC fontb">' . $total['cnt'] .'</th><th class="TAC fontb">' . $total['Qty'] . '</th><th class="TAC fontb">' . $total['Sum'] . '</th></tr>';
+		$str .= '</tbody>';
+		$str .= "</table>";
+		$response->table1 = $str;
+		header("Content-type: application/json;charset=utf8");
+		echo json_encode($response);
+	}
+	public function get_report11_data() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::paramToLog();  
+//echo $DT_start.' '.  $DT_stop . '<br>';
+		if (isset($DT_start)) {
+			$dt1 = DateTime::createFromFormat('d?m?Y', $DT_start);
+			$date1 = $dt1->format('Ymd');
+		} else {
+			return;
+		}
+		if (isset($DT_stop)) {
+			$dt2 = DateTime::createFromFormat('d?m?Y', $DT_stop);
+			$date2 = $dt2->format('Ymd');
+		} else {
+			return;
+		}
+//Fn::debugToLog("date1", $date1);
+//Fn::debugToLog("date2", $date2);
+		$action = 'conversion_' . $repid;
+		$stmt = $this->db->prepare("CALL pr_reports(?, @id, ?, ?, ?)");
+		$stmt->bindParam(1, $action, PDO::PARAM_STR);
+		$stmt->bindParam(2, $date1, PDO::PARAM_STR);
+		$stmt->bindParam(3, $date2, PDO::PARAM_STR);
+		$stmt->bindParam(4, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$response = new stdClass();
+		$response->error = '';
+		$response->table1 = '';
+
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			$response->error = $stmt->errorInfo();
+		$rowset = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$dg = array(); $total = array(); $total['CountVisitor'] = 0; $total['CountCheck'] = 0;
+		$groupkey = 'ClientID';
+		if ($repid == 'rep3') $groupkey = 'DT';
+		if ($repid == 'rep4') $groupkey = 'DT';
+		if ($rowset) {
+			//данные из таблицы переносим в массив
+			foreach ($rowset as $row) {
+				if ($dg[$row[$groupkey]]['CountVisitor'] == null) $dg[$row[$groupkey]]['CountVisitor'] = 0;
+				$dg[$row[$groupkey]]['CountVisitor'] += $row['CountVisitor'];
+				if ($dg[$row[$groupkey]]['CountCheck'] == null) $dg[$row[$groupkey]]['CountCheck'] = 0;
+				$dg[$row[$groupkey]]['CountCheck'] += $row['CountCheck'];
+				$total['CountVisitor'] += $row['CountVisitor'];
+				$total['CountCheck'] += $row['CountCheck'];
+			}
+		}
+//Fn::debugToLog("dg", json_encode($dg));
+
+//выводим шапку таблицы
+		$str = '';
+		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
+		$str .= '<thead><tr>';
+		if ($repid == 'rep1') {
+			$str .= '<th>№</th>';
+			$str .= '<th>Город</th>';
+			$str .= '<th>Торговая точка</th>';
+			$str .= '<th>Кол-во<br>посетителей</th>';
+			$str .= '<th>Кол-во<br>чеков</th>';
+			$str .= '<th>Конверсия<br>%</th>';
+			$str .= '<th>Средняя<br>сумма чека</th>';
+			$str .= '<th>Среднее<br>кол-во чеков</th>';
+			$str .= '<th>Кол-во<br>раб. дней</th>';
+		} elseif ($repid == 'rep2' || $repid == 'rep3') {
+			$str .= '<th>№</th>';
+			$str .= '<th>Город</th>';
+			$str .= '<th>Торговая точка</th>';
+			$str .= '<th>Дата</th>';
+			$str .= '<th>Кол-во<br>посетителей</th>';
+			$str .= '<th>Кол-во<br>чеков</th>';
+			$str .= '<th>Конверсия<br>%</th>';
+			$str .= '<th>Средняя<br>сумма чека</th>';
+			$str .= '<th>Среднее<br>кол-во чеков</th>';
+			$str .= '<th>Кол-во<br>раб. дней</th>';
+		} else if ($repid == 'rep4') {
+			$str .= '<th>Дата</th>';
+			$str .= '<th>Кол-во<br>посетителей</th>';
+			$str .= '<th>Кол-во<br>чеков</th>';
+			$str .= '<th>Конверсия<br>%</th>';
+			$str .= '<th>Средняя<br>сумма чека</th>';
+			$str .= '<th>Среднее<br>кол-во чеков</th>';
+		}
+		$str .= '</tr></thead>';
+		//выводим данные в таблице
+		$id = 0;
+		$str .= '<tbody>';
+		foreach ($rowset as $row) {
+			//выводим итоги группы
+			if ($id != $row[$groupkey]) {
+				$conversion = 0;
+				if ($dg[$id] != null && $repid != 'rep1' && $repid != 'rep4') {
+					if ($dg[$id]['CountCheck']>0)
+						$conversion = round($dg[$id]['CountCheck'] / $dg[$id]['CountVisitor'] * 100,0);
+					$str .= '<tr><th colspan=2></th><th colspan=2 class="TAC">ИТОГО:</th><th class="TAC">' . $dg[$id]['CountVisitor'] . '</th><th class="TAC">' . $dg[$id]['CountCheck'] . '</th><th class="TAC">' . $conversion . '</th><th colspan=3></th></tr>';
+					$str .= '<tr><th colspan=10></th></tr>';
+				}
+				$id = $row[$groupkey];
+			}
+			$str .= '<tr>';
+			if ($repid == 'rep1') {
+				$str .= '<td>' . $row['ClientID'] . '</td>';
+				$str .= '<td>' . $row['City'] . '</td>';
+				$str .= '<td class="TAL">' . $row['NameShort'] . '</td>';
+				$str .= '<td class="w100">' . $row['CountVisitor'] . '</td>';
+				$str .= '<td class="w100">' . $row['CountCheck'] . '</td>';
+				$str .= '<td class="w100">' . $row['Conversion'] . '</td>';
+				$str .= '<td class="w100">' . $row['Avg_Sum'] . '</td>';
+				$str .= '<td class="w100">' . $row['Avg_Count_Check'] . '</td>';
+				$str .= '<td class="w100">' . $row['DayWork'] . '</td>';
+				$str .= '</tr>';
+			} elseif ($repid == 'rep2' || $repid == 'rep3') {
+				$str .= '<td>' . $row['ClientID'] . '</td>';
+				$str .= '<td>' . $row['City'] . '</td>';
+				$str .= '<td class="TAL">' . $row['NameShort'] . '</td>';
+				$str .= '<td class="w100">' . $row['DT'] . '</td>';
+				$str .= '<td class="w100">' . $row['CountVisitor'] . '</td>';
+				$str .= '<td class="w100">' . $row['CountCheck'] . '</td>';
+				$str .= '<td class="w100">' . $row['Conversion'] . '</td>';
+				$str .= '<td class="w100">' . $row['Avg_Sum'] . '</td>';
+				$str .= '<td class="w100">' . $row['Avg_Count_Check'] . '</td>';
+				$str .= '<td class="w100">' . $row['DayWork'] . '</td>';
+				$str .= '</tr>';
+			} elseif ($repid == 'rep4') {
+				$str .= '<td class="w100">' . $row['DT'] . '</td>';
+				$str .= '<td class="w100">' . $row['CountVisitor'] . '</td>';
+				$str .= '<td class="w100">' . $row['CountCheck'] . '</td>';
+				$str .= '<td class="w100">' . $row['Conversion'] . '</td>';
+				$str .= '<td class="w100">' . $row['Avg_Sum'] . '</td>';
+				$str .= '<td class="w100">' . $row['Avg_Count_Check'] . '</td>';
+				$str .= '</tr>';
+			}
+		}
+		//выводим итоги последней группы
+		$conversion = 0;
+		if ($dg[$id] != null && $repid != 'rep1' && $repid != 'rep4'){
+			if ($dg[$id]['CountCheck'] > 0)
+				$conversion = round($dg[$id]['CountCheck'] / $dg[$id]['CountVisitor'] * 100, 0);
+			$str .= '<tr><th colspan=2></th><th colspan=2 class="TAC">ИТОГО:</th><th class="TAC">' . $dg[$id]['CountVisitor'] . '</th><th class="TAC">' . $dg[$id]['CountCheck'] . '</th><th class="TAC">' . $conversion . '</th><th colspan=3></th></tr>';
+		}
+		if ($repid == 'rep1'){
+			if ($total['CountCheck'] > 0)
+				$conversion = round($total['CountCheck'] / $total['CountVisitor'] * 100, 0);
+			$str .= '<tr><th colspan=2></th><th colspan=1 class="TAC">ИТОГО:</th><th class="TAC">' . $total['CountVisitor'] . '</th><th class="TAC">' . $total['CountCheck'] . '</th><th class="TAC">' . $conversion . '</th><th colspan=3></th></tr>';
+		}
+		if ($repid == 'rep4'){
+			if ($total['CountCheck'] > 0)
+				$conversion = round($total['CountCheck'] / $total['CountVisitor'] * 100, 0);
+			$str .= '<tr><th colspan=1 class="TAC">ИТОГО:</th><th class="TAC">' . $total['CountVisitor'] . '</th><th class="TAC">' . $total['CountCheck'] . '</th><th class="TAC">' . $conversion . '</th><th colspan=2></th></tr>';
+		}
+//		if ($repid == 'rep1' || $repid == 'rep2' || $repid == 'rep3' || $repid == 'rep4')
+//			$str .= '<tr><th><strong>ОБЩИЕ ИТОГИ:</strong></th><th class="TAC fontb">' . $total['cnt'] . '</th><th colspan=2></th></tr>';
+//		if ($repid == 'rep5')
+//			$str .= '<tr><th><strong>ОБЩИЕ ИТОГИ:</strong></th><th class="TAC fontb">' . $total['cnt'] . '</th><th class="TAC fontb">' . $total['Qty'] . '</th><th class="TAC fontb">' . $total['Sum'] . '</th></tr>';
+		$str .= '</tbody>';
+		$str .= "</table>";
+		$response->table1 = $str;
 		header("Content-type: application/json;charset=utf8");
 		echo json_encode($response);
 	}
@@ -1428,6 +1721,44 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		header("Content-type: application/json;charset=utf-8");
 		echo json_encode($response);
 	}
+//setting
+	public function config() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$response = new stdClass();
+		$response->success = false;
+		$response->message = "Нет данных для отображения!";
+		$stmt = $this->db->prepare("call pr_setting(:action, @_id, :_UserID, :_Section, :_Object, :_Param, :_Value)");
+		$stmt->bindParam(":action", $action);
+		$stmt->bindParam(":_UserID", $_SESSION['UserID']);
+		$stmt->bindParam(":_Section", $section);
+		$stmt->bindParam(":_Object", $object);
+		$stmt->bindParam(":_Param", $param);
+		$stmt->bindParam(":_Value", $value);
+		// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt)) {
+			$ar = $stmt->errorInfo();
+			$response->success = false;
+			$response->message = "Ошибка!";
+		} else {
+			do {
+				$rowset = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				if ($rowset) {
+					$response->success = $rowset[0]['State'];
+					$response->message = $rowset[0]['Message'];
+//					$message2 = iconv('utf-8', 'cp1251', $rowset[0]['Message']);
+					$response->setting = $rowset;
+				}
+				break;
+			} while ($stmt->nextRowset());
+		}
+//Fn::debugToLog("resp", json_encode($response));
+//Fn::debugToLog("rowset", json_encode($rowset));
+		header("Content-type: application/json;charset=utf-8");
+		echo json_encode($response);
+	}
 
 //project
 	public function project_info() {
@@ -1836,23 +2167,11 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 			${$arg} = $val;
 //Fn::paramToLog();
 //Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
-		$stmt = $this->db->prepare("CALL pr_discountCard('info', @id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		$stmt->bindParam(1, $cardid, PDO::PARAM_STR);
-		$stmt->bindParam(2, $name, PDO::PARAM_STR);
-		$stmt->bindParam(3, $dateOfIssue, PDO::PARAM_STR);
-		$stmt->bindParam(4, $dateOfCancellation, PDO::PARAM_STR);
-		$stmt->bindParam(5, $clientID, PDO::PARAM_STR);
-		$stmt->bindParam(6, $address, PDO::PARAM_STR);
-		$stmt->bindParam(7, $eMail, PDO::PARAM_STR);
-		$stmt->bindParam(8, $phone, PDO::PARAM_STR);
-		$stmt->bindParam(9, $animal, PDO::PARAM_STR);
-		$stmt->bindParam(10, $startPercent, PDO::PARAM_STR);
-		$stmt->bindParam(11, $startSum, PDO::PARAM_STR);
-		$stmt->bindParam(12, $dopSum, PDO::PARAM_STR);
-		$stmt->bindParam(13, $percentOfDiscount, PDO::PARAM_STR);
-		$stmt->bindParam(14, $howWeLearn, PDO::PARAM_STR);
-		$stmt->bindParam(15, $notes, PDO::PARAM_STR);
+		$id = 0;
+		$stmt = $this->db->prepare("CALL pr_card('info_site', :_BarCode, @_id)");
+		$stmt->bindValue(":_BarCode", $cardid);
 // вызов хранимой процедуры
+		//$stmt->execute(array($id));
 		$stmt->execute();
 		if (!Fn::checkErrorMySQLstmt($stmt))
 			return false;
@@ -1860,6 +2179,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		foreach ($rowset as $row) {
 			break; //берем первую запись из результата
 		}
+//Fn::debugToLog("card", json_encode($row));
 		return $row;
 	}
 	public function discoundcard_history() {
@@ -1902,32 +2222,37 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		if ($percentOfDiscount == '') $percentOfDiscount = 0;
 		if (isset($dateOfIssue) && $dateOfIssue != '') {
 			if(strlen($dateOfIssue)<=10)$dateOfIssue .= "00:00:00";
-			$dateOfIssue = DateTime::createFromFormat('d?m?Y H?i?s', $dateOfIssue);
+			$dateOfIssue = DateTime::createFromFormat('Y?m?d H?i?s', $dateOfIssue);
 			$dateOfIssue = $dateOfIssue->format('Ymd');
 		}
 		if (isset($dateOfCancellation) && $dateOfCancellation != '') {
 			if (strlen($dateOfCancellation) <= 10)	$dateOfCancellation .= "00:00:00";
-			$dateOfCancellation = DateTime::createFromFormat('d?m?Y H?i?s', $dateOfCancellation);
+			$dateOfCancellation = DateTime::createFromFormat('Y?m?d H?i?s', $dateOfCancellation);
+			//$dateOfCancellation = DateTime::createFromFormat('d?m?Y H?i?s', $dateOfCancellation);
 			$dateOfCancellation = $dateOfCancellation->format('Ymd');
 		}
 //Fn::paramToLog();
 //Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
-		$stmt = $this->db->prepare("CALL pr_discountCard('save', @id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		$stmt->bindParam(1, $cardid, PDO::PARAM_STR);
-		$stmt->bindParam(2, $name, PDO::PARAM_STR);
-		$stmt->bindParam(3, $dateOfIssue, PDO::PARAM_STR);
-		$stmt->bindParam(4, $dateOfCancellation, PDO::PARAM_STR);
-		$stmt->bindParam(5, $clientID, PDO::PARAM_STR);
-		$stmt->bindParam(6, $address, PDO::PARAM_STR);
-		$stmt->bindParam(7, $eMail, PDO::PARAM_STR);
-		$stmt->bindParam(8, $phone, PDO::PARAM_STR);
-		$stmt->bindParam(9, $animal, PDO::PARAM_STR);
-		$stmt->bindParam(10, $startPercent, PDO::PARAM_STR);
-		$stmt->bindParam(11, $startSum, PDO::PARAM_STR);
-		$stmt->bindParam(12, $dopSum, PDO::PARAM_STR);
-		$stmt->bindParam(13, $percentOfDiscount, PDO::PARAM_STR);
-		$stmt->bindParam(14, $howWeLearn, PDO::PARAM_STR);
-		$stmt->bindParam(15, $notes, PDO::PARAM_STR);
+		$stmt = $this->db->prepare("CALL pr_card_attribute('card_attr_edit_site', :_CardID, :_Family, :_Name, :_MiddleName, :_Address, :_Phone1, :_Phone2, :_EMail, :_AnimalType, :_AnimalBreed, :_Notes, :_DateOfIssue, :_PercentOfDiscount, :_AmountOfBuying, :_DateOfCancellation, :_TradePointID, :_HowWeLearn, :_ParentCardID, @_id)");
+		$stmt->bindParam(":_CardID", $cardid);
+		$stmt->bindParam(":_Family", $family);
+		$stmt->bindParam(":_Name", $name);
+		$stmt->bindParam(":_MiddleName", $middlename);
+		$stmt->bindParam(":_Address", $address);
+		$stmt->bindParam(":_Phone1", $phone1);
+		$stmt->bindParam(":_Phone2", $phone2);
+		$stmt->bindParam(":_EMail", $eMail);
+		$stmt->bindParam(":_AnimalType", $startPercent);
+		$stmt->bindParam(":_AnimalBreed", $startSum);
+		$stmt->bindParam(":_Notes", $notes);
+		$stmt->bindParam(":_DateOfIssue", $dateOfIssue);
+		$stmt->bindParam(":_PercentOfDiscount", $percentOfDiscount);
+		$stmt->bindParam(":_AmountOfBuying", $dopSum);
+		$stmt->bindParam(":_DateOfCancellation", $dateOfCancellation);
+		$stmt->bindParam(":_TradePointID", $clientID);
+		$stmt->bindParam(":_HowWeLearn", $howWeLearn);
+		$stmt->bindParam(":_ParentCardID", $parent);
+
 // вызов хранимой процедуры
 		$stmt->execute();
 		$this->echo_response($stmt);
@@ -2068,6 +2393,16 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$url = str_replace("=<", "<", $url);
 		$url = str_replace("=<>", "<>", $url);
 
+if ($action == 'good_list_doc') {
+	if (isset($Name) || isset($Article))
+		$url = str_replace("&group=$group", "", $url);
+	$url .= '&good_list_DocID=' . $_SESSION['CurrentDocID'];
+	//Fn::debugToLog('jqgrid3 проверка', "&group=$group");
+}
+if ($action == 'package_list' || $action == 'receipt_list' || 
+	$action == 'cancel_list'  || $action == 'difference_list') {
+	$url .= '&o.UserID=' . $_SESSION['UserID'];
+}
 //Fn::debugToLog('jqgrid3 action', $action);
 Fn::debugToLog('jqgrid3 url', $url);
 //Fn::paramToLog();
@@ -2139,14 +2474,71 @@ Fn::debugToLog('jqgrid3 url', $url);
 		header("Content-type: application/json;charset=utf8");
 		echo json_encode($response);
 }
+//дерево
+	public function tree_NS() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$stmt = $this->db->prepare("CALL pr_tree_NS('category', 'CatID', ?, ?, ?, ?)");
+		$stmt->bindParam(1, $nodeid, PDO::PARAM_STR);
+		$stmt->bindParam(2, $n_level, PDO::PARAM_STR);
+		$stmt->bindParam(3, $n_left, PDO::PARAM_STR);
+		$stmt->bindParam(4, $n_right, PDO::PARAM_STR);
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			return false;
+		//$tree = array();
+		do {
+			$rowset = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			//$tree = $this->createTree($rowset, $rowset[0]['lft'] - 1);
+			break;
+		} while ($stmt->nextRowset());
+
+//Fn::DebugToLog('tree result: ', json_encode($rowset));
+//return;
+		//$result = Shop::GetCategoryTreeNS($this->dbi, $nodeid, $n_level, $n_left, $n_right);
+		if ($nodeid > 0) {
+			$n_level = $n_level + 1;
+		} else {
+			$n_level = 0;
+		}
+		$response = new stdClass();
+		$response->page = 1;
+		$response->total = 1;
+		$response->records = 1;
+		$i = 0;
+//		while ($row = $result->fetch_array(MYSQLI_BOTH)) {
+		if ($rowset) {
+			foreach ($rowset as $row) {
+				if ($row['rgt'] == $row['lft'] + 1)
+					$leaf = 'true';
+				else
+					$leaf = 'false';
+				if ($n_level == $row['level']) { // we output only the needed level
+					$response->rows[$i]['id'] = $row['CatID'];
+					$response->rows[$i]['cell'] = array($row['CatID'],
+						//$row['name'].' ('.$row['CatID'].')',
+						$row['name'],
+						$row['level'],
+						$row['lft'],
+						$row['rgt'],
+						$leaf,
+						'false'
+					);
+				}
+				$i++;
+			}
+		}
+//Fn::DebugToLog('tree result2: ', json_encode($response));
+		header("Content-type: text/html;charset=utf-8");
+		echo json_encode($response);
+	}
 
 //for select2
 	public function select2() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
 //Fn::paramToLog();
-//Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
-		//if ($action != 'unit') $type = $_SESSION['UserID'];
 		if ($action=='point') $type = $_SESSION['UserID'];
 		$stmt = $this->db->prepare("CALL pr_select2(?, @id, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
@@ -2156,7 +2548,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 		$stmt->execute();
 		if (!Fn::checkErrorMySQLstmt($stmt))
 			return false;
-		//$response = new stdClass();
+		$response = array();
 		do {
 			$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
 			if ($rowset) {
@@ -2167,10 +2559,37 @@ Fn::debugToLog('jqgrid3 url', $url);
 				}
 			}
 		} while ($stmt->nextRowset());
-//Fn::debugToLog("", json_encode($response));
+//Fn::debugToLog("select2", json_encode($response));
 		header("Content-type: application/json;charset=utf-8");
 		echo json_encode($response);
-		return;
+	}
+	public function select_search() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$type = 1;
+		$stmt = $this->db->prepare("CALL shop.pr_select2(?, @id, ?, ?)");
+		$stmt->bindParam(1, $action, PDO::PARAM_STR);
+		$stmt->bindParam(2, $name, PDO::PARAM_STR);
+		$stmt->bindParam(3, $type, PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			return false;
+		$response = array();
+		do {
+			$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+			if ($rowset) {
+				$i = 0;
+				foreach ($rowset as $row) {
+					$response[$i] = array('id' => $row[0], 'name' => $row[1]);
+					$i++;
+				}
+			}
+		} while ($stmt->nextRowset());
+//Fn::debugToLog("select_search", json_encode($response));
+		header("Content-type: application/json;charset=utf-8");
+		echo json_encode($response);
 	}
 
 //menu
@@ -2315,6 +2734,353 @@ Fn::debugToLog('jqgrid3 url', $url);
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
 		echo Shop::DelFromCategory($this->dbi, $cat_id, $source);
+	}
+
+//documents
+	public function doc_edit() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		if ($docid == '')	$docid = $_SESSION['CurrentDocID'];
+		if ($docid == '')	$docid = 0;
+		$response = new stdClass();
+		$response->success = false;
+		$response->message = "";
+		$response->docid = null;
+		if ($qty == '')	 $qty = null;
+		if ($info == '') $info = null;
+		if ($clientid == '') $clientid = $_SESSION['ClientID'];
+//Fn::debugToLog("docid", $docid);
+//Fn::debugToLog("UserID", $_SESSION['UserID']);
+//Fn::debugToLog("operid", $operid);
+//Fn::debugToLog("partnerid", $partnerid);
+		$stmt = $this->db->prepare("call pr_doc(:action, @_id, :_ClientID, :_PartnerID, :_DocID, :_OperID, :_GoodID, :_Qty, :_Info, :_Status, :_UserID, :_Notes, :_Invoice)");
+		$stmt->bindParam(":action", $action);
+		$stmt->bindParam(":_ClientID", $clientid);
+		$stmt->bindParam(":_PartnerID", $partnerid);
+		$stmt->bindParam(":_DocID", $docid);
+		$stmt->bindParam(":_OperID", $operid);
+		$stmt->bindParam(":_GoodID", $goodid);
+		$stmt->bindParam(":_Qty", $qty);
+		$stmt->bindParam(":_Info", $info);
+		$stmt->bindParam(":_Status", $status);
+		$stmt->bindParam(":_UserID", $_SESSION['UserID']);
+		$stmt->bindParam(":_Notes", $notes);
+		$stmt->bindParam(":_Invoice", $invoice);
+// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt)) {
+			$ar = $stmt->errorInfo();
+			$response->success = false;
+			$response->message = "Ошибка при изменении документа!";
+		} else {
+			do {
+				$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+				if ($rowset) {
+					foreach ($rowset as $row) {
+						$response->success = ($row[0] != 0);
+						$response->message = $row[1];
+						$response->docid = $row['CurrentDocID'];
+						if ($row['CurrentDocID'] != null)
+							$_SESSION['CurrentDocID'] = $row['CurrentDocID'];
+						break;
+					}
+				}
+			} while ($stmt->nextRowset());
+		}
+//Fn::debugToLog("resp", json_encode($response));
+		header("Content-type: application/json;charset=utf-8");
+		echo json_encode($response);
+	}
+	public function doc_info_full() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$response = new stdClass();
+		$response->success = false;
+		$response->clientid = $_SESSION['ClientID'];
+		$response->partnerid = 0;
+		$response->message = "";
+		$response->html = "";
+
+		//$action = 'sale_info';
+		if ($docid == '')	$docid = $_SESSION['CurrentDocID'];
+		if ($docid == '')	$docid = 0;
+		if ($action == 'package_info') $doctype = 'package';
+		if ($action == 'receipt_info') $doctype = 'receipt';
+		if ($action == 'cancel_info')  $doctype = 'cancel';
+		if ($action == 'difference_info')  $doctype = 'difference';
+		
+		$stmt = $this->db->prepare("call pr_doc(:action, @_id, :_ClientID, :_PartnerID, :_DocID, :_OperID, :_GoodID, :_Qty, :_Info, :_Status, :_UserID, :_Notes, :_Invoice)");
+		$stmt->bindParam(":action", $action);
+		$stmt->bindParam(":_ClientID", $_SESSION['ClientID']);
+		$stmt->bindParam(":_PartnerID", $partnerid);
+		$stmt->bindParam(":_DocID", $docid);
+		$stmt->bindParam(":_OperID", $operid);
+		$stmt->bindParam(":_GoodID", $goodid);
+		$stmt->bindParam(":_Qty", $qty);
+		$stmt->bindParam(":_Info", $info);
+		$stmt->bindParam(":_Status", $status);
+		$stmt->bindParam(":_UserID", $_SESSION['UserID']);
+		$stmt->bindParam(":_Notes", $notes);
+		$stmt->bindParam(":_Invoice", $invoice);
+// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt)) {
+			$ar = $stmt->errorInfo();
+			$response->success = false;
+			$response->message = "Ошибка при получении информации о документе!";
+		} else {
+			$cnt = 1;
+			$str = '';
+			do {
+				$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+				$response->success = true;
+				if ($cnt == 1) {
+					foreach ($rowset as $row) {
+						$response->clientid = $row['ClientID'];
+						$response->partnerid = $row['PartnerID'];
+						$str .= '
+								 <input id="docid" type="hidden" value="' . $row['DocID'] . '"/>';
+						if (!$view)
+							$str .= '
+								 <div class="row">
+									<div id="div_doc_buttons" class = "col-md-12 col-xs-12 TAL hidden-print">
+<button id="good_add"	type="button" class="btn btn-primary	btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus mr5"></span>Добавить товар</button>
+<button id="delete"		type="button" class="btn btn-danger		btn-sm minw150 mb5"><span class="glyphicon glyphicon-trash mr5"></span>Удалить документ</button>
+<button id="doc_add"	type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
+<button id="print"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-print mr5"></span>Печать документа</button>
+<button id="state"		type="button" class="btn btn-success	btn-sm minw150 mb5" title="Провести документ?"><span class="glyphicon glyphicon-ok mr5"></span>Провести</button>
+<button					type="button" class="btn btn-link btn-sm minw150 mb5" disabled >Автор: ' . $row['UserName'] . '</button>
+									</div>
+								 </div>';
+						$str .= '
+								 <div class="row">
+									<div class = "col-md-12 col-xs-12">
+										<div class = "floatL">
+											<div class="input-group input-group-sm w300">
+											   <span class = "input-group-addon w130">Документ №</span>
+											   <span class = "input-group-addon form-control TAC">' . $row['DocID'] . '</span>
+											   <span class = "input-group-addon w32"></span>
+											</div>
+											<div class="input-group input-group-sm w300">
+											   <span class = "input-group-addon w130">Статус:</span>
+											   <span class = "input-group-addon form-control TAC">' . $row['State'] . '</span>
+											   <span class = "input-group-addon w32"></span>
+											</div>
+										</div>
+										<div class="floatL ml5">&nbsp</div>
+									';
+						if (!$view) {
+							$str .= '
+										<div class="floatL">
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w100">Магазин:</span>
+												<div id="select_companyID" class="w210"></div>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							if ($action=='receipt_info' || $action=='difference_info') $str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w100">Контрагент:</span>
+												<div id="select_partnerID" class="w210"></div>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							$str .= '	</div>';
+						} else {
+							$str .= '
+										<div class="floatL">
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w80">Магазин:</span>
+												<span class = "input-group-addon form-control w230 TAL">' . $row['Name'] . '</span>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							if ($action=='receipt_info' || $action=='difference_info') $str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w80">Контрагент:</span>
+												<span class = "input-group-addon form-control w230 TAL">' . $row['PartnerName'] . '</span>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							$str .= '	</div>';
+						}
+						$str .= '
+										<div class="floatL ml5">&nbsp</div>
+										<div class="floatL">
+										   <div class="input-group input-group-sm w450">
+											  <span class = "input-group-addon w100">Примечание:</span>
+											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['Notes'] . '" onchange="good_edit(\''. $doctype .'_edit_notes\',this,0,0,0,0,0,$(this).val());">
+											  <span class = "input-group-addon w32"></span>
+										   </div>
+										   ';
+							if ($action=='receipt_info' || $action=='difference_info') $str .= '
+										   <div class="input-group input-group-sm w450">
+											  <span class = "input-group-addon w100">№ док. пост.:</span>
+											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['Invoice'] . '" onchange="good_edit(\''. $doctype .'_edit_invoice\',this,0,0,0,0,0,0,0,0,0,$(this).val());">
+											  <span class = "input-group-addon w32"></span>
+										   </div>
+										   ';
+						$str .= '
+										</div>
+									</div>
+								 </div>
+								 ';
+					}
+				}
+				if ($cnt == 2) {
+					$total_qty = 0; 
+					$col_cnt = 4;
+					$str .= '<div class="panel panel-default mt10 mr5">';
+					$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw400" cellspacing="0"  width="100%">';
+					$str .= '<thead><tr>
+									<th class="w50 center">Артикул</th>
+									<th class="w150 center">Название</th>
+									<th class="w100  center">Инфо</th>
+									<th class="w40  center">Кол-во</th>';
+					$str .= '	 </thead><tbody>';
+					foreach ($rowset as $row) {
+						$total_qty += $row['Quantity'];
+						$str .= '<tr>
+									<td class="TAL">' . $row['Article'] . '</td>
+									<td class="TAL">' . $row['Name'] . '</td>';
+						if (!$view){
+						$str .= '	<td class="TAL">
+										<input type="text" class="TAL editable inline-edit-cell" style="line-height:17px;width:100%;" min=0 onchange="good_edit(\''. $doctype .'_edit_good_info\',this,'. $row['GoodID'] .',null,null,$(this).val());" value="' . $row['Info'] . '">
+									</td>
+									<td class="TAC">
+										<input type="number" class="TAR editable inline-edit-cell" style="line-height:17px;width:60%;min-width:40px;" onchange="good_edit(\''. $doctype .'_edit\',this,'. $row['GoodID'] .',null,$(this).val(),null);" value="' . $row['Quantity'] . '">
+										<span class="ml5 mr5 glyphicon glyphicon-remove hidden-print" onclick="good_edit(\''. $doctype .'_edit\',$(this).prev(),'. $row['GoodID'] .',null,0);"></span>
+									</td>
+								 </tr>';
+						} else {
+							$str .= '	<td class = "w40  center">' . $row['Info'] . '</td>';
+							$str .= '	<td class = "w40  center">' . $row['Quantity'] . '</td>';
+						}
+					}
+					if ($stmt->rowCount() == 0){
+						$str .= '<tr><td colspan='. $col_cnt .' class="TAC">В документе нет товаров</td></tr>';
+					}
+					$str .= '</tbody>';
+				}
+				if ($cnt == 3) {
+					foreach ($rowset as $row) {
+					if ($action=='package_info') {
+						$str .= '<tfoot>
+									<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th>
+									<th class="TAC">' . $total_qty . ' ед.</th></tr>
+								 </tfoot>';
+					}else{
+						$str .= '<tfoot>
+									<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th><th class="TAC">' . $total_qty . ' ед.</th></tr>
+								 </tfoot>';
+					}
+					}
+					$str .= '</table></div>';
+				}
+				$cnt++;
+			} while ($stmt->nextRowset());
+		}
+		$response->html = $str;
+//Fn::debugToLog("resp", json_encode($response));
+		header("Content-type: application/json;charset=utf-8");
+		echo json_encode($response);
+	}
+	public function doc_info() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$response = new stdClass();
+		$response->success = false;
+		$response->message = "";
+		$response->html = "";
+
+		if ($docid == '')
+			$docid = $_SESSION['CurrentDocID'];
+		if ($docid == '')
+			$docid = 0;
+		$docname = 'Документ';
+		if ($action=='package_info') $docname = 'Расфасовка';
+		if ($action=='receipt_info' && $operid==1) $docname = 'Приход';
+		if ($action=='receipt_info' && $operid==-1) $docname = 'Возврат';
+		if ($action=='cancel_info' && $operid==1) $docname = 'Оприх-ние';
+		if ($action=='cancel_info' && $operid==-1) $docname = 'Списание';
+		if ($action=='difference_info') $docname = 'Акт разногл.';
+		
+		$stmt = $this->db->prepare("call pr_doc(:action, @_id, :_ClientID, :_PartnerID, :_DocID, :_OperID, :_GoodID, :_Qty, :_Info, :_Status, :_UserID, :_Notes, :_Invoice)");
+		$stmt->bindParam(":action", $action);
+		$stmt->bindParam(":_ClientID", $_SESSION['ClientID']);
+		$stmt->bindParam(":_PartnerID", $partnerid);
+		$stmt->bindParam(":_DocID", $docid);
+		$stmt->bindParam(":_OperID", $operid);
+		$stmt->bindParam(":_GoodID", $goodid);
+		$stmt->bindParam(":_Qty", $qty);
+		$stmt->bindParam(":_Info", $info);
+		$stmt->bindParam(":_Status", $status);
+		$stmt->bindParam(":_UserID", $_SESSION['UserID']);
+		$stmt->bindParam(":_Notes", $notes);
+		$stmt->bindParam(":_Invoice", $invoice);
+
+// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt)) {
+			$ar = $stmt->errorInfo();
+			$response->success = false;
+			$response->message = "Ошибка при получении информации о заказе!";
+		} else {
+			$cnt = 1; $total_cnt = 0;
+			$str = '';
+			do {
+				$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+				$response->success = true;
+				if ($cnt == 1) {
+					$str .= '<table id="table_doc" class="table table-striped table-bordered font11 minw300 maxw300" cellspacing="0"  width="100%">';
+					foreach ($rowset as $row) {
+						$str .= '<thead>
+									<tr><th colspan=2 class="btn-warning" style="height:36px;vertical-align:middle;text-align:left;"><span class="font14 fontb">'.$docname.' № ' . $row['DocID'] . '</span></th></tr>
+									<tr><th colspan=2 style="height:27px;text-align:left;">Статус: ' . (($row['Status'] == 0) ? 'предварительный' : 'в обработке') . '</th></tr>
+								 </thead>';
+					}
+				}
+				if ($cnt == 2) {
+					$str .= '<thead><tr style="height:24px;">
+									<th class="w100 center">Название</th>
+									<th class="w30  center">К-во</th>
+								 </thead><tbody>';
+//									<th class="w30  center">Цена</th>
+//									<th class="w30  center">Сумма</th></tr>
+					foreach ($rowset as $row) {
+						$str .= '<tr>
+									<td class="TAL">' . $row['Name'] . '</td>
+									<td class="TAR">' . $row['Quantity'] . '</td>
+								 </tr>';
+//									<td class="TAR">' . $row['Price'] . '</td>
+//									<td class="TAR">' . $row['Sum'] . '</td>
+						$total_cnt += $row['Quantity'];
+					}
+					if ($stmt->rowCount() == 0) {
+						$str .= '<tr><td colspan=2 class="TAC">В заказе нет товаров</td></tr>';
+					}
+					$str .= '</tbody>';
+				}
+				if ($cnt == 3) {
+					foreach ($rowset as $row) {
+						$str .= '<thead>
+									<tr><th colspan=1>Общее кол-во:</th><th class="TAR">' . $total_cnt . '</th></tr>
+								 </thead>';
+//									<tr><th colspan=1>Сумма скидки:</th><th class="TAR">' . $row['SumDiscount'] . '</th></tr>
+//									<tr><th colspan=1>Сумма заказа:</th><th class="TAR">' . $row['Sum'] . '</th></tr>
+					}
+					$str .= '</table>';
+				}
+				$cnt++;
+			} while ($stmt->nextRowset());
+		}
+		$response->html = $str;
+//Fn::debugToLog("resp", json_encode($response));
+		header("Content-type: application/json;charset=utf-8");
+		echo json_encode($response);
 	}
 
 //test grid for print result

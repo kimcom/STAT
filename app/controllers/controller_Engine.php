@@ -26,6 +26,18 @@ class Controller_Engine extends Controller {
 			echo json_encode($response);
 		}
 	}
+	function action_filter_reset() {
+		$filename = "Users\\Setting\\" . $_SESSION['UserID'] . '_' . $_REQUEST['section'] . '_' . $_REQUEST['gridid'] . ".txt";
+		if (file_exists($filename)) {
+			$fp = unlink($filename);
+			if (!$fp) {
+				Fn::debugToLog("filter_reset", "ошибка удаления файла ($filename)");
+			}
+		} else {
+			Fn::debugToLog("filter_reset", "файл не найден ($filename)");
+		}
+	}
+
 	function action_setting_set() {
 		$cnn = new Cnn();
 		return $cnn->set_report_setting();
@@ -221,6 +233,71 @@ EOF;
 	function action_reasons_save() {
 		$cnn = new Cnn();
 		return $cnn->reasons_save();
+	}
+
+	public function action_doc_edit() {
+		$cnn = new Cnn();
+		$cnn->doc_edit();
+	}
+	public function action_doc_info_full() {
+		$cnn = new Cnn();
+		$cnn->doc_info_full();
+	}
+	public function action_doc_info() {
+		$cnn = new Cnn();
+		$cnn->doc_info();
+	}
+	public function action_config() {
+		$cnn = new Cnn();
+		return $cnn->config();
+	}
+
+	public function action_tree_NS() {
+		$cnn = new Cnn();
+		$cnn->tree_NS();
+	}
+
+	public function action_select_search() {//for select2
+		$cnn = new Cnn();
+		return $cnn->select_search();
+	}
+
+	public function action_captcha() {
+		// создаем случайное число и сохраняем в сессии
+		$randomnr = rand(1000, 9999);
+		$_SESSION['captcha'] = md5($randomnr);
+//Fn::debugToLog("captcha set", $randomnr);
+//Fn::debugToLog("captcha set", $_SESSION['captcha']);
+		//создаем изображение
+		$im = imagecreatetruecolor(120, 60);
+
+		//цвета:
+		$white = imagecolorallocate($im, 255, 255, 255);
+		$blue = imagecolorallocate($im, 0, 0, 255);
+		$grey = imagecolorallocate($im, 130, 200, 130);
+		$green = imagecolorallocate($im, 0, 255, 0);
+		$black = imagecolorallocate($im, 0, 0, 0);
+
+		//imagefilledrectangle($im, 0, 0, 200, 35, $black);
+		imagefilledrectangle($im, 0, 0, 120, 60, $white);
+
+		//путь к шрифту:
+		$font = $_SERVER["DOCUMENT_ROOT"] . "/css/fonts/Karate.ttf";
+		//рисуем текст:
+		imagettftext($im, 30, 6, 17, 45, $grey, $font, $randomnr);
+		imagettftext($im, 26, 8, 15, 50, $blue, $font, $randomnr);
+
+		// предотвращаем кэширование на стороне пользователя
+		header("Expires: Wed, 1 Jan 1997 00:00:00 GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+		header("Cache-Control: no-store, no-cache, must-revalidate");
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache");
+
+		//отсылаем изображение браузеру
+		header("Content-type: image/gif");
+		imagegif($im);
+		imagedestroy($im);
 	}
 
 }

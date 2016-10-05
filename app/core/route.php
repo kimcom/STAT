@@ -2,6 +2,9 @@
 class Route {
 	static function start() {
 //Fn::debugToLog("REQUEST_URI", urldecode($_SERVER['REQUEST_URI']));
+//Fn::debugToLog('$_SERVER',json_encode($_SERVER));
+//Fn::debugAccess('',$_SERVER['REMOTE_ADDR'].':'.$_SERVER['REMOTE_PORT'].' '.$_SERVER['HTTP_COOKIE'].' '.$_SERVER['REDIRECT_URL']."\r\n\t\t\t\t\t"
+//		.'access:'.$_SESSION['access'].'	UserID:'.$_SESSION['UserID'].'	UserName:'.$_SESSION['UserName'].'	UserPost:'.$_SESSION['UserPost']);
 		if (1 == 0) {
 			ob_start();
 			var_dump($_REQUEST);
@@ -43,8 +46,9 @@ class Route {
 			$controller_name != 'register' &&
 			$controller_name != 'register_ok' &&
 			$controller_name != 'api' &&
-			$action_name != 'deletefile' 
-			) {
+			$action_name != 'deletefile' &&
+			$action_name != 'captcha'
+		) {
 			Fn::redirectToController('logon');
 			return;
 		}
@@ -56,7 +60,7 @@ class Route {
 			if ($routes[2] == 'favicon.ico')	return;
 		if ($controller_name == 'images')		return;
 		if ($action_name == 'favicon.ico')		return;
-		if ($action_name == 'captcha')			return;
+		//if ($action_name == 'captcha')			return;
 		if ($action_name == 'images_goods')		return;
 		// добавляем префиксы
 		$model_name = 'Model_' . $controller_name;

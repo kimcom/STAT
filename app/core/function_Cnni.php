@@ -555,6 +555,7 @@ class Cnni {
 			$response->UserName_modi = $row['UserName_modi'];
 			$response->UserID_response = $row['UserID_response'];
 			$response->promo_quantity = $row['QuantityPromo'];
+			$response->points = $row['Points'];
 			$i++;
 		}
 		// Перед выводом не забывайте выставить header с указанием типа контента и кодировки
@@ -629,7 +630,7 @@ class Cnni {
 			$promo_type_id = 0;
 		if (!isset($UserID_response))
 			$UserID_response = 0;
-		$result = Shop::SetPromoInfo($this->dbi, $promoid, $Name, $promo_type_id, $Description, $DT_start, $DT_stop, $UserID_response, $QuantityPromo);
+		$result = Shop::SetPromoInfo($this->dbi, $promoid, $Name, $promo_type_id, $Description, $DT_start, $DT_stop, $UserID_response, $QuantityPromo, $Points);
 		echo $result;
 	}
 	public function get_promo_list() {

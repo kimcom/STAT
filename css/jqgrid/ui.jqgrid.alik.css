@@ -1,0 +1,93 @@
+/*Grid*/
+.ui-jqgrid, .ui-jqgrid .ui-jqgrid-view {
+    font-size: 12px;
+}
+.ui-jqgrid .ui-jqgrid-title { 
+    padding-top: 0px; 
+    vertical-align: middle;
+    margin:0;
+}
+.ui-jqgrid .ui-jqgrid-titlebar {
+    font-size: 14px;
+    font-weight: bold;
+    min-height:36px; 
+    /*    padding: 4px 8px; */
+    position: relative; 
+    margin-right: 0px;
+    border-bottom: 1px solid #ddd; /*default*/
+    padding-top: 7px;
+}
+.ui-priority-secondary2,
+.ui-widget-content .ui-priority-secondary2,
+.ui-widget-header .ui-priority-secondary2 {
+    background-color: lightgoldenrodyellow;
+    font-weight: normal;
+}
+.ui-jqgrid .ui-jqgrid-pager .ui-paging-info,
+.ui-jqgrid .ui-jqgrid-toppager .ui-paging-info{ 
+    font-size: 12px;
+}
+.ui-jqgrid  .ui-paging-pager td {
+    font-size: 12px;
+    line-height: 20px;
+}
+.ui-jqgrid .ui-jqgrid-pager .ui-paging-pager,
+.ui-jqgrid .ui-jqgrid-toppager .ui-paging-pager
+{
+    font-size: 12px;
+    line-height: 20px;
+}
+.ui-jqgrid .ui-pg-button:hover {  }
+.ui-jqgrid .ui-disabled:hover {}
+.ui-jqgrid .ui-pg-input,
+.ui-jqgrid .ui-jqgrid-toppager .ui-pg-input { 
+    font-size: 12px;
+    /*    font-weight: bold;*/
+    padding: 0px 3px 1px;
+}
+.ui-jqgrid .ui-jqgrid-sortable{
+    text-align: center;
+}
+.ui-jqgrid .ui-jqgrid-htable{
+    font-size: 12px;
+}
+.ui-jqgrid .ui-jqgrid-htable .ui-search-toolbar .ui-th-ltr{
+    font-size: 12px;
+    padding: 3px 3px;
+}
+.ui-jqgrid .ui-search-table .ui-search-input>input,
+.ui-jqgrid .ui-search-table .ui-search-input>select{
+    height: 20px;
+    padding: 1px 3px;
+    line-height: 20px;
+}
+.ui-jqgrid .ui-jqgrid-pager .ui-pager-table>tbody>tr>td,
+.ui-jqgrid .ui-jqgrid-toppager .ui-pager-table>tbody>tr>td
+{
+    line-height: 20px;
+    padding: 3px 3px;
+}
+.ui-jqgrid .ui-jqgrid-view,
+.ui-jqgrid .ui-jqgrid-bdiv,
+.ui-jqgrid .ui-jqgrid-hdiv{
+    overflow-x: hidden;
+}
+/*.ui-jqgrid .ui-jqgrid-btable.jqgrow>tbody>tr>td*/
+.ui-jqgrid tr.jqgrow td{
+    line-height: 20px;
+    padding: 3px 3px;
+}
+.ui-jqgrid .tree-plus,
+.ui-jqgrid .tree-minus,
+.ui-jqgrid .tree-leaf {
+    height: 14px; 
+    width: 14px;
+    margin-top: 2px;
+}
+.ui-resizable-handle.ui-resizable-e{
+    margin-left:14px;
+}
+.ui-resizable-handle.ui-resizable-n,
+.ui-resizable-handle.ui-resizable-s{
+    left:0;
+}

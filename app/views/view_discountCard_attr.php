@@ -70,22 +70,24 @@ if (isset($_REQUEST['cardid'])) {
 		if ($("#cardid").val() == '') return;
 		$.post('../engine/discoundcard_save', {
 			cardid: $("#cardid").val(),
+			family: $("#family").val(),
 			name: $("#name").val(),
+			middlename: $("#middlename").val(),
 			dateOfIssue: $("#DT_issue").val(),
 			dateOfCancellation: $("#DT_cancellation").val(),
 			clientID: $("#select_point").val(),
 			address: $("#address").val(),
 			eMail: $("#eMail").val(),
-			phone: $("#phone").val(),
-			animal: $("#animal").val(),
+			phone1: $("#phone1").val(),
+			phone2: $("#phone2").val(),
 			startPercent: $("#startPercent").val(),
 			startSum: $("#startSum").val(),
 			dopSum: $("#dopSum").val(),
 			percentOfDiscount: $("#percentOfDiscount").val(),
 			howWeLearn: $("#howWeLearn").val(),
 			notes: $("#notes").val()
-			},
-			function (data) {
+		},
+		function (data) {
 			$("#dialog>#text").html(data.message);
 			$("#dialog").dialog("open");
 		}, "json");
@@ -94,12 +96,12 @@ if (isset($_REQUEST['cardid'])) {
 	// выбор магазина 
 	$.post('../Engine/select2?action=point', function (json) {
 		$("#select_point").select2({multiple: false, placeholder: "Выберите магазин", data: {results: json, text: 'text'}});
-		$("#select_point").select2("val", "<?php echo $row['ClientID']; ?>");
+		$("#select_point").select2("val", "<?php echo $row['KodTradePoint']; ?>");
 	});
 
 	// выбор даты выдачи 
-	$("#DT_issue").datepicker({numberOfMonths: 1, dateFormat: 'dd/mm/yy', showButtonPanel: true, closeText: "Закрыть", showAnim: "fold"});
-	$("#DT_cancellation").datepicker({numberOfMonths: 1, dateFormat: 'dd/mm/yy', showButtonPanel: true, closeText: "Закрыть", showAnim: "fold"});
+	$("#DT_issue").datepicker({numberOfMonths: 1, dateFormat: 'yy/mm/dd', showButtonPanel: true, closeText: "Закрыть", showAnim: "fold"});
+	$("#DT_cancellation").datepicker({numberOfMonths: 1, dateFormat: 'yy/mm/dd', showButtonPanel: true, closeText: "Закрыть", showAnim: "fold"});
 	$("#datapickers a").click(function () {
 		if ($(this).attr("type") != 'button')
 		return;
@@ -118,7 +120,8 @@ if (isset($_REQUEST['cardid'])) {
 // Creating grid1
 	$("#grid1").jqGrid({
 		sortable: true,
-		datatype: "json",
+		//datatype: "json",
+		datatype:"local",
 		height: 'auto',
 		colNames: ['Код чека', 'Дата', 'Магазин', 'Тип оплаты', 'Сумма без скидки', 'Скидка', 'К оплате'],
 		colModel: [
@@ -220,8 +223,10 @@ if (isset($_REQUEST['cardid'])) {
 	fs2 = 0;
 // Creating grid2
 	$("#grid2").jqGrid({
+		//url: "",
 		sortable: true,
-		datatype: "json",
+		//datatype: "json",
+		datatype: "local",
 		height: 'auto',
 		colNames: ['Код чека', 'Дата', 'Магазин', 'Тип оплаты', 'Сумма без скидки', 'Скидка', 'К оплате'],
 		colModel: [
@@ -323,11 +328,11 @@ if (isset($_REQUEST['cardid'])) {
 	$('#myTab a').click(function (e) {
 		e.preventDefault();
 		if (this.id == 'a_tab_history') {
-			$("#grid1").jqGrid('setGridParam', {url: "../engine/jqgrid3?action=discountcards_history&cl.CardID=" + $("#cardid").val() + "&grouping=cl.CheckID&f1=CheckID&f2=DT_check&f3=ClientName&f4=TypePaymentName&f5=SumFull&f6=SumDiscount&f7=Sum", page: 1});
+			$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "../engine/jqgrid3?action=discountcards_history&cl.CardID=" + $("#cardid").val() + "&grouping=cl.CheckID&f1=CheckID&f2=DT_check&f3=ClientName&f4=TypePaymentName&f5=SumFull&f6=SumDiscount&f7=Sum", page: 1});
 			$("#grid1").trigger('reloadGrid');
 		}
 		if (this.id == 'a_tab_history_parent') {
-			$("#grid2").jqGrid('setGridParam', {url: "../engine/jqgrid3?action=discountcards_history&cl.CardID=" + $("#parent_cardid").val() + "&grouping=cl.CheckID&f1=CheckID&f2=DT_check&f3=ClientName&f4=TypePaymentName&f5=SumFull&f6=SumDiscount&f7=Sum", page: 1});
+			$("#grid2").jqGrid('setGridParam', {datatype: "json", url: "../engine/jqgrid3?action=discountcards_history&cl.CardID=" + $("#parent_cardid").val() + "&grouping=cl.CheckID&f1=CheckID&f2=DT_check&f3=ClientName&f4=TypePaymentName&f5=SumFull&f6=SumDiscount&f7=Sum", page: 1});
 			$("#grid2").trigger('reloadGrid');
 		}
 	});
@@ -359,7 +364,7 @@ if (isset($_REQUEST['cardid'])) {
 			<div class='p5 ui-corner-all frameL border0 w500' style='display:table;'>
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w25p TAL">Дисконтная карта:</span>
-					<span class="input-group-addon form-control TAL"><?php echo $row['CardID']; ?></span>
+					<span class="input-group-addon form-control TAL"><?php echo $row['IDCard']; ?></span>
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
@@ -368,8 +373,18 @@ if (isset($_REQUEST['cardid'])) {
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w25p TAL">Ф.И.О. клиента:</span>
+					<span class="input-group-addon w25p TAL">Фамилия клиента:</span>
+					<input id="family" name="family" type="text" class="form-control TAL" value="<?php echo $row['Family']; ?>">
+					<span class="input-group-addon w32"></span>
+				</div>               
+				<div class="input-group input-group-sm w100p">
+					<span class="input-group-addon w25p TAL">Имя клиента:</span>
 					<input id="name" name="name" type="text" class="form-control TAL" value="<?php echo $row['Name']; ?>">
+					<span class="input-group-addon w32"></span>
+				</div>               
+				<div class="input-group input-group-sm w100p">
+					<span class="input-group-addon w25p TAL">Отчество клиента:</span>
+					<input id="middlename" name="middlename" type="text" class="form-control TAL" value="<?php echo $row['MiddleName']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>               
 				<div id="datapickers">
@@ -403,12 +418,22 @@ if (isset($_REQUEST['cardid'])) {
 				</div>
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w25p TAL">Телефон:</span>
-					<input id="phone" name="phone" type="text" class="form-control TAL" value="<?php echo $row['Phone']; ?>">
+					<input id="phone1" name="phone1" type="text" class="form-control TAL" value="<?php echo $row['Phone1']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w25p TAL">Животное: </span>
-					<input id="animal" name="animal" type="text" class="form-control TAL" value="<?php echo $row['Animal']; ?>">
+					<span class="input-group-addon w25p TAL">Телефон:</span>
+					<input id="phone2" name="phone2" type="text" class="form-control TAL" value="<?php echo $row['Phone2']; ?>">
+					<span class="input-group-addon w32"></span>
+				</div>
+				<div class="input-group input-group-sm w100p">
+					<span class="input-group-addon w25p TAL">Питомцы (устар.): </span>
+					<span class="input-group-addon form-control TAL"><?php echo $row['Animal']; ?></span>
+					<span class="input-group-addon w32"></span>
+				</div>
+				<div class="input-group input-group-sm w100p">
+					<span class="input-group-addon w25p TAL">Питомцы: </span>
+					<textarea class="input-group-addon0 form-control TAL" rows="3" disabled style="height: auto;"><?php echo $row['Animals']; ?></textarea>
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
@@ -426,17 +451,17 @@ if (isset($_REQUEST['cardid'])) {
 			<div class='p5 ui-corner-all frameL ml10 border0 w300' style='float:left;'>
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w130 TAL">Стартовый процент:</span>
-					<input id="startPercent" name="startPercent" type="text" class="form-control TAR" value="<?php echo $row['StartPercent']; ?>">
+					<input id="startPercent" name="startPercent" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value="<?php echo $row['StartPercent']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w130 TAL">Стартовая сумма:</span>
-					<input id="startSum" name="startSum" type="text" class="form-control TAR" value="<?php echo $row['StartSum']; ?>">
+					<input id="startSum" name="startSum" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value="<?php echo $row['StartSum']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w130 TAL">Доп. сумма:</span>
-					<input id="dopSum" name="dopSum" type="text" class="form-control TAR" value ="<?php echo $row['DopSum']; ?>">
+					<input id="dopSum" name="dopSum" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value ="<?php echo $row['DopSum']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
@@ -451,7 +476,7 @@ if (isset($_REQUEST['cardid'])) {
 				</div>
 				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w130 TAL">% скидки: </span>
-					<input id="percentOfDiscount" name="percentOfDiscount" type="text" class="form-control TAR" value="<?php echo $row['PercentOfDiscount']; ?>">
+					<input id="percentOfDiscount" name="percentOfDiscount" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value="<?php echo $row['PercentOfDiscount']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
 			</div>

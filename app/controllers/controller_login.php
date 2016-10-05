@@ -21,6 +21,7 @@ class Controller_Login extends Controller {
 		$_SESSION['CompanyName'] = "";
 		$_SESSION['AccessLevel'] = null;
 		$_SESSION['access'] = false;
+		$_SESSION['CurrentDocID'] = false;
 		Fn::redirectToMain();
 	}
 }

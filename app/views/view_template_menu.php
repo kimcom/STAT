@@ -53,21 +53,29 @@ if ($_SESSION['access'] and $_SESSION['AccessLevel'] > 0) {
 		$cur_level = $row['Level'];
 	}
 	echo '      </ul></li></ul>';
+}
 	echo '<ul class="nav navbar-nav navbar-right">';
 	if ($_SESSION['access']){
-		echo '<li><a id="a_name_cabinet" href="/register/user_cabinet">';
-		echo $_SESSION['UserName'] . '<br />' . $_SESSION['UserPost'];
-		echo '</a></li>';
+		if ($_SESSION['AccessLevel'] > 0) {
+			echo '<li><a id="a_name_cabinet" href="/register/user_cabinet">';
+			echo $_SESSION['UserName'] . '<br />' . $_SESSION['UserPost'];
+			echo '</a></li>';
+		}
 		echo '<li class="active"><a href="/login/logout">Выход</a></li>';
 	} else {
 		echo '<li class="active"><a href="/login">Вход</a></li>';
 	}
     echo '</ul>';
-}
 ?>
         </div><!--/.nav-collapse -->
     </div>
 </nav>
 <?php 
-	//echo phpinfo();
+	if ($_SESSION['access'] && $_SESSION['AccessLevel'] == 0) {
+		echo "<h4 class='center list-group-item list-group-item-danger'>"
+		. "ВНИМАНИЕ!<br><small>Ваш аккаунт имеет ограниченный доступ!<br>"
+		. "Для получения доступа к функциям системы,<br>"
+		. "обратитесь к администратору системы: <a href='mailto:" . $_SESSION['adminEmail'] . "'>" . $_SESSION['adminEmail'] . "</a></small></h4>";
+	}
+//echo phpinfo();
 ?>

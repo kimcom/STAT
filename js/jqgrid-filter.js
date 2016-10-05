@@ -1,3 +1,10 @@
+function filter_reset(gridName) {
+    section = decodeURIComponent(window.location.pathname.split('/')[1]);
+    if (window.location.pathname.split('/')[2] !== undefined) {
+	section += '_' + decodeURIComponent(window.location.pathname.split('/')[2]);
+    }
+    $.post('../Engine/filter_reset', {section: section, gridid: gridName});
+}
 function filter_save(gridName){
     section = decodeURIComponent(window.location.pathname.split('/')[1]);
     if(window.location.pathname.split('/')[2]!==undefined){
@@ -5,42 +12,38 @@ function filter_save(gridName){
     }
     p = $(gridName).jqGrid('getGridParam','postData');
     filter = JSON.stringify(p);
-    //$("#text2").html(window.location.pathname+' '+section);
-    $.post('../Engine/filter_save',{ section: section, gridid: gridName,	filter: filter },
-	    function(json){
-		    //alert(json);
-	    }
-    );
+    $.post('../Engine/filter_save',{ section: section, gridid: gridName, filter: filter });
 }
-function filter_restore(gridName){
+filter_restore = function (gridName, defFilter, valFilter){
     section = decodeURIComponent(window.location.pathname.split('/')[1]);
     if (window.location.pathname.split('/')[2] !== undefined) {
 	section += '_' + decodeURIComponent(window.location.pathname.split('/')[2]);
     }
     $.post('../Engine/filter_restore',{ section: section, gridid: gridName },
 	function(filter){
-	    //$("#text2").html(filter);
 	    var p = jQuery.parseJSON(filter);
 	    if(p.success){
-//		p.data.replace("rows","_r");
-//		p.data.replace('page','_p');
-		//alert(p.data);
+		var post = $(gridName).jqGrid('getGridParam', 'postData');
 		filter = jQuery.parseJSON(p.data);
-		//alert(filter.rows+'\n'+filter.page);
-		//filter.replace("rows", "_r");
-		filter._search = true;
 		$.each(filter,function(key,value) {
-//			if (key == 'rows') return;
-//			if (key == 'page') return;
-//			if (key == 'nd') return;
 			key = key.replace('.','_');
 			$('#gs_'+key).val(value);
-			//if(key=='rows') $(gridName).jqGrid('setGridParam',{'rowNum':value});
+			post[key] = value;
 		});
-		$(gridName).jqGrid('setGridParam',{'postData':filter}).trigger("reloadGrid");
-//	    }else{
-//		$("#dialog>#text").html(p.message);
-//		$("#dialog").dialog("open");
+		if (defFilter != undefined) {
+		    if (filter[defFilter] == undefined) {
+			filter[defFilter] = valFilter;
+			$('#gs_'+defFilter).val(valFilter);
+		    }
+		}
+//		filter._search = true;
+//		filter.nd = null;
+		//$(gridName).jqGrid('setGridParam',{'postData':filter}).trigger("reloadGrid");
+		post._search = true;
+		post.nd = Math.random().toString().replace('0.','');
+		$(gridName).jqGrid('setGridParam',{'postData':post, datatype: "json"}).trigger("reloadGrid");
+	    }else{
+		$(gridName).jqGrid('setGridParam', {datatype: "json"}).trigger("reloadGrid");
 	    }
 	}
     );

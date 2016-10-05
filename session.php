@@ -10,9 +10,10 @@ session_start();
 	$_SESSION['server_pass'] = '149521';
 
 //if (!isset($_SESSION['sitename']))
-    $_SESSION['sitename'] = 'Система анализа статистики<br/>и управления продажами. (Сокращенно САУ)<br/>Сузирье'.'&trade;';
+    $_SESSION['sitename'] = 'Система анализа статистики<br/>и управления продажами. (Сокращенно САУ)<br/>Сузирье™';
 //if (!isset($_SESSION['titlename']))
-    $_SESSION['titlename'] = 'Система анализа статистики и управления продажами компании Сузирье'.'&trade;';
+    //$_SESSION['titlename'] = 'Система анализа статистики и управления продажами компании Сузирье™';
+    $_SESSION['titlename'] = 'САУ Сузирье™';
 //if (!isset($_SESSION['company']))
 	$_SESSION['company'] = 'Сузирье™';
 //if (!isset($_SESSION['dbname']))
@@ -45,4 +46,7 @@ if (!isset($_SESSION['error_msg1']))
 	$_SESSION['error_msg1'] = "";
 if (!isset($_SESSION['error_msg2']))
 	$_SESSION['error_msg2'] = "";
+if (!isset($_SESSION['CurrentDocID']))
+	$_SESSION['CurrentDocID'] = "";
+
 ?>

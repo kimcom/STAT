@@ -57,6 +57,23 @@ class Fn {
 		fclose($fp);
 	}
 
+	public static function debugAccess($Source, $Message) {
+		$dir_name = 'Logs';
+		$file_name = $dir_name . '/access_' . date('Y-m-d') . '.txt';
+		if (!file_exists($dir_name))
+			mkdir($dir_name, 0777);
+		$fp = fopen($file_name, 'a');
+		if (!$fp) {
+			echo "Не могу открыть файл ($filename)";
+			return;
+		}
+		if (fwrite($fp, date('Y-m-d H:i:s ') . $Source . "\r\n\t\t\t\t\t" . $Message . "\r\n") === FALSE) {
+			echo "Не могу произвести запись в файл ($filename)";
+			exit;
+		}
+		fclose($fp);
+	}
+
 	public static function errorToLog($Source, $Message) {
 //		echo '' . $Source . ': ' . $Message . '<br>';
 		$dir_name = 'Logs';

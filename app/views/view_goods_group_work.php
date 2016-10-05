@@ -13,13 +13,16 @@ $(document).ready(function () {
 	var cat = new Object();
 	var markup = new Object();
 	var matrix = new Object();
+	var priceshop = new Object();
+	var selcat = new Object();
 	settings['grouping']=grouping;
 	settings['group']=group;
 	settings['good']=good;
 	settings['cat']=cat;
 	settings['markup']=markup;
 	settings['matrix']=matrix;
-	var colnames = ['Ед.','Вес','Отдел','Макс.%'];
+	settings['priceshop']=priceshop;
+	var colnames = ['Ед.','Вес','Отдел','Макс.%','Цена маг.'];
 	$("#dialog").dialog({
 		autoOpen: false, modal: true, width: 400, //height: 300,
 		buttons: [{text: "Закрыть", click: function () {
@@ -99,6 +102,8 @@ $("#select_report_setting").click();
 			$("#markup").attr("title", strJoin(markup).join("\n"));
 			$("#matrix").val(strJoin(matrix).join(';'));
 			$("#matrix").attr("title", strJoin(matrix).join("\n"));
+			$("#priceshop").val(strJoin(priceshop).join(';'));
+			$("#priceshop").attr("title", strJoin(priceshop).join("\n"));
 //$('#button_selection_run').click();
 		});
 	});
@@ -128,8 +133,6 @@ $("#select_report_setting").click();
 		onSelectRow: function (cat_id) {
 		    if (cat_id == null)
 			cat_id = 0;
-		    $("#grid1").jqGrid('setGridParam', {datatype: "json", url: "../goods/list?col=cat&param=in category&cat_id=" + cat_id, page: 1});
-		    $("#grid1").trigger('reloadGrid');
 		}
     });
 	$("#treeGrid").jqGrid('navGrid','#ptreeGrid', {edit:false, add:false, del:false, search: false, refresh: true, cloneToTop: true});
@@ -170,29 +173,28 @@ $("#select_report_setting").click();
 	$("#grid1").jqGrid({
 		sortable: true,
 		datatype: "json",
-		width: 370,
-		height: 330,
+		width: 600,
+		height: 400,
 		colNames: ['Артикул', 'Название','field3'],
 		colModel: [
 		    {name: 'field1', index: 'field1', width: 80, sorttype: "text", search: true},
 		    {name: 'field2', index: 'field2', sorttype: "text", search: true},
 		    {name: 'field3', index: 'field3', sorttype: "text", search: true, hidden: true}
 		],
-		rowNum: 15,
-		rowList: [15, 30, 40, 50, 100, 200, 300],
+		rowNum: 20,
+		rowList: [20, 30, 40, 50, 100, 200, 300],
 		sortname: "Name",
 		viewrecords: true,
 		multiselect: true,
-		//loadonce: true,
 		gridview: true,
 		toppager: true,
 		caption: "",
 		pager: '#pgrid1'
-	    });
-	    $("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: false, cloneToTop: true});
-	    $("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true});
+	});
+	$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: false, cloneToTop: true});
+	$("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true});
 
-	    $("#grid1").navButtonAdd('#grid1_toppager', {
+    $("#grid1").navButtonAdd('#grid1_toppager', {
 		buttonicon: 'ui-icon-plusthick', caption: 'Выбрать', position: "last",
 		onClickButton: function () {
 		    var sel;
@@ -224,7 +226,88 @@ $("#select_report_setting").click();
 	$("#grid1").gridResize();
 	
 	$("#divGrid").hide();
+	$("#divGrid2").hide();
 
+//выбор категории для действий
+	$("#treeGrid2").jqGrid({
+	    treeGrid: true,
+	    treeGridModel: 'nested',
+	    treedatatype: 'json',
+	    datatype: "json",
+	    mtype: "POST",
+	    width: 250,
+	    height: 230,
+	    ExpandColumn: 'name',
+//		url: '../category/get_tree_NS?nodeid=20',
+	    colNames: ["id", "Категории"],
+	    colModel: [
+		{name: 'id', index: 'id', width: 1, hidden: true, key: true},
+		{name: 'name', index: 'name', width: 190, resizable: false, editable: true, sorttype: "text", edittype: 'text', stype: "text", search: true}
+	    ],
+	    sortname: "Name",
+	    //sortable: true,
+	    sortorder: "asc",
+	    pager: "#ptreeGrid2",
+	    //caption: "Группы товаров",
+	    toppager: true,
+	    onSelectRow: function (cat_id) {
+		if (cat_id == null)
+		    cat_id = 0;
+	    }
+	});
+	$("#treeGrid2").jqGrid('navGrid', '#ptreeGrid2', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
+	$("#treeGrid2").navButtonAdd('#treeGrid2_toppager', {
+	    buttonicon: "ui-icon-plusthick", caption: 'Выбрать', position: "last",
+	    onClickButton: function () {
+		var id = $("#treeGrid2").jqGrid('getGridParam', 'selrow');
+		var node = $("#treeGrid2").jqGrid('getRowData', id);
+		datastr = $("#treeGrid2").getGridParam('datastr');
+		if (datastr == 'cat') {
+			selcat = new Object();
+		    selcat[id] = node.name;
+		    $("#select_cat").val(strJoin(selcat).join(';'));
+		    $("#select_cat").attr("title", strJoin(selcat).join("\n"));
+			$("#divGrid2").hide();
+		}
+	    }
+	});
+	$("#pg_ptreeGrid2").remove();
+	$("#ptreeGrid2").removeClass('ui-jqgrid-pager');
+	$("#ptreeGrid2").addClass('ui-jqgrid-pager-empty');
+
+
+	$("#tab_action a").click(function() {
+		operid = '';
+		var command = this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
+		if (command.tagName == 'SPAN'){
+			command = this.parentNode.previousSibling.previousSibling;
+		}
+		//console.log(command,$(this).html(),this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling.id);
+	    if (command.tagName == "INPUT"){
+			operid = command.id;
+	    } else if (command.tagName == "DIV"){
+			operid = this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling.id;
+	    } else{
+			alert('Ошибка определения действия!');
+		    return;
+	    }
+	    if ($(this).html() == 'X'){
+			for (k in settings[operid]){
+				delete settings[operid][k];
+			}
+			$("#" + operid).val(strJoin(settings[operid]).join(';'));
+		    $("#" + operid).attr("title", strJoin(settings[operid]).join("\n"));
+		    return;
+	    }
+		if(operid=='select_cat'){
+			$("#legendGrid2").html('Выбор категории товара:');
+			$("#treeGrid2").jqGrid('setGridParam', {datastr: "cat"});
+			$("#treeGrid2").jqGrid('setCaption', 'Категории товаров');
+			$("#treeGrid2").jqGrid('setGridParam', {datatype: "json", url: "../category/get_tree_NS?nodeid=0", page: 1}).trigger('reloadGrid');
+			$("#divTree2").show();
+			$("#divGrid2").show();
+	    }
+	});
 	$("#setting_filter a").click(function() {
 		operid = '';
 		var command = this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
@@ -265,7 +348,8 @@ $("#select_report_setting").click();
 					"&good="	+ keyJoin(good).join(';')	+"|"+strJoin(good).join(';')+
 					"&cat="		+ keyJoin(cat).join(';')	+"|"+strJoin(cat).join(';')+
 					"&markup="	+ keyJoin(markup).join(';') +"|"+strJoin(markup).join(';')+
-					"&matrix="	+ keyJoin(matrix).join(';')	+"|"+strJoin(matrix).join(';'),
+					"&matrix="	+ keyJoin(matrix).join(';')	+"|"+strJoin(matrix).join(';')+
+					"&priceshop="	+ "1|"+$('#priceshop').val(),
 				{	sid:	reportID,
 					sname:	setting.text,
 				}, 
@@ -298,13 +382,12 @@ $("#select_report_setting").click();
 //			$("#treeGrid").jqGrid('setCaption','Группы товаров');
 //		    $("#treeGrid").jqGrid('setGridParam', {url: "../category/get_tree_NS?nodeid=10", page: 1}).trigger('reloadGrid');
 			$("#grid1").jqGrid('setGridParam',{datastr:"good"});
-		    $("#grid1").hideCol("field3");
+		    //$("#grid1").hideCol("field3");
 		    $(".ui-search-input>input").val("");
 				//$("#grid1").jqGrid("clearGridData", true).trigger("reloadGrid");
 		    $("#grid1").jqGrid('setGridParam', {datatype: "json", url: "../goods/list?param=goods_list_select&col=cat&cat_id=0", page: 1}).trigger('reloadGrid');
 			//$("#divTable").addClass('ml10');
 			$("#divTable").show();
-			//$("#divTree").show();
 			$("#divTree").hide();
 			$("#divGrid").show();
 		}
@@ -371,9 +454,9 @@ $("#select_report_setting").click();
 			{name: 'field7' , index: 'field7' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field8' , index: 'field8' , width: 90, align: "center",sorttype: "text"},
 			{name: 'field9' , index: 'field9' , width: 90, align: "right", sorttype: "number"},
-			{name: 'field10', index: 'field11', width: 90, align: "right", sorttype: "number"},
+			{name: 'field10', index: 'field11', width: 90, align: "center", sorttype: "text"},
 			{name: 'field11', index: 'field10', width: 90, align: "center",sorttype: "text"},
-			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number"},
+			{name: 'field12', index: 'field12', width: 90, align: "center", sorttype: "number"},
 			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number"},
 			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", summaryType:'count', summaryTpl:'<b>{0} эл.</b>'},
 	    ],
@@ -427,7 +510,7 @@ $("#select_report_setting").click();
 	    pager: '#pgridRep',
 	});
 	$("#gridRep").jqGrid('navGrid', '#pgridRep', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
-	$("#gridRep").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true, beforeSearch: function () {filter_save("#grid1")}});
+	$("#gridRep").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true});
 	$("#gridRep").navButtonAdd("#gridRep_toppager",{
 		caption: 'Экспорт в Excel', 
 		title: 'to Excel', 
@@ -607,6 +690,7 @@ $("#select_report_setting").click();
 		prmRep += (Object.keys(cat).length == 0) ? "" : "<br>" + "Категории товаров: " + strJoin(cat).join(', ');
 		prmRep += (Object.keys(markup).length == 0) ? "" : "<br>" + "Категории наценок: " + strJoin(markup).join(', ');
 		prmRep += (Object.keys(matrix).length == 0) ? "" : "<br>" + "Товарная матрица: " + strJoin(matrix).join(', ');
+		prmRep += ($('#priceshop').val().length == 0) ? "" : "<br>" + "Цена товара: " + $('#priceshop').val();
 //		prmRep += (grouping_str.length == 0) ? "" : "<br>" + "Группировки отчета: " + grouping_str;
 		$("#report_param_str").html(prmRep);
 //return;
@@ -618,6 +702,7 @@ $("#select_report_setting").click();
 			"&cat=" + keyJoin(cat).join(';') +
 			"&markup=" + keyJoin(markup).join(';') +
 			"&matrix=" + keyJoin(matrix).join(';') +
+			"&priceshop=" + $('#priceshop').val() +
 			""}).trigger('reloadGrid');
 	});
 	$('#myTab a').click(function (e) {
@@ -651,6 +736,8 @@ $("#select_report_setting").click();
 		else if (set == 140) { val = $("#select_fold_order").select2("val");	}
 		else if (set == 180) { val = $("#select_visible").select2("val");		}
 		else if (set == 185) { val = $("#select_visible").select2("val");		}
+		else if (set == 230) { val = keyJoin(selcat).join(';')		}
+		else if (set == 240) { val = keyJoin(selcat).join(';')		}
 		else				 { val = $("#newvalue").val();					}
 		if (val == '' && id != 'btn_view_param') {
 			$("#dialog>#text").html('Вы не указали значение!');
@@ -696,6 +783,8 @@ $("#select_report_setting").click();
 		{id: 200, text: 'установить отдел'}, 
 		{id: 210, text: 'установить кол-во в упаковке'}, 
 		{id: 220, text: 'установить макс. скидку'}, 
+		{id: 230, text: 'добавить в категорию'}, 
+		{id: 240, text: 'удалить из категории'}, 
 	];
 	$("#select_action").select2({data: a_action, placeholder: "Выберите действие"});
 	$("#select_action").select2("val", 0);
@@ -704,6 +793,7 @@ $("#select_report_setting").click();
 		$("#set_fold_order").hide();
 		$("#set_stickers").hide();
 		$("#set_visible").hide();
+		$("#set_cat").hide();
 		set = $("#select_action").select2("val");
 		if (set == 120) {
 		    $("#set_stickers").show();
@@ -711,6 +801,8 @@ $("#select_report_setting").click();
 		    $("#set_fold_order").show();
 		} else if (set == 180 || set == 185) {
 		    $("#set_visible").show();
+		} else if (set == 230 || set == 240) {
+		    $("#set_cat").show();
 		} else {
 		    $("#set_all").show();
 		}
@@ -720,6 +812,7 @@ $("#select_report_setting").click();
 	$("#set_fold_order").hide();
 	$("#set_stickers").hide();
 	$("#set_visible").hide();
+	$("#set_cat").hide();
 		
 	var a_status = [{id: 10, text: 'стикер'}, {id: 20, text: 'ценовая планка'}];
 	$("#select_type_sticker").select2({data: a_status, placeholder: "Выберите тип ценника"});
@@ -758,7 +851,7 @@ $("#select_report_setting").click();
 		<li><a id="a_tab_action" class="disabledTab" href="#tab_action" role="tab" data-toggle="tab">Действия</a></li>
 	</ul>
 	<div class="tab-content">
-		<div class="active tab-pane min530 m0 w100p ui-corner-tab1 borderColor frameL border1" id="tab_filter">
+*		<div class="active tab-pane min530 m0 w100p ui-corner-tab1 borderColor frameL border1" id="tab_filter">
 			<div id="setting_filter" class='p5 frameL w400 h400 ml0 border0' style='display:table;'>
 				<legend>Параметры отбора данных:</legend>
 				<div class="input-group input-group-sm mt10 w100p">
@@ -822,6 +915,14 @@ $("#select_report_setting").click();
 						<a class="btn btn-default w100p" type="button">...</a>
 					</span>
 				</div>
+				<div class="input-group input-group-sm mt20 w100p">
+					<span class="input-group-addon w130">Цены (в виде %.99%):</span>
+					<input id="priceshop" name="priceshop" type="text" class="form-control" >
+					<span class="input-group-btn w32">
+						<a class="btn btn-default w100p" type="button">X</a>
+					</span>
+					<span class="input-group-addon w32"></span>
+				</div>
 			</div>
 			<div id="divGrid" class='p5 ui-corner-all frameL ml5 border0'>
 				<legend id="legendGrid"></legend>
@@ -872,6 +973,16 @@ $("#select_report_setting").click();
 							<div class="w100p" id="select_fold_order"></div>
 							<span class="input-group-addon w32"></span>
 						</div>
+						<div id="set_cat" class="input-group input-group-sm mt10 w100p">
+							<span class="input-group-addon w100 TAL">Категория:</span>
+							<input id="select_cat" name="select_cat" type="text" class="form-control" >
+							<span class="input-group-btn w32">
+								<a class="btn btn-default w100p" type="button">X</a>
+							</span>
+							<span class="input-group-btn w32">
+								<a class="btn btn-default w100p" type="button">...</a>
+							</span>
+						</div>
 					</div>
 					<div class='m10 w100p'>
 						<button id="btn_view_param" class="btn btn-sm btn-default frameL m0 mr2 w100p h40 hidden-print font14">
@@ -882,6 +993,13 @@ $("#select_report_setting").click();
 						<button id="btn_action_run" class="btn btn-sm btn-default frameL m0 mr2 w100p h40 disabled hidden-print font14">
 							<span class="ui-button-text" style1='width:120px;height:22px;'>Выполнить действие</span>
 						</button>
+					</div>
+					<div id="divGrid2" class='p5 ui-corner-all frameL ml5 border0'>
+						<legend id="legendGrid2"></legend>
+						<div id="divTree2" class='frameL'>
+							<table id="treeGrid2"></table>
+							<div id="ptreeGrid2"></div>
+						</div>
 					</div>
 				</div>
 				<div class="col-md-7 p0">

@@ -2,7 +2,7 @@
 class Model_Register extends Model {
 	public function get_data() {
 		if (!empty($_REQUEST['captcha'])) {
-			if (empty($_SESSION['captcha']) || trim(strtolower($_REQUEST['captcha'])) != $_SESSION['captcha']) {
+			if (empty($_SESSION['captcha']) || trim(md5($_REQUEST['captcha'])) != $_SESSION['captcha']) {
 				$_SESSION['error_msg2'] = "<h4 class='center list-group-item list-group-item-danger m0'>"
 					. "ВНИМАНИЕ!<br><small>Неверно введен проверочный код!</small></h4>";
 				return false;

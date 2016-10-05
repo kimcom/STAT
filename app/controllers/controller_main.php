@@ -3,5 +3,9 @@ class Controller_Main extends Controller {
 	function action_index() {
 		$this->view->generate('view_main.php', 'view_template.php');
 	}
+	function action_catalog() {
+		$this->view->generate('view_catalog.php', 'view_template.php');
+	}
+
 }
 ?>

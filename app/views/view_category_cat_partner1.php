@@ -22,7 +22,7 @@ var source_id_copy 	= 0;
 		sortorder: "asc",
 		editurl: '../category/cat_partner_tree_oper',
 		pager : "#ptreegrid",
-		caption: "Категории",
+		caption: "Категории партнеров",
 		toppager: true,
 		gridComplete: function() {
 			//setTimeout(function(){$("#treegrid").jqGrid('sortGrid','name', false, 'asc');},1);
@@ -204,7 +204,7 @@ var source_id_copy 	= 0;
 		datatype: "json",
 		width:'100%',
 		height: '100%',
-		colNames:['Код','Статья затрат'],
+		colNames:['Код','Партнер'],
 		colModel:[
 			{name:'PartnerID', index:'PartnerID', width: 60, sorttype: "number", search: true},
 			{name:'Name', index:'Name', width:220, sorttype:"text", search:true}
@@ -216,7 +216,7 @@ var source_id_copy 	= 0;
 		multiselect: true,
 		gridview : true,
 		toppager: true,
-		caption: "Список ст. затрат входящих в категорию:",
+		caption: "Список партнеров входящих в категорию:",
 		pager: '#pgrid1'
 	});
 	$("#grid1").jqGrid('navGrid','#pgrid1', {edit:false, add:false, del:false, search:false, refresh: true, cloneToTop: true});
@@ -267,7 +267,7 @@ var source_id_copy 	= 0;
 		datatype: "json",
 		width:'100%',
 		height: '100%',
-		colNames:['Код','Статья затрат'],
+		colNames:['Код','Партнер'],
 		colModel:[
 			{name:'PartnerID', index:'PartnerID', width: 60, sorttype: "number", search: true},
 			{name:'Name', index:'Name', width:310, sorttype:"text", search:true}
@@ -279,7 +279,7 @@ var source_id_copy 	= 0;
 		multiselect: true,
 		gridview : true,
 		toppager: true,
-		caption: "Список ст. затрат входящих в категорию:",
+		caption: "Список партнеров входящих в категорию:",
 		pager: '#pgrid4'
 	});
 	$("#grid4").jqGrid('navGrid','#pgrid4', {edit:false, add:false, del:false, search:false, refresh: true,	cloneToTop: true});

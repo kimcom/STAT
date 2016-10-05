@@ -37,7 +37,8 @@ class Controller_Lists extends Controller {
 		$this->view->generate('view_reason_list.php', 'view_template.php');
 	}
 	function action_discountCards() {
-		$this->view->generate('view_discountCard_list.php', 'view_template.php');
+		//$this->view->generate('view_discountCard_list.php', 'view_template.php');
+		$this->view->generate('view_discountCard_list_new.php', 'view_template.php');
 	}
 	function action_get_promo_tree_NS() {
 		$this->model = new Model_Lists();

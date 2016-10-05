@@ -28,6 +28,12 @@ class Controller_Reports extends Controller {
 	function action_report9_setting() {
 		$_SESSION['report9_setting'] = urldecode($_SERVER['QUERY_STRING']);
 	}
+	function action_report10() {
+		$this->view->generate('view_reports_10.php', 'view_template.php');
+	}
+	function action_report11() {
+		$this->view->generate('view_reports_11.php', 'view_template.php');
+	}
 
 	function action_report1_data() {
 		$this->model = new Model_Reports();
@@ -69,6 +75,14 @@ class Controller_Reports extends Controller {
 	function action_report9_data() {
 		$cnn = new Cnn();
 		return $cnn->get_report9_data();
+	}
+	function action_report10_data() {
+		$cnn = new Cnn();
+		return $cnn->get_report10_data();
+	}
+	function action_report11_data() {
+		$cnn = new Cnn();
+		return $cnn->get_report11_data();
 	}
 
 	function action_jqgrid3() {

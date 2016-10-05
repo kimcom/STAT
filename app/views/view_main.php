@@ -1,3 +1,8 @@
+<?php
+if ($_SESSION['access'] && $_SESSION['AccessLevel'] == 0) {
+	return;
+}
+?>
 <script type="text/javascript">
 var tab_active = '';
 $(document).ready(function () {

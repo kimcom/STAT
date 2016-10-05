@@ -1,3 +1,9 @@
+<script type="text/javascript">
+$(document).ready(function () {
+	//$('#captcha').attr('src', '../captcha/captcha.php?' + Math.random());
+	$('#captcha').attr('src', '../engine/captcha?' + Math.random());
+});
+</script>
 <div class="container min550">
 	<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons" 
 		 style="position: relative; height: auto; width: 510px; left:50%; top:0%; margin-left:-250px; margin-top:10px; display: block;"
@@ -76,17 +82,18 @@ if (!empty($_REQUEST['captcha'])) {
 ?>
 			<div class="input-group w100p">
 				<span class="input-group-addon w25p p5 h60">Проверочный<br>код:</span>
-				<img class="form-control w50p h60" style="<?php echo $style;?>" src="../captcha/captcha.php" id="captcha"><br>
+				<img class="form-control w50p" style="height:91px;" src="" id="captcha"><br>
+	<!--				<img class="form-control w50p h60" style="<?php echo $style;?>" src="../captcha/captcha.php" id="captcha"><br>-->
 				<span class="input-group-btn w25p">
-					<a class="btn btn-default w100p h91" type="button"
+					<a class="btn btn-default w100p h91" type="button" onclick="$('#captcha').attr('src', $('#captcha').attr('src')+'?'+Math.random());"><span class="mt40">Обновить код</span></a>
+<!--					<a class="btn btn-default w100p h91" type="button"
 					   onclick="
 							document.getElementById('captcha').src='../captcha/captcha.php?'+Math.random();
-							document.getElementById('captcha-form').focus();"><br>Обновить код</a>
+							document.getElementById('captcha-form').focus();"><br>Обновить код</a>-->
 				</span>
 			</div>
 			<div class="input-group w100p m0">
 <?php
-echo $_SESSION['error_msg2'];unset($_SESSION['error_msg2']);
 ?>
 			</div>
 			<button class="btn btn-lg btn-primary btn-block" type="submit">Регистрация</button>
