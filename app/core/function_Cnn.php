@@ -1080,7 +1080,6 @@ Fn::debugToLog('report10 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUE
 	public function get_report11_data() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
-		Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 //Fn::paramToLog();  
 //echo $DT_start.' '.  $DT_stop . '<br>';
 		if (isset($DT_start)) {
@@ -1095,6 +1094,7 @@ Fn::debugToLog('report10 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUE
 		} else {
 			return;
 		}
+Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']).'	$date1='.  $date1.'	$date2='.  $date2);
 //Fn::debugToLog("date1", $date1);
 //Fn::debugToLog("date2", $date2);
 		$action = 'conversion_' . $repid;
@@ -1239,8 +1239,118 @@ Fn::debugToLog('report10 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUE
 		header("Content-type: application/json;charset=utf8");
 		echo json_encode($response);
 	}
+	public function get_report12_data() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::paramToLog();  
+//echo $DT_start.' '.  $DT_stop . '<br>';
+		if (isset($DT_start)) {
+			$dt1 = DateTime::createFromFormat('d?m?Y', $DT_start);
+			$date1 = $dt1->format('Ymd');
+		} else {
+			return;
+		}
+		if (isset($DT_stop)) {
+			$dt2 = DateTime::createFromFormat('d?m?Y', $DT_stop);
+			$date2 = $dt2->format('Ymd');
+		} else {
+			return;
+		}
+//Fn::debugToLog("date1", $date1);
+//Fn::debugToLog("date2", $date2);
+		$action = 'report' . $sid;
+		$stmt = $this->db->prepare("CALL pr_reports(?, @id, ?, ?, ?)");
+		$stmt->bindParam(1, $action, PDO::PARAM_STR);
+		$stmt->bindParam(2, $date1, PDO::PARAM_STR);
+		$stmt->bindParam(3, $date2, PDO::PARAM_STR);
+		$stmt->bindParam(4, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$response = new stdClass();
+		$response->error = '';
+		$response->table1 = '';
 
-	public function get_pendel_data2() {
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			$response->error = $stmt->errorInfo();
+		$rowset = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$dg = array(); $total = array(); $total['cntN'] = 0; $total['cntK'] = 0; $total['cnt'] = 0; $total['qtyN'] = 0; $total['qtyK'] = 0; 
+		$groupkey = 'ClientID';
+//		if ($repid == 'rep3') $groupkey = 'DT';
+//		if ($repid == 'rep4') $groupkey = 'DT';
+		if ($rowset) {
+			//данные из таблицы переносим в массив
+			foreach ($rowset as $row) {
+//				if ($dg[$row[$groupkey]]['cntN'] == null)	$dg[$row[$groupkey]]['cntN'] = 0;
+//				$dg[$row[$groupkey]]['cntN'] += $row['cntN'];
+//				if ($dg[$row[$groupkey]]['cntK'] == null)	$dg[$row[$groupkey]]['cntK'] = 0;
+//				$dg[$row[$groupkey]]['cntK'] += $row['cntK'];
+				$total['cntN']	+= $row['cntN'];
+				$total['cntK']	+= $row['cntK'];
+				$total['cnt']	+= $row['cnt'];
+				$total['qtyN']	+= $row['qtyN'];
+				$total['qtyK']	+= $row['qtyK'];
+			}
+		}
+//Fn::debugToLog("dg", json_encode($dg));
+//выводим шапку таблицы
+		$str = '';
+		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
+		$str .= '<thead><tr>';
+		if ($repid == 'rep1') {
+			$str .= '<th>№</th>';
+			$str .= '<th>Город</th>';
+			$str .= '<th>Торговая точка</th>';
+			$str .= '<th>Кол-во<br>чеков с<br>наполнителем</th>';
+			$str .= '<th>Кол-во<br>чеков с<br>наполнителем<br>и кормом</th>';
+			$str .= '<th>Кол-во<br>чеков только с<br>наполнителем</th>';
+//			$str .= '<th>Кол-во<br>ед. с<br>наполнителем</th>';
+//			$str .= '<th>Кол-во<br>ед. с<br>наполнителем<br>и кормами</th>';
+		}
+		$str .= '</tr></thead>';
+		//выводим данные в таблице
+		$id = 0;
+		$str .= '<tbody>';
+		foreach ($rowset as $row) {
+			//выводим итоги группы
+//			if ($id != $row[$groupkey]) {
+//				$conversion = 0;
+//				if ($dg[$id] != null && $repid != 'rep1' && $repid != 'rep4') {
+//					if ($dg[$id]['CountCheck'] > 0)
+//						$conversion = round($dg[$id]['CountCheck'] / $dg[$id]['CountVisitor'] * 100, 0);
+//					$str .= '<tr><th colspan=2></th><th colspan=2 class="TAC">ИТОГО:</th><th class="TAC">' . $dg[$id]['CountVisitor'] . '</th><th class="TAC">' . $dg[$id]['CountCheck'] . '</th><th class="TAC">' . $conversion . '</th><th colspan=3></th></tr>';
+//					$str .= '<tr><th colspan=10></th></tr>';
+//				}
+//				$id = $row[$groupkey];
+//			}
+			$str .= '<tr>';
+			if ($repid == 'rep1') {
+				$str .= '<td>' . $row['ClientID'] . '</td>';
+				$str .= '<td>' . $row['City'] . '</td>';
+				$str .= '<td class="TAL">' . $row['NameShort'] . '</td>';
+				$str .= '<td class="w100">' . Fn::nfx0($row['cntN'],0) . '</td>';
+				$str .= '<td class="w100">' . Fn::nfx0($row['cntK'],0) . '</td>';
+				$str .= '<td class="w100">' . Fn::nfx0($row['cnt'],0) . '</td>';
+//				$str .= '<td class="w100">' . Fn::nfx0($row['qtyN'],0) . '</td>';
+//				$str .= '<td class="w100">' . Fn::nfx0($row['qtyK'],0) . '</td>';
+				$str .= '</tr>';
+			}
+		}
+		//выводим итоги последней группы
+		$conversion = 0;
+		if ($repid == 'rep1') {
+			$str .= '<tr><th colspan=2></th><th colspan=1 class="TAC">ИТОГО:</th><th class="TAC">' . $total['cntN'] . '</th><th class="TAC">' . $total['cntK'] . '</th><th class="TAC">' . $total['cnt'] . '</th>';
+			//$str .= '<th class="TAC">' . $total['qtyN'] . '</th><th class="TAC">' . $total['qtyK'] . '</th>';
+			$str .= '</tr>';
+		}
+		$str .= '</tbody>';
+		$str .= "</table>";
+		$response->table1 = $str;
+		header("Content-type: application/json;charset=utf8");
+		echo json_encode($response);
+	}
+
+public function get_pendel_data2() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
 Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
@@ -2257,6 +2367,39 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$stmt->execute();
 		$this->echo_response($stmt);
 	}
+	public function card_animal(){
+		foreach ($_REQUEST as $arg => $val) ${$arg} = $val;
+//Fn::paramToLog();
+//Fn::debugToLog('QUERY_STRING', urldecode($_SERVER['QUERY_STRING']));
+		if ($animalid=="") $action = "add_animal";
+		if ($animalid!="") $action = "edit_animal";
+		//if ($animalid!="") $action = "del_animal";
+		$stmt = $this->db->prepare("CALL pr_card_attribute(:action, :_CardID, :_Family, :_Name, :_MiddleName, :_Address, :_Phone1, :_Phone2, :_EMail, :_AnimalType, :_AnimalBreed, :_Notes, :_DateOfIssue, :_PercentOfDiscount, :_AmountOfBuying, :_DateOfCancellation, :_TradePointID, :_HowWeLearn, :_ParentCardID, @_id)");
+		$stmt->bindParam(":action", $action);
+		$stmt->bindParam(":_CardID", $cardid);
+		$stmt->bindParam(":_Family", $family);
+		$stmt->bindParam(":_Name", $name);
+		$stmt->bindParam(":_MiddleName", $middlename);
+		$stmt->bindParam(":_Address", $address);
+		$stmt->bindParam(":_Phone1", $phone1);
+		$stmt->bindParam(":_Phone2", $phone2);
+		$stmt->bindParam(":_EMail", $eMail);
+		$stmt->bindParam(":_AnimalType", $AnimalType);
+		$stmt->bindParam(":_AnimalBreed", $AnimalBreed);
+		$stmt->bindParam(":_Notes", $notes);
+		$stmt->bindParam(":_DateOfIssue", $dateOfIssue);
+		$stmt->bindParam(":_PercentOfDiscount", $percentOfDiscount);
+		$stmt->bindParam(":_AmountOfBuying", $dopSum);
+		$stmt->bindParam(":_DateOfCancellation", $dateOfCancellation);
+		$stmt->bindParam(":_TradePointID", $clientID);
+		$stmt->bindParam(":_HowWeLearn", $howWeLearn);
+		$stmt->bindParam(":_ParentCardID", $animalid);
+
+// вызов хранимой процедуры
+		$stmt->execute();
+		$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+		$this->echo_response($stmt);
+	}
 
 //sellers
 	public function seller_info() {
@@ -2392,14 +2535,15 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$url = str_replace("=>", ">", $url);
 		$url = str_replace("=<", "<", $url);
 		$url = str_replace("=<>", "<>", $url);
-
+if ($filters == '') 
+		$url = str_replace("&filters=", "", $url);
 if ($action == 'good_list_doc') {
 	if (isset($Name) || isset($Article))
 		$url = str_replace("&group=$group", "", $url);
 	$url .= '&good_list_DocID=' . $_SESSION['CurrentDocID'];
 	//Fn::debugToLog('jqgrid3 проверка', "&group=$group");
 }
-if ($action == 'package_list' || $action == 'receipt_list' || 
+if ($action == 'package_list' || 
 	$action == 'cancel_list'  || $action == 'difference_list') {
 	$url .= '&o.UserID=' . $_SESSION['UserID'];
 }
@@ -2590,6 +2734,31 @@ Fn::debugToLog('jqgrid3 url', $url);
 //Fn::debugToLog("select_search", json_encode($response));
 		header("Content-type: application/json;charset=utf-8");
 		echo json_encode($response);
+	}
+	public function select() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$stmt = $this->db->prepare("CALL pr_card('list_animal', :_BarCode, @_id)");
+		$stmt->bindValue(":_BarCode", $cardid);
+// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			return false;
+		$response = '<select role="select" class="FormElement ui-widget-content ui-corner-all"><option value=""></option>';
+		do {
+			$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+			if ($rowset) {
+				foreach ($rowset as $row) {
+					//$response .= $row[0].':'.$row[0].';';
+					$response .= '<option value="' . $row[0] . '">' . $row[0] . '</option>';
+				}
+			}
+		} while ($stmt->nextRowset());
+		$response .= "</select>";
+//Fn::debugToLog("select2", json_encode($response));
+		//header("Content-type: application/json;charset=utf-8");
+		echo $response;
 	}
 
 //menu
@@ -2918,7 +3087,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 							if ($action=='receipt_info' || $action=='difference_info') $str .= '
 										   <div class="input-group input-group-sm w450">
 											  <span class = "input-group-addon w100">№ док. пост.:</span>
-											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['Invoice'] . '" onchange="good_edit(\''. $doctype .'_edit_invoice\',this,0,0,0,0,0,0,0,0,0,$(this).val());">
+											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['1CID'] . '" onchange="good_edit(\''. $doctype .'_edit_invoice\',this,0,0,0,0,0,0,0,0,0,$(this).val());">
 											  <span class = "input-group-addon w32"></span>
 										   </div>
 										   ';
@@ -2936,9 +3105,14 @@ Fn::debugToLog('jqgrid3 url', $url);
 					$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw400" cellspacing="0"  width="100%">';
 					$str .= '<thead><tr>
 									<th class="w50 center">Артикул</th>
-									<th class="w150 center">Название</th>
-									<th class="w100  center">Инфо</th>
-									<th class="w40  center">Кол-во</th>';
+									<th class="w150 center">Название</th>';
+					if ($action!='receipt_info')
+						$str .= '	<th class="w100  center">Инфо</th>';
+					$str .= '		<th class="w40  center">Кол-во</th>';
+					if ($action=='receipt_info'){
+						$str .=	'		<th class="w40  center">Цена розн.</th>';
+						$str .=	'		<th class="w40  center">Сумма</th>';
+					}
 					$str .= '	 </thead><tbody>';
 					foreach ($rowset as $row) {
 						$total_qty += $row['Quantity'];
@@ -2946,14 +3120,20 @@ Fn::debugToLog('jqgrid3 url', $url);
 									<td class="TAL">' . $row['Article'] . '</td>
 									<td class="TAL">' . $row['Name'] . '</td>';
 						if (!$view){
-						$str .= '	<td class="TAL">
+						if ($action != 'receipt_info')
+							$str .= '<td class="TAL">
 										<input type="text" class="TAL editable inline-edit-cell" style="line-height:17px;width:100%;" min=0 onchange="good_edit(\''. $doctype .'_edit_good_info\',this,'. $row['GoodID'] .',null,null,$(this).val());" value="' . $row['Info'] . '">
-									</td>
-									<td class="TAC">
+									</td>';
+						$str .= '	<td class="TAC">
 										<input type="number" class="TAR editable inline-edit-cell" style="line-height:17px;width:60%;min-width:40px;" onchange="good_edit(\''. $doctype .'_edit\',this,'. $row['GoodID'] .',null,$(this).val(),null);" value="' . $row['Quantity'] . '">
+										<span id="qty" class="hidden">' . $row['Quantity'] . '</span>
 										<span class="ml5 mr5 glyphicon glyphicon-remove hidden-print" onclick="good_edit(\''. $doctype .'_edit\',$(this).prev(),'. $row['GoodID'] .',null,0);"></span>
-									</td>
-								 </tr>';
+									</td>';
+							if ($action == 'receipt_info') {
+								$str .= '<th class="w40  center">' . $row['Price'] . '</th>';
+								$str .= '<th class="w40  center">' . $row['Sum'] . '</th>';
+							}
+						$str .= '</tr>';
 						} else {
 							$str .= '	<td class = "w40  center">' . $row['Info'] . '</td>';
 							$str .= '	<td class = "w40  center">' . $row['Quantity'] . '</td>';
@@ -2966,10 +3146,17 @@ Fn::debugToLog('jqgrid3 url', $url);
 				}
 				if ($cnt == 3) {
 					foreach ($rowset as $row) {
-					if ($action=='package_info') {
+					if ($action=='receipt_info'){
+						$str .= '<tfoot>
+									<tr><th colspan=' . ($col_cnt-2) . '>Всего кол-во в документе:</th>
+									<th class="TAC">' . $total_qty . ' ед.</th>
+									<th colspan=2 class="TAC"></th></tr>
+								 </tfoot>';
+					}else if ($action=='package_info') {
 						$str .= '<tfoot>
 									<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th>
 									<th class="TAC">' . $total_qty . ' ед.</th></tr>
+									<th class="TAC"></th></tr>
 								 </tfoot>';
 					}else{
 						$str .= '<tfoot>
@@ -3108,17 +3295,21 @@ Fn::debugToLog('jqgrid3 url', $url);
 			return;
 		}
 		//$response->success = false;
+//	do {
 		$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+//		$response->rowset = $rowset;
 //Fn::debugToLog("s", "1");
 		foreach ($rowset as $row) {
 //Fn::debugToLog("s", "2");
-			if ($response->success)
 //Fn::debugToLog("s", json_encode($row));
+			if ($response->success)
 				$response->success = $row[0];
 				$response->new_id = $row[1];
 				$response->sql_message = $row[2];
 			break;
 		}
+//	} while ($stmt->nextRowset());
+
 		if ($response->success == true) {
 			$response->message = 'Информация успешно сохранена!';
 			if (strlen($response->sql_message) == 0)

@@ -33,7 +33,9 @@
 		<script src="../../js/jqgrid-filter.js" type="text/javascript"></script>
 		<script src="../../js/jquery.dataTables.min.js" type="text/javascript"></script>
 		<script src="../../js/dataTables.bootstrap.js" type="text/javascript"></script>
-		<script src="../../js/select2.min.js" type="text/javascript"></script>
+<!--		<script src="../../js/select2.min.js" type="text/javascript"></script>-->
+		<script src="../../js/select2.js" type="text/javascript"></script>
+		<script src="../../js/select2_locale_ru.js" type="text/javascript"></script>
 		<script src="../../js/jquery.easing.js" type="text/javascript"></script>
 <!--		<script src="../../js/jquery.slidorion.min.js" type="text/javascript"></script>-->
 		

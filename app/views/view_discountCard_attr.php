@@ -10,17 +10,47 @@ if (isset($_REQUEST['cardid'])) {
 ?>
 <script type="text/javascript">
     $(document).ready(function () {
+	var access = <?php echo $_SESSION['AccessLevel']; ?>;
 	$("#dialog").dialog({
 		autoOpen: false, modal: true, width: 400,
 		buttons: [{text: "Закрыть", click: function () {
 			$(this).dialog("close");
 		}}]
 	});
+	$("#question").dialog({autoOpen: false, modal: true, width: 285,
+		show: { effect: "blind",   duration: 500 },
+		hide: { effect: "explode", duration: 500}
+    });
+	$("#div_animal").dialog({
+		autoOpen: false, modal: true, width: 490,
+		buttons: [{
+			text: "Сохранить",
+			width: 90,
+			click: function() {
+				$.post('../engine/card_animal', {
+					cardid: $("#CardID").val(),
+					animalid: $("#AnimalID").val(),
+					AnimalType: $('#select_type_animals').val(),
+					AnimalBreed: $('#select_breeds').val()
+				},
+				function (data) {
+					if (data.success){
+					    $("#gridA").trigger('reloadGrid');
+					}else{
+						$("#dialog>#text").html(data.sql_message);
+						$("#dialog").dialog("open");
+					}
+				}, "json");
+				$(this).dialog("close");
+			}},
+			{text: "Закрыть", click: function () {$(this).dialog("close");}}
+		]
+	});
 	$("#inputbox").dialog({
 			autoOpen: false, modal: true, width: 285,
 			buttons: [{
 			text: "Сохранить",
-			width: 80,
+			width: 90,
 			click: function() {
 				$.post('../engine/discoundcard_history', {
 					oper: 'add',
@@ -43,7 +73,7 @@ if (isset($_REQUEST['cardid'])) {
 			autoOpen: false, modal: true, width: 285,
 			buttons: [{
 			text: "Выполнить",
-			width: 80,
+			width: 90,
 			click: function() {
 				$.post('../engine/discoundcard_history', {
 					oper: 'del',
@@ -97,6 +127,7 @@ if (isset($_REQUEST['cardid'])) {
 	$.post('../Engine/select2?action=point', function (json) {
 		$("#select_point").select2({multiple: false, placeholder: "Выберите магазин", data: {results: json, text: 'text'}});
 		$("#select_point").select2("val", "<?php echo $row['KodTradePoint']; ?>");
+		if(access<1000) $("#select_point").select2("enable",false);
 	});
 
 	// выбор даты выдачи 
@@ -325,6 +356,105 @@ if (isset($_REQUEST['cardid'])) {
 
 	$("#grid2").gridResize();
 
+    animal_edit = function (oper){
+		var rowid = $("#gridA").jqGrid('getGridParam','selrow');
+		if (oper!='add'){
+			if (rowid == null){
+				$("#dialog>#text").html("Выберите запись в таблице!");
+				$("#dialog").dialog("open");
+				return;
+			}
+			var rowdata = $("#gridA").jqGrid("getRowData",rowid);
+			$("#div_animal #CardID").val(<?php echo $cardid; ?>);
+			$("#div_animal #AnimalID").val(rowdata.AnimalID);
+			$("#div_animal #select_type_animals").select2("val", rowdata.TypeAnimal);
+
+			$.post('../Engine/select2?action=breeds', {name: rowdata.TypeAnimal}, function (json) {
+				$("#div_animal #select_breeds").select2({width: 276, multiple: false, placeholder: "Выберите породу", data: {results: json, text: 'text'}});
+				$("#div_animal #select_breeds").select2("val", rowdata.Breed);
+			});
+		}
+		$("#div_animal").dialog("open");
+    }
+    animal_add = function () {
+		$("#div_animal #CardID").val(<?php echo $cardid; ?>);
+		$("#div_animal #AnimalID").val("");
+		$("#div_animal #select_type_animals").select2("val", null);
+		$("#div_animal #select_breeds").select2({multiple: false, placeholder: "Выберите породу", data: {results: [], text: 'text'}});
+		animal_edit('add');
+    }
+    animal_del = function () {
+		var rowid = $("#gridA").jqGrid('getGridParam','selrow');
+		if (rowid == null){
+			$("#dialog>#text").html("Выберите запись в таблице!");
+			$("#dialog").dialog("open");
+			return;
+		}
+		var rowdata = $("#gridA").jqGrid("getRowData",rowid);
+		
+		$("#question>#text").html("Удалить запись ID: "+rowdata.AnimalID+"<br><br>Вид: "+rowdata.TypeAnimal+"<br>Порода: "+rowdata.Breed);
+		$("#question").dialog('option', 'buttons', [{text: "Удалить", click: function () {
+			$.post('../engine/card_animal?action=del_animal&animalid='+rowdata.AnimalID, {action: 'del_animal', animalid: rowdata.AnimalID, cardid:'', AnimalType:'', AnimalBreed:''},	function (data) {
+				if (data.success){
+					$("#gridA").trigger('reloadGrid');
+				} else {
+					$("#dialog>#text").html(data.sql_message);
+					$("#dialog").dialog("open");
+				}
+			}, "json");
+			$(this).dialog("close");
+		    }}, 
+			{text: "Отмена", click: function () {
+				$(this).dialog("close");
+			}}]);
+	    $("#question").dialog('open');
+    }
+    animal_change = function (e) {
+		var TypeAnimal = $('#select_type_animals').val();
+		$.post('../Engine/select2?action=breeds', {name: TypeAnimal}, function (json) {
+			$("#div_animal #select_breeds").select2({width: 276, multiple: false, placeholder: "Выберите породу", data: {results: json, text: 'text'}});
+		});
+    }
+	$.post('../Engine/select2?action=type_animals', function (json) {
+		$("#select_type_animals").select2({multiple: false, placeholder: "Выберите вид питомца", data: {results: json, text: 'text'}});
+	});
+	$("#select_type_animals").on("change", animal_change);
+	$("#select_breeds").select2({multiple: false, placeholder: "Выберите породу", data: {results: [], text: 'text'}});
+
+// Creating gridA
+	$("#gridA").jqGrid({
+		url: '/engine/jqgrid3?action=card_animals&IDCard=<?php echo $cardid;?>&f1=AnimalID&f2=TypeAnimal&f3=Breed',
+		sortable: true,
+		datatype: "json",
+		width:295,
+		height:150,
+		colModel: [
+			{label:'AnimalID', name: 'AnimalID', index: 'AnimalID', width:100, sorttype: "text", search: false, hidden:true},
+			{label:'Вид', name: 'TypeAnimal', index: 'TypeAnimal', width:100, sorttype: "text", search: false, editable: true, edittype: "text"},
+			{label:'Порода', name: 'Breed', index: 'Breed',		   width:195, sorttype: "text", search: false, editable: true, edittype: "text"},
+		],
+	    shrinkToFit: false,
+	    rowNum: 10,
+	    rowList: [10, 20, 100],
+	    sortname: "TypeAnimal",
+	    viewrecords: true,
+	    gridview: true,
+	    toppager: true,
+		//onSelectRow: function (rowid, status, e) {animal_edit('');},
+		ondblClickRow: function (rowid, iRow, iCol, e) {animal_edit('');},
+	    caption: "Питомцы",
+	    pager: '#pgridA'
+	});
+	$("#gridA").jqGrid('navGrid', '#pgridA', {edit: false, add: false, del: false, search: false, refresh: true, cloneToTop: true});
+	$("#gridA").navButtonAdd('#gridA_toppager', {onClickButton: animal_del,  title: 'Удалить запись',  buttonicon: "ui-icon-trash", caption:"", position: "first"});
+	$("#gridA").navButtonAdd('#gridA_toppager', {onClickButton: animal_edit, title: 'Изменить запись', buttonicon: "ui-icon-pencil", caption:"", position: "first"});
+	$("#gridA").navButtonAdd('#gridA_toppager', {onClickButton: animal_add, title: 'Добавить запись', buttonicon: "ui-icon-plus", caption:"", position: "first"});
+
+	$("#pg_pgridA").remove();
+	$("#pgridA").removeClass('ui-jqgrid-pager');
+	$("#pgridA").addClass('ui-jqgrid-pager-empty');
+	$("#gridA").gridResize();
+
 	$('#myTab a').click(function (e) {
 		e.preventDefault();
 		if (this.id == 'a_tab_history') {
@@ -336,9 +466,6 @@ if (isset($_REQUEST['cardid'])) {
 			$("#grid2").trigger('reloadGrid');
 		}
 	});
-
-//	$("#inputbox").dialog("open");
-	
 });
 </script>
 <input id="cardid" name="cardid" type="hidden" value="<?php echo $row['CardID']; ?>">
@@ -351,8 +478,8 @@ if (isset($_REQUEST['cardid'])) {
 <div class="container center">
 	<ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
 		<li class="active"><a id="a_tab_filter" href="#tab_filter" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">Информация о дисконтной карте</legend></a></li>
-		<li><a id="a_tab_history" href="#tab_history" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">История покупок</legend></a></li>
-		<li class="<?php echo $row['ParentCardID']==''?'hide':''; ?>"><a id="a_tab_history_parent" href="#tab_history_parent" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">История покупок (врем.карта)</legend></a></li>
+		<li class="<?php echo ($_SESSION['AccessLevel'] < 1000 ? 'hide' : ''); ?>"><a id="a_tab_history" href="#tab_history" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">История покупок</legend></a></li>
+		<li class="<?php echo $row['ParentCardID']==''?'hide':''; ?> <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'hide' : ''); ?>"><a id="a_tab_history_parent" href="#tab_history_parent" role="tab" data-toggle="tab" style="padding-top: 5px; padding-bottom: 5px;"><legend class="h20">История покупок (врем.карта)</legend></a></li>
 	</ul>
 	<div class="floatL">
 		<button id="button_save" class="btn btn-sm btn-success frameL m0 h40 hidden-print font14">
@@ -390,13 +517,13 @@ if (isset($_REQUEST['cardid'])) {
 				<div id="datapickers">
 					<div class="datapicker input-group input-group-sm w100p">
 						<span class="input-group-addon w25p TAL">Дата выдачи:</span>
-						<input id="DT_issue" name="DT_issue" type="text" class="form-control TAL" value="<?php echo $row['DateOfIssue']; ?>">
+						<input id="DT_issue" name="DT_issue" type="text" class="form-control TAL" value="<?php echo $row['DateOfIssue']; ?>" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?>>
 						<span class="input-group-btn"><a class="btn btn-default w100p" type="button">X</a></span>
 						<span class="input-group-btn w32"><a class="btn btn-default w100p" type="button">...</a></span>
 					</div>
 					<div class="datapicker input-group input-group-sm w100p">
 						<span class="input-group-addon w25p TAL">Дата анулирования:</span>
-						<input id="DT_cancellation" name="DT_cancellation" type="text" class="form-control TAL" value="<?php echo $row['DateOfCancellation']; ?>">
+						<input id="DT_cancellation" name="DT_cancellation" type="text" class="form-control TAL" value="<?php echo $row['DateOfCancellation']; ?>" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?>>
 						<span class="input-group-btn"><a class="btn btn-default w100p" type="button">X</a></span>
 						<span class="input-group-btn w32"><a class="btn btn-default w100p" type="button">...</a></span>
 					</div>
@@ -427,16 +554,6 @@ if (isset($_REQUEST['cardid'])) {
 					<span class="input-group-addon w32"></span>
 				</div>
 				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w25p TAL">Питомцы (устар.): </span>
-					<span class="input-group-addon form-control TAL"><?php echo $row['Animal']; ?></span>
-					<span class="input-group-addon w32"></span>
-				</div>
-				<div class="input-group input-group-sm w100p">
-					<span class="input-group-addon w25p TAL">Питомцы: </span>
-					<textarea class="input-group-addon0 form-control TAL" rows="3" disabled style="height: auto;"><?php echo $row['Animals']; ?></textarea>
-					<span class="input-group-addon w32"></span>
-				</div>
-				<div class="input-group input-group-sm w100p">
 					<span class="input-group-addon w25p TAL">Причина выдачи:</span>
 					<input id="howWeLearn" name="howWeLearn" type="text" class="form-control TAL" value="<?php echo $row['HowWeLearn']; ?>">
 					<span class="input-group-addon w32"></span>
@@ -446,38 +563,53 @@ if (isset($_REQUEST['cardid'])) {
 					<input id="notes" name="notes" type="text" class="form-control TAL" value="<?php echo $row['Notes']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
+				<div class="input-group input-group-sm w100p h20">
+				</div>
+				<div class="input-group input-group-sm w100p h60">
+					<span class="input-group-addon w25p TAL">Питомцы (устар.): </span>
+					<textarea class="TAL w336 h60" rows="3" disabled="true"><?php echo $row['Animal']; ?></textarea>
+					<span class="input-group-addon w32"></span>
+				</div>
 			</div>
 			<!--*********************-->
-			<div class='p5 ui-corner-all frameL ml10 border0 w300' style='float:left;'>
-				<div class="input-group input-group-sm w100p">
+			<div class='p5 ui-corner-all frameL ml10 border0 w600' style0='float:left;'>
+				<div class="input-group input-group-sm w50p">
 					<span class="input-group-addon w130 TAL">Стартовый процент:</span>
 					<input id="startPercent" name="startPercent" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value="<?php echo $row['StartPercent']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
-				<div class="input-group input-group-sm w100p">
+				<div class="input-group input-group-sm w50p">
 					<span class="input-group-addon w130 TAL">Стартовая сумма:</span>
 					<input id="startSum" name="startSum" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value="<?php echo $row['StartSum']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
-				<div class="input-group input-group-sm w100p">
+				<div class="input-group input-group-sm w50p">
 					<span class="input-group-addon w130 TAL">Доп. сумма:</span>
 					<input id="dopSum" name="dopSum" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value ="<?php echo $row['DopSum']; ?>">
 					<span class="input-group-addon w32"></span>
 				</div>
-				<div class="input-group input-group-sm w100p">
+				<div class="input-group input-group-sm w50p">
 					<span class="input-group-addon w130 TAL">Сумма покупок: </span>
 					<span class="input-group-addon form-control TAR"><?php echo $row['SummaAmount']; ?></span>
 					<span class="input-group-addon w32"></span>
 				</div>
-				<div class="input-group input-group-sm w100p">
+				<div class="input-group input-group-sm w50p">
 					<span class="input-group-addon w130 TAL">Сумма накопления: </span>
 					<span class="input-group-addon form-control TAR"><?php echo $row['AmountOfBuying']; ?></span>
 					<span class="input-group-addon w32"></span>
 				</div>
-				<div class="input-group input-group-sm w100p">
+				<div class="input-group input-group-sm w50p">
 					<span class="input-group-addon w130 TAL">% скидки: </span>
 					<input id="percentOfDiscount" name="percentOfDiscount" type="text" class="form-control TAR" <?php echo ($_SESSION['AccessLevel'] < 1000 ? 'disabled' : ''); ?> value="<?php echo $row['PercentOfDiscount']; ?>">
 					<span class="input-group-addon w32"></span>
+				</div>
+				<div class="input-group input-group-sm w100p h20">
+				</div>
+				<div style='display:table;'>
+					<div class='frameL pt5'>
+						<table id="gridA"></table>
+						<div id="pgridA"></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -517,4 +649,31 @@ if (isset($_REQUEST['cardid'])) {
 			<span class="input-group-addon w32"></span>
 		</div>               
 	</div>
+</div>
+<div id="div_animal" title="Ввод информации о питомце:">
+	<div class='p5 ui-corner-all border1 w450' style='display:table;'>
+		<div class="input-group input-group-sm w100p">
+			<span class="input-group-addon w130 TAL">ID карты:</span>
+			<input class="input-group-addon w100p TAL" type="text" name="CardID" id="CardID" readonly="true">
+			<span class="input-group-addon w32"></span>
+		</div>
+		<div class="input-group input-group-sm w100p">
+			<span class="input-group-addon w130 TAL">ID записи:</span>
+			<input class="input-group-addon w100p TAL" type="text" name="AnimalID" id="AnimalID" readonly="true">
+			<span class="input-group-addon w32"></span>
+		</div>
+		<div class="input-group input-group-sm w100p">
+			<span class="input-group-addon w130 TAL">Вид питомца:</span>
+			<div class="w100p" id="select_type_animals"></div>
+			<span class="input-group-addon w32"></span>
+		</div>
+		<div class="input-group input-group-sm w100p">
+			<span class="input-group-addon w130 TAL">Порода питомца:</span>
+			<div class="w100p" id="select_breeds"></div>
+			<span class="input-group-addon w32"></span>
+		</div>
+	</div>
+</div>
+<div id="question" title="ВНИМАНИЕ!">
+	<p id='text' class="center"></p>
 </div>

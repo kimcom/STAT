@@ -157,6 +157,10 @@ EOF;
 		$cnn = new Cnn();
 		return $cnn->select2();
 	}
+	function action_select() {//for select
+		$cnn = new Cnn();
+		return $cnn->select();
+	}
 	function action_user_list() {//for select2
 		$cnn = new Cnn();
 		return $cnn->user_list();
@@ -261,6 +265,10 @@ EOF;
 		$cnn = new Cnn();
 		return $cnn->select_search();
 	}
+	public function action_card_animal() {//for select2
+		$cnn = new Cnn();
+		return $cnn->card_animal();
+	}
 
 	public function action_captcha() {
 		// создаем случайное число и сохраняем в сессии
@@ -300,5 +308,6 @@ EOF;
 		imagedestroy($im);
 	}
 
+	
 }
 ?>

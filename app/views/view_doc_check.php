@@ -14,7 +14,7 @@ $(document).ready(function(){
 		height:'auto',
 		colNames:['№ чека','Статус Чека','Тип оплаты','Тип чека','Дата, время','Город','Магазин','Сумма общая','Сумма скидки','Сумма к оплате','Номер Дисконта'],
 		colModel:[
-			{name:'cl_CheckID',        index:'cl.CheckID',         width: 100,  align:"center",  sorttype:"number",    search:true, sortable: true},
+			{name:'cl_CheckID',           index:'cl.CheckID',            width: 100,  align:"center",  sorttype:"number",    search:true, sortable: true},
 			{name:'CheckStatus',       index:'CheckStatus',        width: 90,   align:"left",    stype:"select",     searchoptions: {value: ":любой;1:распечатан;0:не закрыт" }},
 			{name:'TypePayment',       index:'TypePayment',        width: 80,   align:"center",  stype:"select",     searchoptions: {value: ":любой;1:без нал;0:нал"}},
 			{name:'FlagReturn',        index:'FlagReturn',         width: 80,   align: "center", stype:"select",     searchoptions: {value: ":любой;1:продажа;-1:возврат"}},
@@ -34,7 +34,7 @@ $(document).ready(function(){
 				postData.CreateDateTime = formated_date;
 			$("#gs_CreateDateTime").val(postData.CreateDateTime);
 	    },
-		gridComplete: function() {if(!fs) {fs = 1; filter_restore("#grid1");}},
+//		gridComplete: function() {if(!fs) {fs = 1; filter_restore("#grid1");}},
 		width:'auto',
 		shrinkToFit:false,
 //		loadonce: true,

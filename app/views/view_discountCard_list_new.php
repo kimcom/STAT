@@ -61,6 +61,10 @@ $(document).ready(function () {
 		shrinkToFit: false,
 		search: false,
 		gridComplete: function() {if(!fs) {fs = true; filter_restore("#grid1");}},
+		ondblClickRow: function(rowid) {
+			if (rowid != '')
+				window.location = "../goods/map_discountcard_edit?cardid=" + rowid;
+	    },
     });
 	$('#gbox_grid1 .ui-jqgrid-caption').addClass('btn-info');
 	$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: false, cloneToTop: true});

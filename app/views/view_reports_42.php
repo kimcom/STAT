@@ -90,7 +90,8 @@ $("#select_report_setting").click();
 				var k = aset[key].split('=');
 				if(k[1]=='')continue;
 				if(k[0]=='DT_start') {if(json.UserID!=11)$("#DT_start").val(k[1]);continue;}
-				if(k[0]=='DT_stop') {if(json.UserID!=11)$("#DT_stop").val(k[1]);continue;}
+				if(k[0]=='DT_stop') {continue;}//$("#DT_stop").val(k[1]);continue;}
+				//if(k[0]=='DT_stop') {if(json.UserID!=11)$("#DT_stop").val(k[1]);continue;}
 				var l = k[1].split('|');
 				var m = l[0].split(';');
 				var n = l[1].split(';');

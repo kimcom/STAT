@@ -33,18 +33,20 @@ $(document).ready(function () {
 		caption: "Список документов",
 		mtype: "GET",
 		styleUI: 'Bootstrap',
-		url: "/engine/jqgrid3?action=receipt_list&OperID=<?php echo $operid?>&grouping=DocID&o.Status=0&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author",
+		url: "/engine/jqgrid3?action=receipt_list&OperID=<?php echo $operid?>&grouping=DocID&o.Status=0&f1=DocID&f2=1CID&f3=State&f4=DT_create&f5=Qty&f6=PartnerName&f7=ClientName&f8=Notes&f9=Author",
 		//responsive: true,
 		scroll: 1, height: 360, // если виртуальная подгрузка страниц
 		//height: 'auto', //если надо управлять страницами
 		//multiSort: true,
 		datatype: "json",
 		colModel: [
-		    {label: '№ документа', name: 'o_DocID', index: 'o.DocID', width: 100, sorttype: "number", search: true, align: "center"},
-		    {label: 'Состояние', name: 'State', index: 'State', width: 120, sorttype: "text", search: false, align: "left"},
-		    {label: 'Дата создания', name: 'DT_create', index: 'o.DT_create', width: 130, sorttype: "date", search: true, align: "center"},
-		    {label: 'Кол-во', name: 'Qty', index: 'Qty', width: 100, sorttype: "number", search: false, align: "right"},
-		    {label: 'Клиент', name: 'ClientName', index: 'cl.NameShort', width: 200, sorttype: "text", search: true, align: "left"},
+		    {label: '№ документа', name: 'o_DocID', index: 'o.DocID', width: 80, sorttype: "number", search: true, align: "center"},
+		    {label: '№ в 1С', name: 'o_1CID', index: 'o.1CID', width: 80, sorttype: "text", search: true, align: "center"},
+		    {label: 'Состояние', name: 'State', index: 'State', width: 100, sorttype: "text", search: false, align: "center"},
+		    {label: 'Дата создания', name: 'DT_create', index: 'o.DT_create', width: 120, sorttype: "date", search: true, align: "center"},
+		    {label: 'Кол-во', name: 'Qty', index: 'Qty', width: 60, sorttype: "number", search: false, align: "right"},
+		    {label: 'Поставщик', name: 'PartnerName', index: 'p.Name', width: 160, sorttype: "text", search: true, align: "left"},
+		    {label: 'Магазин', name: 'ClientName', index: 'cl.NameShort', width: 170, sorttype: "text", search: true, align: "left"},
 		    {label: 'Примечание', name: 'Notes', index: 'Notes', width: 200, sorttype: "text", search: true, align: "left"},
 		    {label: 'Автор', name: 'Author', index: 'u.UserName', width: 150, sorttype: "text", search: true, align: "left"},
 		],
@@ -82,9 +84,9 @@ $(document).ready(function () {
 			$("#divGrid").appendTo( $($(this).attr('href')));
 			$("#divGrid").removeClass("hide");
 			if($(this).attr('state')=='all') {
-				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=receipt_list&OperID=<?php echo $operid ?>&grouping=DocID&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
+				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=receipt_list&OperID=<?php echo $operid ?>&grouping=DocID&f1=DocID&f2=1CID&f3=State&f4=DT_create&f5=Qty&f6=PartnerName&f7=ClientName&f8=Notes&f9=Author", page: 1});
 			}else{
-				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=receipt_list&OperID=<?php echo $operid ?>&grouping=DocID&o.Status="+$(this).attr('state')+"&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
+				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=receipt_list&OperID=<?php echo $operid ?>&grouping=DocID&o.Status="+$(this).attr('state')+"&f1=DocID&f2=1CID&f3=State&f4=DT_create&f5=Qty&f6=PartnerName&f7=ClientName&f8=Notes&f9=Author", page: 1});
 			}
 			$("#grid1").trigger('reloadGrid');
 		}
@@ -195,7 +197,17 @@ $(document).ready(function () {
 						$("#question").dialog('option', 'buttons', [{text: "Отправить", click: doc_send}, {text: "Отмена", click: function () {$(this).dialog("close");}}]);
 						$("#question").dialog('open');
 					}
-					if (id == 'print') window.print();
+					if (id == 'print') {
+						$('#table_doc input').addClass("hidden");
+						$('#table_doc #qty').removeClass("hidden");
+						$("#tab_doc_action").removeClass("border1");
+						$("#tab_doc_action").addClass("border0");
+						window.print();
+						$('#table_doc input').removeClass("hidden");
+						$('#table_doc #qty').addClass("hidden");
+						$("#tab_doc_action").removeClass("border0");
+						$("#tab_doc_action").addClass("border1");
+					}
 					if (id == 'delete') {
 						$("#question>#text").html("После удаления<br>документ восстановить невозможно!<br><br>Удалить документ № "+$('#docid').val()+"?");
 						$("#question").dialog('option', 'buttons', [{text: "Удалить", click: doc_delete},{text: "Отмена", click: function () {$(this).dialog("close");}}]);

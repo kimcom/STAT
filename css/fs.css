@@ -19,8 +19,10 @@
 .minw200 {min-width: 200px;}
 .minw300 {min-width: 300px;}
 .minw400 {min-width: 400px;}
+.maxw130 {max-width: 130px;}
 .maxw300 {max-width: 300px;}
 .maxw328 {max-width: 328px;}
+.maxw400 {max-width: 400px;}
 .max200 {max-width: 200px;}
 .max600 {max-width: 600px;}
 
@@ -122,6 +124,8 @@
 .w310{width:310px;}
 .w328{width:328px;}
 .w330{width:330px;}
+.w336{width:336px;}
+.w340{width:340px;}
 .w350{width:350px;}
 .w400{width:400px;}
 .w430{width:430px;}
@@ -137,6 +141,7 @@
 .hauto{height:auto;}
 .h0{height:0px;}
 .h20{height:20px;}
+.h25{height:25px;}
 .h30{height:30px;}
 .h36{height:36px;}
 .h40{height:40px;}

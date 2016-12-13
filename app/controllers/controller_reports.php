@@ -34,6 +34,9 @@ class Controller_Reports extends Controller {
 	function action_report11() {
 		$this->view->generate('view_reports_11.php', 'view_template.php');
 	}
+	function action_report12() {
+		$this->view->generate('view_reports_12.php', 'view_template.php');
+	}
 
 	function action_report1_data() {
 		$this->model = new Model_Reports();
@@ -83,6 +86,10 @@ class Controller_Reports extends Controller {
 	function action_report11_data() {
 		$cnn = new Cnn();
 		return $cnn->get_report11_data();
+	}
+	function action_report12_data() {
+		$cnn = new Cnn();
+		return $cnn->get_report12_data();
 	}
 
 	function action_jqgrid3() {
