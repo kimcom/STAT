@@ -535,6 +535,7 @@ class Cnni {
 	}
 	public function get_promo_tree_info(){
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+		//Fn::paramToLog();
 		$result = Shop::GetPromoInfo($this->dbi, $id);
 		$i = 0;
 		$response = new stdClass();
@@ -556,6 +557,7 @@ class Cnni {
 			$response->UserID_response = $row['UserID_response'];
 			$response->promo_quantity = $row['QuantityPromo'];
 			$response->points = $row['Points'];
+			$response->promo_autoset = ($row['AutoSet']==1)?true:false;
 			$i++;
 		}
 		// Перед выводом не забывайте выставить header с указанием типа контента и кодировки
@@ -626,11 +628,13 @@ class Cnni {
 	}
 	public function promo_save() {
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+//Fn::paramToLog();		
+
 		if ($promo_type_id == "")
 			$promo_type_id = 0;
 		if (!isset($UserID_response))
 			$UserID_response = 0;
-		$result = Shop::SetPromoInfo($this->dbi, $promoid, $Name, $promo_type_id, $Description, $DT_start, $DT_stop, $UserID_response, $QuantityPromo, $Points);
+		$result = Shop::SetPromoInfo($this->dbi, $promoid, $Name, $promo_type_id, $Description, $DT_start, $DT_stop, $UserID_response, $QuantityPromo, $Points, $promo_autoset);
 		echo $result;
 	}
 	public function get_promo_list() {

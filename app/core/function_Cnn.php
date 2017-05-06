@@ -2920,6 +2920,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 		if ($info == '') $info = null;
 		if ($clientid == '') $clientid = $_SESSION['ClientID'];
 //Fn::debugToLog("docid", $docid);
+//Fn::debugToLog("clientid", $clientid);
 //Fn::debugToLog("UserID", $_SESSION['UserID']);
 //Fn::debugToLog("operid", $operid);
 //Fn::debugToLog("partnerid", $partnerid);
@@ -2969,6 +2970,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 		$response->success = false;
 		$response->clientid = $_SESSION['ClientID'];
 		$response->partnerid = 0;
+		$response->period = "";
 		$response->message = "";
 		$response->html = "";
 
@@ -2979,6 +2981,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 		if ($action == 'receipt_info') $doctype = 'receipt';
 		if ($action == 'cancel_info')  $doctype = 'cancel';
 		if ($action == 'difference_info')  $doctype = 'difference';
+		if ($action == 'timesheet_info') $doctype = 'timesheet';
 		
 		$stmt = $this->db->prepare("call pr_doc(:action, @_id, :_ClientID, :_PartnerID, :_DocID, :_OperID, :_GoodID, :_Qty, :_Info, :_Status, :_UserID, :_Notes, :_Invoice)");
 		$stmt->bindParam(":action", $action);
@@ -3009,13 +3012,15 @@ Fn::debugToLog('jqgrid3 url', $url);
 					foreach ($rowset as $row) {
 						$response->clientid = $row['ClientID'];
 						$response->partnerid = $row['PartnerID'];
+						$response->period = $row['Period'];
 						$str .= '
 								 <input id="docid" type="hidden" value="' . $row['DocID'] . '"/>';
 						if (!$view)
 							$str .= '
 								 <div class="row">
-									<div id="div_doc_buttons" class = "col-md-12 col-xs-12 TAL hidden-print">
-<button id="good_add"	type="button" class="btn btn-primary	btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus mr5"></span>Добавить товар</button>
+									<div id="div_doc_buttons" class = "col-md-12 col-xs-12 TAL hidden-print">';
+							if ($action != 'timesheet_info') $str .= '<button id="good_add"	type="button" class="btn btn-primary	btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus mr5"></span>Добавить товар</button>';
+$str .= '	
 <button id="delete"		type="button" class="btn btn-danger		btn-sm minw150 mb5"><span class="glyphicon glyphicon-trash mr5"></span>Удалить документ</button>
 <button id="doc_add"	type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
 <button id="print"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-print mr5"></span>Печать документа</button>
@@ -3025,7 +3030,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 								 </div>';
 						$str .= '
 								 <div class="row">
-									<div class = "col-md-12 col-xs-12">
+									<div class = "col-md-12 col-xs-12 '.(($action == 'timesheet_info')?'hidden-print':'').'">
 										<div class = "floatL">
 											<div class="input-group input-group-sm w300">
 											   <span class = "input-group-addon w130">Документ №</span>
@@ -3044,16 +3049,24 @@ Fn::debugToLog('jqgrid3 url', $url);
 							$str .= '
 										<div class="floatL">
 										   <div class="input-group input-group-sm w350">
-												<span class = "input-group-addon w100">Магазин:</span>
+												<span class = "input-group-addon w110">Магазин:</span>
 												<div id="select_companyID" class="w210"></div>
-												<span class = "input-group-addon w40"></span>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
+							if ($action == 'timesheet_info')
+								$str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Период расчета:</span>
+												<div id="select_periodID" class="w210"></div>
+												<span class = "input-group-addon w30"></span>
 										   </div>
 										   ';
 							if ($action=='receipt_info' || $action=='difference_info') $str .= '
 										   <div class="input-group input-group-sm w350">
-												<span class = "input-group-addon w100">Контрагент:</span>
+												<span class = "input-group-addon w110">Контрагент:</span>
 												<div id="select_partnerID" class="w210"></div>
-												<span class = "input-group-addon w40"></span>
+												<span class = "input-group-addon w30"></span>
 										   </div>
 										   ';
 							$str .= '	</div>';
@@ -3084,7 +3097,15 @@ Fn::debugToLog('jqgrid3 url', $url);
 											  <span class = "input-group-addon w32"></span>
 										   </div>
 										   ';
-							if ($action=='receipt_info' || $action=='difference_info') $str .= '
+						if ($action == 'timesheet_info')
+						$str .= '
+										   <div class="input-group input-group-sm w450">
+												<span class="input-group-btn w50p"><a id="doc_fill" class="btn btn-default w100p" type="button">Заполнить документ</a></span>
+												<span class="input-group-btn w50p"><a href="javascript:doc_info()" class="btn btn-default w100p" type="button">Пересчитать итоги</a></span>
+										   </div>
+										   ';
+		//<img class="img-rounded h20 m0" src="../../images/save-as.png">
+						if ($action=='receipt_info' || $action=='difference_info') $str .= '
 										   <div class="input-group input-group-sm w450">
 											  <span class = "input-group-addon w100">№ док. пост.:</span>
 											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['1CID'] . '" onchange="good_edit(\''. $doctype .'_edit_invoice\',this,0,0,0,0,0,0,0,0,0,$(this).val());">
@@ -3099,72 +3120,175 @@ Fn::debugToLog('jqgrid3 url', $url);
 					}
 				}
 				if ($cnt == 2) {
-					$total_qty = 0; 
-					$col_cnt = 4;
-					$str .= '<div class="panel panel-default mt10 mr5">';
-					$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw400" cellspacing="0"  width="100%">';
-					$str .= '<thead><tr>
-									<th class="w50 center">Артикул</th>
-									<th class="w150 center">Название</th>';
-					if ($action!='receipt_info')
-						$str .= '	<th class="w100  center">Инфо</th>';
-					$str .= '		<th class="w40  center">Кол-во</th>';
-					if ($action=='receipt_info'){
-						$str .=	'		<th class="w40  center">Цена розн.</th>';
-						$str .=	'		<th class="w40  center">Сумма</th>';
-					}
-					$str .= '	 </thead><tbody>';
-					foreach ($rowset as $row) {
-						$total_qty += $row['Quantity'];
-						$str .= '<tr>
-									<td class="TAL">' . $row['Article'] . '</td>
-									<td class="TAL">' . $row['Name'] . '</td>';
-						if (!$view){
-						if ($action != 'receipt_info')
-							$str .= '<td class="TAL">
-										<input type="text" class="TAL editable inline-edit-cell" style="line-height:17px;width:100%;" min=0 onchange="good_edit(\''. $doctype .'_edit_good_info\',this,'. $row['GoodID'] .',null,null,$(this).val());" value="' . $row['Info'] . '">
-									</td>';
-						$str .= '	<td class="TAC">
-										<input type="number" class="TAR editable inline-edit-cell" style="line-height:17px;width:60%;min-width:40px;" onchange="good_edit(\''. $doctype .'_edit\',this,'. $row['GoodID'] .',null,$(this).val(),null);" value="' . $row['Quantity'] . '">
-										<span id="qty" class="hidden">' . $row['Quantity'] . '</span>
-										<span class="ml5 mr5 glyphicon glyphicon-remove hidden-print" onclick="good_edit(\''. $doctype .'_edit\',$(this).prev(),'. $row['GoodID'] .',null,0);"></span>
-									</td>';
-							if ($action == 'receipt_info') {
-								$str .= '<th class="w40  center">' . $row['Price'] . '</th>';
-								$str .= '<th class="w40  center">' . $row['Sum'] . '</th>';
-							}
-						$str .= '</tr>';
-						} else {
-							$str .= '	<td class = "w40  center">' . $row['Info'] . '</td>';
-							$str .= '	<td class = "w40  center">' . $row['Quantity'] . '</td>';
+					if ($action == 'timesheet_info'){
+						if ($response->period!='') { //$response->period = '2017-01';
+						$dt1 = DateTime::createFromFormat('Y?m?d', $response->period.'-01');
+						$dateStart = $dt1->format('Ymd');
+						$dt2 = DateTime::createFromFormat('Y?m?d', $response->period.'-01')->modify('+1 month')->modify('-1 day');
+						$dateStop = $dt2->format('Ymd');
+						}else{
+							$dt1 = new DateTime();
+							$dateStart = $dt1->format('Ymd');
+							$dt2 = new DateTime();
+							$dateStop = $dt2->format('Ymd');
 						}
+						$data = array();
+						foreach ($rowset as $row) {
+							$data[$row['SellerID']]['SellerID'] = $row['SellerID'];
+							$data[$row['SellerID']]['SellerName'] = $row['Name'];
+							$data[$row['SellerID']]['Post'] = $row['Post'];
+							$data[$row['SellerID']][$row['DT']] = $row['Value'];
+						}
+						$str .= '<div class="panel panel-default mt10 mr5">';
+						$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw400" cellspacing="0"  width="100%">';
+						$str .= '<thead><tr style="height0:100px;">
+										<th rowspan=2 class="w50 center">№</th>
+										<th rowspan=2 class="w150 center">Ф.И.О.</th>
+										<th rowspan=2 class="w150 center">Должность</th>
+										<th rowspan=2 class="w20 center trans90">Ставка</th>
+										';
+						$str .= '		<th rowspan=1 colspan='. $dt2->format('d') .'>'.Fn::rusm($response->period).'</th>';
+						$str .= '		<th rowspan=2 class="w50 center">Итого часов</th>
+										<th rowspan=2 class="w50 center">Отп.</th>
+										<th rowspan=2 class="w50 center">Больн.</th>
+										<th rowspan=2 class="w50 center">Раб. дни</th>
+										';
+						$str .= '		</tr><tr>';
+						for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 day')) {
+						$str .= '		<th rowspan=1 class="center trans90 wwn" style="">'.$dt->format('d').'</th>';
+						}
+						$str .= '		</tr>';
+						$str .= '	 </thead><tbody>';
+						$nn = 1;
+						foreach ($data as $d) {
+							$str .= '<tr>
+										<td class="TAC">' . $nn . '</td>
+										<td class="TAL wwn">' . $d['SellerName'] . '</td>
+										<td class="TAL wwn">' . $d['Post'] . '</td>
+										<td class="TAC">' . 1 . '</td>
+									';
+							$tHours = 0; $tOtpus = 0; $tBoln = 0; $tWorkDay = 0; $maxWorkDay = 5;
+							for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 day')) {
+								if($d[$dt->format('Y-m-d')] == 'О'){
+									$tOtpus++;
+									$class = 'holiday';	$value = 'О'; $maxWorkDay = 5;
+								}else if($d[$dt->format('Y-m-d')] == 'Б'){
+									$tBoln++;
+									$class = 'hospital'; $value = 'Б'; $maxWorkDay = 5;
+								}else if($d[$dt->format('Y-m-d')] == 'Х'){
+									$tBoln++;
+									$class = 'noworking'; $value = 'Х'; $maxWorkDay = 5;
+								}else if($d[$dt->format('Y-m-d')] > 0){
+									$tWorkDay++; $tHours = $tHours + $d[$dt->format('Y-m-d')];
+									$class = 'workday';
+									if ($maxWorkDay==0) {
+										$class = 'orangeday';
+										$maxWorkDay = 5;
+									}else{
+										$maxWorkDay --;
+									}
+									$value = $d[$dt->format('Y-m-d')];
+								}else{
+									$class = 'freeday'; $value = 'В'; $maxWorkDay = 5;
+								}
+								$str .= '		<td class="TAC ' . $class . '" onclick="javascript:doc_cell(\''.$d['SellerID'].'_'.$dt->format('Y-m-d').'\');" id='.$d['SellerID'].'_'.$dt->format('Y-m-d').'>' . $value . '</th>';
+							}
+							$nn++;
+							$str .= '		<td class="TAC">'.$tHours.'</td>
+											<td class="TAC">'.$tOtpus.'</td>
+											<td class="TAC">'.$tBoln.'</td>
+											<td class="TAC">'.$tWorkDay.'</td>
+										';
+						}
+						$str .= '</tr>';
+						$str .= '</tbody>';
+						$str .= '</table></div>';
+						$str .= '<div class="panel panel-default mt10 mr5 w300">';
+						$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw200" cellspacing="0"  width="100%">';
+						$str .= '<thead><tr style="height:40px;">
+										<th colspan=2 class="w150 center">Условные обозначения</th>
+										';
+						$str .= '</tr>';
+						$str .= '	 </thead><tbody>';
+						$str .= '		<tr><td class="TAC">Выходной</td><td class="freeday">В</td></tr>';
+						$str .= '		<tr><td class="TAC">Отпуск</td><td class="holiday">О</td></tr>';
+						$str .= '		<tr><td class="TAC">Больничный</td><td class="hospital">Б</td></tr>';
+						$str .= '		<tr><td class="TAC">Рабочий день</td><td class="workday">8</td></tr>';
+						$str .= '		<tr><td class="TAC">Не числился</td><td class="noworkday">Х</td></tr>';
+						$str .= '</tbody>';
+						$str .= '</table></div>';
+					}else{
+						$total_qty = 0; 
+						$col_cnt = 4;
+						$str .= '<div class="panel panel-default mt10 mr5">';
+						$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw400" cellspacing="0"  width="100%">';
+						$str .= '<thead><tr>
+										<th class="w50 center">Артикул</th>
+										<th class="w150 center">Название</th>';
+						if ($action!='receipt_info')
+							$str .= '	<th class="w100  center">Инфо</th>';
+						$str .= '		<th class="w40  center">Кол-во</th>';
+						if ($action=='receipt_info'){
+							$str .=	'		<th class="w40  center">Цена розн.</th>';
+							$str .=	'		<th class="w40  center">Сумма</th>';
+						}
+						$str .= '	 </thead><tbody>';
+						foreach ($rowset as $row) {
+							$total_qty += $row['Quantity'];
+							$str .= '<tr>
+										<td class="TAL">' . $row['Article'] . '</td>
+										<td class="TAL">' . $row['Name'] . '</td>';
+							if (!$view){
+							if ($action != 'receipt_info')
+								$str .= '<td class="TAL">
+											<input type="text" class="TAL editable inline-edit-cell" style="line-height:17px;width:100%;" min=0 onchange="good_edit(\''. $doctype .'_edit_good_info\',this,'. $row['GoodID'] .',null,null,$(this).val());" value="' . $row['Info'] . '">
+										</td>';
+							$str .= '	<td class="TAC">
+											<input type="number" class="TAR editable inline-edit-cell" style="line-height:17px;width:60%;min-width:40px;" onchange="good_edit(\''. $doctype .'_edit\',this,'. $row['GoodID'] .',null,$(this).val(),null);" value="' . $row['Quantity'] . '">
+											<span id="qty" class="hidden">' . $row['Quantity'] . '</span>
+											<span class="ml5 mr5 glyphicon glyphicon-remove hidden-print" onclick="good_edit(\''. $doctype .'_edit\',$(this).prev(),'. $row['GoodID'] .',null,0);"></span>
+										</td>';
+								if ($action == 'receipt_info') {
+									$str .= '<th class="w40  center">' . $row['Price'] . '</th>';
+									$str .= '<th class="w40  center">' . $row['Sum'] . '</th>';
+								}
+							$str .= '</tr>';
+							} else {
+								$str .= '	<td class = "w40  center">' . $row['Info'] . '</td>';
+								$str .= '	<td class = "w40  center">' . $row['Quantity'] . '</td>';
+							}
+						}
+						if ($stmt->rowCount() == 0){
+							$str .= '<tr><td colspan='. $col_cnt .' class="TAC">В документе нет товаров</td></tr>';
+						}
+						$str .= '</tbody>';
 					}
-					if ($stmt->rowCount() == 0){
-						$str .= '<tr><td colspan='. $col_cnt .' class="TAC">В документе нет товаров</td></tr>';
-					}
-					$str .= '</tbody>';
 				}
 				if ($cnt == 3) {
-					foreach ($rowset as $row) {
-					if ($action=='receipt_info'){
-						$str .= '<tfoot>
-									<tr><th colspan=' . ($col_cnt-2) . '>Всего кол-во в документе:</th>
-									<th class="TAC">' . $total_qty . ' ед.</th>
-									<th colspan=2 class="TAC"></th></tr>
-								 </tfoot>';
-					}else if ($action=='package_info') {
-						$str .= '<tfoot>
-									<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th>
-									<th class="TAC">' . $total_qty . ' ед.</th></tr>
-									<th class="TAC"></th></tr>
-								 </tfoot>';
+					if ($action == 'timesheet_info'){
+						
 					}else{
-						$str .= '<tfoot>
-									<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th><th class="TAC">' . $total_qty . ' ед.</th></tr>
-								 </tfoot>';
+						foreach ($rowset as $row) {
+						if ($action=='receipt_info'){
+							$str .= '<tfoot>
+										<tr><th colspan=' . ($col_cnt-2) . '>Всего кол-во в документе:</th>
+										<th class="TAC">' . $total_qty . ' ед.</th>
+										<th colspan=2 class="TAC"></th></tr>
+									 </tfoot>';
+						}else if ($action=='package_info') {
+							$str .= '<tfoot>
+										<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th>
+										<th class="TAC">' . $total_qty . ' ед.</th></tr>
+										<th class="TAC"></th></tr>
+									 </tfoot>';
+						}else{
+							$str .= '<tfoot>
+										<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th><th class="TAC">' . $total_qty . ' ед.</th></tr>
+									 </tfoot>';
+						}
+						}
+						$str .= '</table></div>';
 					}
-					}
-					$str .= '</table></div>';
 				}
 				$cnt++;
 			} while ($stmt->nextRowset());

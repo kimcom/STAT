@@ -147,15 +147,15 @@ Fn::DebugToLog('start: ',$ssql);
 		return $res;
 	}
 	public static function GetPromoInfo($dbi, $ID) {
-		$ssql = "CALL pr_promo_info('getById'," . $ID . ",'',null,'','','',null,null,null,null);";
-//DebugToLog('start: ',$ssql);
+		$ssql = "CALL pr_promo_info('getById'," . $ID . ",'',null,'','','',null,null,null,null,null);";
+//Fn::DebugToLog('start: ',$ssql);
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))
 			return false;
 		return $res;
 	}
 	public static function GetPromoTypeList($dbi) {
-		$ssql = "CALL pr_promo_info('getPromoTypeList',0,'',null,'','','',null,null,null,null);";
+		$ssql = "CALL pr_promo_info('getPromoTypeList',0,'',null,'','','',null,null,null,null,null);";
 //Fn::debugToLog('start: ',$ssql);
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))
@@ -274,11 +274,16 @@ Fn::DebugToLog('edit: ', $ssql);
 			return false;
 		return $res;
 	}
-	public static function SetPromoInfo($dbi, $promoid, $name, $promo_type_id, $description, $DT_start, $DT_stop, $UserID_response, $QuantityPromo, $Points) {
+	public static function SetPromoInfo($dbi, $promoid, $name, $promo_type_id, $description, $DT_start, $DT_stop, $UserID_response, $QuantityPromo, $Points, $promo_autoset) {
 		if ($QuantityPromo == '')
 			$QuantityPromo = 0;
-		$ssql = "CALL pr_promo_info('setInfo'," . $promoid . ",'" . $name . "'," . $promo_type_id . ",'" . $description . "','" . $DT_start . "','" . $DT_stop . "'," . $UserID_response . "," . $_SESSION['UserID'] . "," . $QuantityPromo . ",'".$Points."');";
-//DebugToLog('start: ',$ssql);
+		if ($promo_autoset=='true') {
+			$promo_autoset = 1;
+		}else{
+			$promo_autoset = 0;
+		}
+		$ssql = "CALL pr_promo_info('setInfo'," . $promoid . ",'" . $name . "'," . $promo_type_id . ",'" . $description . "','" . $DT_start . "','" . $DT_stop . "'," . $UserID_response . "," . $_SESSION['UserID'] . "," . $QuantityPromo . ",'".$Points."',".$promo_autoset.");";
+//Fn::DebugToLog('start: ',$ssql);
 //Fn::errorToLog('Shop::SetPromoInfo: ', $ssql);
 //Fn::errorToLog('Shop::UserID_response: ', $UserID_response);
 		$res = $dbi->query($ssql);
@@ -287,7 +292,7 @@ Fn::DebugToLog('edit: ', $ssql);
 		return true;
 	}
 	public static function GetPromoList($dbi, $promo_type) {
-		$ssql = "CALL pr_promo_info('getPromoList',0,'',0,'" . $promo_type . "','','',null,null,null,null);";
+		$ssql = "CALL pr_promo_info('getPromoList',0,'',0,'" . $promo_type . "','','',null,null,null,null,null);";
 //DebugToLog('start: ', $ssql);
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))

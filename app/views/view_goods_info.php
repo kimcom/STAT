@@ -393,12 +393,12 @@ $(document).ready(function () {
                 </div>
                 <div class="input-group input-group-sm w100p">
                     <span class="input-group-addon w130 TAL">Наименование:</span>
-                    <input id="name" type="text" class="form-control TAL" value="<?php echo ($row['Name']); ?>">
+                    <input id="name" type="text" class="form-control TAL" value="<?php echo htmlspecialchars($row['Name']); ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">
                     <span class="input-group-addon w130 TAL">Наим. для ценника:</span>
-                    <input id="namestickers" type="text" class="form-control TAL" value="<?php echo $row['NameSticker']; ?>">
+                    <input id="namestickers" type="text" class="form-control TAL" value="<?php echo htmlspecialchars($row['NameSticker']); ?>">
                     <span class="input-group-addon w32"></span>
                 </div>
                 <div class="input-group input-group-sm w100p">

@@ -6,6 +6,9 @@ class Controller_Documents extends Controller {
     function action_package_list() {
 		$this->view->generate('view_doc_package.php', 'view_template.php');
 	}
+    function action_timesheet_list() {
+		$this->view->generate('view_doc_timesheet.php', 'view_template.php');
+	}
     function action_receipt_list() {
 		$this->view->generate('view_doc_receipt.php', 'view_template.php');
 	}

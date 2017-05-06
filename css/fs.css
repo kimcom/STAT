@@ -105,6 +105,7 @@
 .w78{width:78px;}
 .w90{width:90px;}
 .w100{width:100px;}
+.w110{width:110px;}
 .w120{width:120px;}
 .w128{width:128px;}
 .w130{width:130px;}
@@ -1107,4 +1108,32 @@ fieldset[disabled] .btn-pink.focus {
 
 .select2-result-label{
     font-size:12px;
+}
+
+.trans90{
+    -webkit-transform: rotate(-90deg); 
+    transform: rotate(-90deg);
+}
+.wm{
+    -webkit-writing-mode: vertical-rl; 
+    writing-mode:tb-rl;    
+}
+.wwn{
+    white-space: nowrap;
+    word-wrap: normal;
+}
+.freeday{
+    background-color: white;   
+}
+.holiday{
+    background-color: yellow;   
+}
+.hospital{
+    background-color: red;   
+}
+.workday{
+    background-color: rgb(240,240,240);   
+}
+.orangeday{
+    background-color: orange;   
 }

@@ -200,7 +200,8 @@ var source_id_copy 	= 0;
 			DT_stop:$("#DT_stop").val(),
 			UserID_response:$("#select_user_list").select2("val"),
 			Points:$("#points").val(),
-			QuantityPromo:$("#promo_quantity").val()
+			QuantityPromo:$("#promo_quantity").val(),
+			promo_autoset:$("#promo_autoset").prop('checked')
 			},
 			function(data){
 				if(data==false){
@@ -293,6 +294,7 @@ function promo_info(row_id){
 			$("#select_user_list").select2("val", json.UserID_response);
 			$("#points").val(json.points);
 			$("#promo_quantity").val(json.promo_quantity);
+			$("#promo_autoset").prop('checked',json.promo_autoset);
 		});
 }
 </script>
@@ -308,6 +310,9 @@ function promo_info(row_id){
 		<p></p>
 			<label for="select_promo_type">Тип акции:</label>
 			<div class='w300' id="select_promo_type" name="select_promo_type"></div>
+		<p></p>
+			<label for="promo_autoset">Авт.назначение:</label>
+			<input class='w30' id="promo_autoset" name="promo_autoset" type="checkbox" required/>
 		<p></p>
 			<label for="select_promo_type">Магазины:</label>
 			<input class='w300' id="points" name="points" type="text"/>

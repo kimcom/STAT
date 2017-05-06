@@ -36,6 +36,7 @@ $(document).ready(function () {
 		$("#name2").val("Редактируемое значение (disabled = true)");
 		}
 	});
+	console.time("замер");
 	//заполнение select2 через ajax - подразделения
 	$.post('../Engine/select2?action=unit&type=0', function (json) {
 		$("#select_unitID").select2({placeholder: "Выберите подразделение", data: {results: json, text: 'text'}});
@@ -45,6 +46,7 @@ $(document).ready(function () {
 			console.log("change val=" + e.val);
 		});
 	});
+	console.timeEnd("замер");
 	//заполнение select2 - статусы
 	var a_status = [{id: 0, text: 'можно начинать'}, {id: 20, text: 'постановка задач'}, {id: 30, text: 'в работе'}, {id: 50, text: 'пауза'}, {id: 60, text: 'на проверке'}, {id: 100, text: 'завершено'}];
 	$("#select_status").select2({data: a_status, placeholder: "Выберите статус"});
