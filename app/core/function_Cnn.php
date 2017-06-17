@@ -2982,7 +2982,9 @@ Fn::debugToLog('jqgrid3 url', $url);
 		if ($action == 'cancel_info')  $doctype = 'cancel';
 		if ($action == 'difference_info')  $doctype = 'difference';
 		if ($action == 'timesheet_info') $doctype = 'timesheet';
-		
+		if ($action == 'inventory_info')  $doctype = 'inventory';
+		if ($view) $notes = 'view';
+
 		$stmt = $this->db->prepare("call pr_doc(:action, @_id, :_ClientID, :_PartnerID, :_DocID, :_OperID, :_GoodID, :_Qty, :_Info, :_Status, :_UserID, :_Notes, :_Invoice)");
 		$stmt->bindParam(":action", $action);
 		$stmt->bindParam(":_ClientID", $_SESSION['ClientID']);
@@ -3015,7 +3017,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 						$response->period = $row['Period'];
 						$str .= '
 								 <input id="docid" type="hidden" value="' . $row['DocID'] . '"/>';
-						if (!$view)
+						if (!$view) {
 							$str .= '
 								 <div class="row">
 									<div id="div_doc_buttons" class = "col-md-12 col-xs-12 TAL hidden-print">';
@@ -3028,6 +3030,7 @@ $str .= '
 <button					type="button" class="btn btn-link btn-sm minw150 mb5" disabled >Автор: ' . $row['UserName'] . '</button>
 									</div>
 								 </div>';
+						}
 						$str .= '
 								 <div class="row">
 									<div class = "col-md-12 col-xs-12 '.(($action == 'timesheet_info')?'hidden-print':'').'">
@@ -3069,6 +3072,13 @@ $str .= '
 												<span class = "input-group-addon w30"></span>
 										   </div>
 										   ';
+							if ($action == 'inventory_info') $str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Тип документа:</span>
+												<span class = "input-group-addon form-control w210 TAС">' . (($row['TypeDoc'] == 0) ? 'обычный' : 'сводный') . '</span>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
 							$str .= '	</div>';
 						} else {
 							$str .= '
@@ -3083,6 +3093,13 @@ $str .= '
 										   <div class="input-group input-group-sm w350">
 												<span class = "input-group-addon w80">Контрагент:</span>
 												<span class = "input-group-addon form-control w230 TAL">' . $row['PartnerName'] . '</span>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							if ($action=='inventory_info') $str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w80">Тип документа:</span>
+												<span class = "input-group-addon form-control w230 TAС">' . (($row['TypeDoc']==0)?'обычный':'сводный') . '</span>
 												<span class = "input-group-addon w40"></span>
 										   </div>
 										   ';

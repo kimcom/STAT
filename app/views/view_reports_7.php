@@ -89,7 +89,7 @@ $("#select_report_setting").click();
 			for(key in aset){
 				var k = aset[key].split('=');
 				if(k[1]=='')continue;
-				if(k[0]=='DT_start') {$("#DT_start").val(k[1]);continue;}
+				if(k[0]=='DT_start') {continue;}//$("#DT_start").val(k[1]);continue;}
 				if(k[0]=='DT_stop') {continue;}//$("#DT_stop").val(k[1]);continue;}
 				var l = k[1].split('|');
 				var m = l[0].split(';');

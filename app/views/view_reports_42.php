@@ -802,11 +802,12 @@ $("#select_report_setting").click();
 			<span class="ui-button-text" style1='width:120px;height:22px;'>Сформировать отчет</span>
 		</button>
 	</div>
-	<div class="floatL ml30">
+<!--	<div class="floatL ml30">
 		<button type="text" class="btn btn-sm btn-default frameL m0 h40 w250 hidden-print font14">
 			<span class="ui-button-text" style1='width:120px;height:22px;'>Дата акт. себест.: <?php echo $_SESSION['DT_sebest']?></span>
 		</button>
 	</div>
+-->
 	<div class="tab-content">
 		<div class="active tab-pane min530 m0 w100p ui-corner-tab1 borderColor frameL border1" id="tab_filter">
 			<div id="setting_filter" class='p5 frameL w500 h400 ml0 border0' style='display:table;'>

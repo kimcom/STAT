@@ -1,8 +1,13 @@
+<?php
+$operid = 0;
+?>
 <link rel="stylesheet" type="text/css" href="/css/jqgrid/ui.jqgrid-bootstrap-ui.css">
 <link rel="stylesheet" type="text/css" href="/css/jqgrid/ui.jqgrid-bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/css/jqgrid/ui.jqgrid.alik.css">
 <script type="text/javascript">
 $(document).ready(function () {
+	strJoin = function (obj){ var ar = []; for (key in obj){ar[ar.length] = obj[key];}return ar;}
+	var docs = new Object();
 	$("#dialog").dialog({autoOpen: false, modal: true, width: 400, //height: 300,
 		buttons: [{text: "Закрыть", click: function () { $(this).dialog("close");}}],
 		show: {effect: "clip", duration: 500},
@@ -30,7 +35,7 @@ $(document).ready(function () {
 		caption: "Список документов",
 		mtype: "GET",
 		styleUI: 'Bootstrap',
-		url: "/engine/jqgrid3?action=package_list&grouping=DocID&o.Status=0&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author",
+		url: "/engine/jqgrid3?action=inventory_list&o.TypeDoc=0&grouping=DocID&o.Status=0&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author&f8=Label",
 		//responsive: true,
 		scroll: 1, height: 360, // если виртуальная подгрузка страниц
 		//height: 'auto', //если надо управлять страницами
@@ -44,6 +49,12 @@ $(document).ready(function () {
 		    {label: 'Клиент', name: 'ClientName', index: 'cl.NameShort', width: 200, sorttype: "text", search: true, align: "left"},
 		    {label: 'Примечание', name: 'Notes', index: 'Notes', width: 200, sorttype: "text", search: true, align: "left"},
 		    {label: 'Автор', name: 'Author', index: 'u.UserName', width: 150, sorttype: "text", search: true, align: "left"},
+		    {label: 'В сводную',name: 'Label', index: 'Label', width: 100, align: "center", search: true, editable:true, 
+				formatter:'checkbox', edittype:'checkbox', //stype:'select', editoptions:{value:"1:0"}	
+				editoptions:{value:'1:0'}, formatoptions:{disabled:false},
+				stype:'select', searchoptions : {value : ":любой;1:выбранные;0:не выбранные"},
+				//edittype:"checkbox", editoptions:{value:"0:1"}}
+			    },
 		],
 		rowNum: 20,
 		rowList: [20, 30, 40, 50, 100, 200, 300],
@@ -57,11 +68,25 @@ $(document).ready(function () {
 		gridview: true,
 		pager: "#pgrid1",
 		pagerpos: "left",
-//		altclass:"ui-priority-secondary2",
-//		altRows:true,
-//		onSelectRow: function (id, status, e) {
-//			console.log(id, status, e);
-//		}
+		beforeSelectRow : function(rowid, elem) {
+			if(elem.target.checked==undefined)return;
+			if(elem.target.checked==true) checked = true;
+			if(elem.target.checked==false) checked = false;
+			var state = $("#grid1").jqGrid('getCell', rowid, 'State');
+			if (state!='проведен'){
+				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
+				$("#dialog>#text").html('В сводный документ можно добавить <br><br> только ПРОВЕДЕННЫЙ документ!<br><br>Сделайте правильный выбор!');
+				$("#dialog").dialog("open");
+				$("#grid1").jqGrid('setCell', rowid, 'Label', false);
+				return;
+			}
+			if (checked){
+				docs[rowid]=rowid;
+			}else{
+				delete docs[rowid];
+			}
+			//console.log(strJoin(docs).join(','));
+	    },
 		ondblClickRow: function(rowid) {
 			$("#div_doc_list #doc_edit:first").click();
 		}
@@ -79,9 +104,11 @@ $(document).ready(function () {
 			$("#divGrid").appendTo( $($(this).attr('href')));
 			$("#divGrid").removeClass("hide");
 			if($(this).attr('state')=='all') {
-				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=package_list&grouping=DocID&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
+				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=inventory_list&o.TypeDoc=0&grouping=DocID&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author&f8=Label", page: 1});
+			}else if($(this).attr('state')=='consolidate') {
+				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=inventory_list&o.TypeDoc=2&grouping=DocID&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author&f8=Label", page: 1});
 			}else{
-				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=package_list&grouping=DocID&o.Status="+$(this).attr('state')+"&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
+				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=inventory_list&o.TypeDoc=0&grouping=DocID&o.Status="+$(this).attr('state')+"&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author&f8=Label", page: 1});
 			}
 			$("#grid1").trigger('reloadGrid');
 		}
@@ -100,7 +127,7 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 				return false;
 			}
-			$.post('/engine/doc_edit', {action: 'package_setcurrent',docid:id}, function (json) {
+			$.post('/engine/doc_edit', {action: 'inventory_setcurrent', docid:id, operid:<?php echo $operid ?>}, function (json) {
 			//console.log(json);
 			    if (!json.success) {
 					$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -121,7 +148,7 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 				return false;
 		    }
-			$.post('/engine/doc_info_full',{action: 'package_info', docid: id, view: true}, function (json) {
+			$.post('/engine/doc_info_full',{action: 'inventory_info', docid: id, view: true}, function (json) {
 				if (json.success){
 					$("#view").html(json.html);
 					$("#view").dialog({title:'Просмотр информации о документе №'+id});
@@ -146,7 +173,7 @@ $(document).ready(function () {
 			$("#question").dialog('open');
 		}
 		if (id == 'doc_add') {
-		    $.post('/engine/doc_edit', {action: 'package_new'}, function (json) {
+		    $.post('/engine/doc_edit', {action: 'inventory_new', operid:<?php echo $operid;?>}, function (json) {
 				//console.log(json);
 				if (!json.success) {
 				    $("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -159,19 +186,38 @@ $(document).ready(function () {
 				}
 		    });
 		}
+		if (id == 'doc_consolidate')	{
+			var docs_str = strJoin(docs).join(',');
+			if (docs_str=='') {
+				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
+				$("#dialog>#text").html('Пожалуйста, выберите документы из списка!');
+				$("#dialog").dialog("open");
+				return false;
+			}
+			$.post('/engine/doc_edit', {action: 'inventory_consolidate', notes: docs_str}, function (json) {
+			    if (json.success) {
+					$("#dialog").css('background-color', '');
+					$("#dialog>#text").html('Сводный документ успешно сформирован.<br><br> Смотрите документ №' + json.docid);
+					$("#dialog").dialog("open");
+			    } else {
+					$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
+					$("#dialog>#text").html(json.message);
+					$("#dialog").dialog("open");
+			    }
+			});
+	    }
 	});
 	doc_info = function () {
-		$.post('/engine/doc_info_full',{action: 'package_info'}, function (json) {
+		$.post('/engine/doc_info_full',{action: 'inventory_info'}, function (json) {
 			//console.log(json);
 			if (json.success){
 				clientid = json.clientid;
-				partnerid = json.partnerid;
 				$("#div_doc_active").html(json.html);
 				$.post('/engine/select2?action=point', function (json) {
 					$("#select_companyID").select2({enable: false, multiple: false, placeholder: "Укажите торговую точку", data: {results: json, text: 'text'}});
 					$("#select_companyID").on("change", function (e) {
 					    if (e.val.length > 0)
-						good_edit('package_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
+						good_edit('inventory_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
 					});
 					$("#select_companyID").select2("val", clientid);
 					//$("#select_companyID").select2("enable", mode_manager);
@@ -190,7 +236,7 @@ $(document).ready(function () {
 						$("#question").dialog('option', 'buttons', [{text: "Удалить", click: doc_delete},{text: "Отмена", click: function () {$(this).dialog("close");}}]);
 						$("#question").dialog('open');
 					}
-					if (id == 'good_add') {window.location.href='/main/catalog?oper=package&operid=0';}
+					if (id == 'good_add') {window.location.href='/main/catalog?oper=inventory&operid=0';}
 					if (id == 'doc_add') {$("#div_doc_list #doc_add:first").click();}
 				});
 			}
@@ -198,7 +244,7 @@ $(document).ready(function () {
 	}
 	doc_send = function (e) {
 		$(this).dialog("close");
-		$.post('/engine/doc_edit', {action: 'package_send'}, function (json) {
+		$.post('/engine/doc_edit', {action: 'inventory_send'}, function (json) {
 			//console.log(json);
 			if (!json.success) {
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -206,14 +252,14 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 			} else {
 				//window.location.href = window.location.href;
+				$('#a_tab_1').click();
 				doc_info();
-				$('#a_tab_0').click();
 			}
 		});
 	}
 	doc_delete = function (e) {
 		$(this).dialog("close");
-		$.post('/engine/doc_edit', {action: 'package_delete'}, function (json) {
+		$.post('/engine/doc_edit', {action: 'inventory_delete'}, function (json) {
 			//console.log(json);
 			if (!json.success) {
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -221,8 +267,8 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 			} else {
 				//window.location.href = window.location.href;
+				$('#a_tab_1').click();
 				doc_info();
-				$('#a_tab_0').click();
 			}
 		});
 	}
@@ -230,7 +276,7 @@ $(document).ready(function () {
 		$(this).dialog("close");
 		var id = $("#grid1").jqGrid('getGridParam', 'selrow');
 		if (id == null) return false;
-		$.post('/engine/doc_edit', {action: 'package_delete', docid: id}, function (json) {
+		$.post('/engine/doc_edit', {action: 'inventory_delete', docid: id}, function (json) {
 			//console.log(json);
 			if (!json.success) {
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -239,17 +285,17 @@ $(document).ready(function () {
 			} else {
 				if ($('#docid').val()==id) {
 					//window.location.href = window.location.href;
+					$('#a_tab_1').click();
 					doc_info();
-					$('#a_tab_0').click();
 				}
 				$("#grid1").trigger('reloadGrid');
 			}
 		});
 	}
 	
-	good_edit = function (action, el, goodid, size, qty, info, delivery, notes, newclientid, typepay, partnerid) {
+	good_edit = function (action, el, goodid, size, qty, info, delivery, notes, newclientid, typepay) {
 		//console.log(action, el, goodid, size, qty, info);
-		$.post('/engine/doc_edit', {action: action, goodid: goodid, modifiers:size, qty: qty, info: info, delivery: delivery, notes: notes, clientid: newclientid, typepay:typepay, partnerid:partnerid }, function (json) {
+		$.post('/engine/doc_edit', {action: action, operid:<?php echo $operid ?>, goodid: goodid, modifiers:size, qty: qty, info: info, delivery: delivery, notes: notes, clientid: newclientid, typepay:typepay}, function (json) {
 			//console.log(JSON.stringify(json));
 			if (!json.success){
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -257,7 +303,7 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 				return;
 			}
-		    if (json.success && action == 'package_edit' && qty == 0) {
+		    if (json.success && action == 'inventory_edit' && qty == 0) {
 				next = $(el).parent().parent().next();
 				$(el).parent().parent().remove();
 				$(next).focus();
@@ -297,10 +343,10 @@ $(document).ready(function () {
 					$("#select_companyID").select2({enable: false, multiple: false, placeholder: "Укажите фирму для пользователя", data: {results: json, text: 'text'}});
 					$("#select_companyID").on("change", function (e) {
 					    if (e.val.length > 0)
-						good_edit('package_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
+						good_edit('inventory_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
 					});
 					$("#select_companyID").select2("val", id);
-					good_edit('package_edit_client', null, 0, 0, 0, 0, 0, 0, id);
+					good_edit('inventory_edit_client', null, 0, 0, 0, 0, 0, 0, id);
 			    });
 			}
 		});
@@ -324,10 +370,11 @@ $(document).ready(function () {
 //if ($_SESSION['ClientID']!=0) {
 ?>
 	<ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
-		<li>				<a id="a_tab_0" href="#tab_doc_action" role="tab" data-toggle="tab">Расфасовка</a></li>
+		<li>				<a id="a_tab_0" href="#tab_doc_action" role="tab" data-toggle="tab">Инвентаризация</a></li>
 		<li class="active">	<a id="a_tab_1" href="#tab_doc_list1"  state="0" role="tab" data-toggle="tab">Непроведенные</a></li>
-		<li>				<a href="#tab_doc_list2"	role="tab" state="10" data-toggle="tab">Проведенные</a></li>
+		<li>				<a id="a_tab_2" href="#tab_doc_list2"	role="tab" state="1" data-toggle="tab">Проведенные</a></li>
 		<li>				<a href="#tab_doc_list3"	role="tab" state="all" data-toggle="tab">Все документы</a></li>
+		<li>				<a href="#tab_doc_list4"	role="tab" state="consolidate" data-toggle="tab">Сводные</a></li>
 	</ul>
 	<div class="tab-content">
 		<div class="tab-pane m0 w100p min530 ui-corner-tab1 borderColor frameL border1" id="tab_doc_action">
@@ -350,8 +397,8 @@ $(document).ready(function () {
 				<div class="row">
 					<div class = "col-md-12 col-xs-12 TAL hidden-print">
 						<button id="doc_add"		type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
-						<button id="doc_edit"		type="button" class="btn btn-success	btn-sm minw150 mb5"><span class="glyphicon glyphicon-edit		mr5"></span>Редактировать документ</button>
 						<button id="doc_view"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-list-alt	mr5"></span>Просморт документа</button>
+						<button id="doc_consolidate" type="button" class="btn btn-primary	btn-sm minw150 mb5"><span class="glyphicon glyphicon-list		mr5"></span>Сформировать сводный документ</button>
 					</div>
 				</div>
 			</div>
@@ -361,7 +408,18 @@ $(document).ready(function () {
 				<div class="row">
 					<div class = "col-md-12 col-xs-12 TAL hidden-print">
 						<button id="doc_add"		type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
+						<button id="doc_view"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-list-alt mr5"></span>Просморт документа</button>
+						<button id="doc_consolidate" type="button" class="btn btn-primary	btn-sm minw150 mb5"><span class="glyphicon glyphicon-list		mr5"></span>Сформировать сводный документ</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane m0 w100p min530 ui-corner-all borderColor frameL border1" id="tab_doc_list4">
+			<div class="ml5 mt5" id="div_doc_list" >
+				<div class="row">
+					<div class = "col-md-12 col-xs-12 TAL hidden-print">
 						<button id="doc_edit"		type="button" class="btn btn-success	btn-sm minw150 mb5"><span class="glyphicon glyphicon-edit		mr5"></span>Редактировать документ</button>
+						<button id="doc_delete"		type="button" class="btn btn-danger		btn-sm minw150 mb5"><span class="glyphicon glyphicon-trash		mr5"></span>Удалить документ</button>
 						<button id="doc_view"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-list-alt mr5"></span>Просморт документа</button>
 					</div>
 				</div>

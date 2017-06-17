@@ -27,6 +27,9 @@ class Controller_Documents extends Controller {
 	function action_request() {
 		$this->view->generate('view_doc_request.php', 'view_template.php');
 	}
-    
+    function action_inventory_list() {
+		$this->view->generate('view_doc_inventory.php', 'view_template.php');
+	}
+
 }
 
