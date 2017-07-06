@@ -30,6 +30,8 @@ class Controller_Documents extends Controller {
     function action_inventory_list() {
 		$this->view->generate('view_doc_inventory.php', 'view_template.php');
 	}
-
+    function action_event_list() {
+		$this->view->generate('view_doc_event.php', 'view_template.php');
+	}
 }
 

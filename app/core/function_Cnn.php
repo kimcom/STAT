@@ -3,7 +3,8 @@ class Cnn {
 	private $db = null;
 	public function __construct() {
 		try {
-			$this->db = new PDO('mysql:host=localhost;dbname='.$_SESSION['dbname'].';port='.$_SESSION['server_port'], $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
+			//$this->db = new PDO('mysql:host=localhost;dbname='.$_SESSION['dbname'].';port='.$_SESSION['server_port'], $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
+			$this->db = new PDO('mysql:host=tor.pp.ua;dbname='.$_SESSION['dbname'].';port=43306', $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
 			//$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
 			Fn::errorToLog("PDO error!: ", $e->getMessage());
@@ -1242,7 +1243,7 @@ Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUE
 	public function get_report12_data() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
-		Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+		Fn::debugToLog('report12 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 //Fn::paramToLog();  
 //echo $DT_start.' '.  $DT_stop . '<br>';
 		if (isset($DT_start)) {
@@ -1349,8 +1350,161 @@ Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUE
 		header("Content-type: application/json;charset=utf8");
 		echo json_encode($response);
 	}
+	public function get_report14_data() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+		Fn::debugToLog('report14 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::paramToLog();  
+//echo $DT_start.' '.  $DT_stop . '<br>';
+		if (isset($DT_start)) {
+			$dt1 = DateTime::createFromFormat('d?m?Y', $DT_start);
+			$date1 = $dt1->format('Y-m-d');
+		} else {
+			return;
+		}
+		if (isset($DT_stop)) {
+			$dt2 = DateTime::createFromFormat('d?m?Y', $DT_stop);
+			$date2 = $dt2->format('Y-m-d');
+		} else {
+			return;
+		}
+//Fn::debugToLog("date1", $date1);
+//Fn::debugToLog("date2", $date2);
+		//$param = "DT_start=".$date1."&DT_stop=".$date2."&".urldecode($_SERVER['QUERY_STRING']);
+		$param = urldecode($_SERVER['QUERY_STRING']);
+//Fn::debugToLog("param", $param);
+		$stmt = $this->db->prepare("CALL pr_doc_2017(?, @id, ?)");
+		$stmt->bindParam(1, $action, PDO::PARAM_STR);
+		$stmt->bindParam(2, $param, PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
 
-public function get_pendel_data2() {
+		$response = new stdClass();
+		$response->error = '';
+		$response->table1 = '';
+		if (!Fn::checkErrorMySQLstmt($stmt))
+			$response->error = $stmt->errorInfo();
+		$min_week = 99;
+		$max_week = 0;
+		$min_dt = null;
+		$cur_dt = new DateTime();
+		$t = 0;
+		$cal = array();
+		do {
+			$rowset = $stmt->fetchAll(PDO::FETCH_ASSOC);
+//Fn::debugToLog("rowcount", $stmt->rowCount());
+//Fn::debugToLog("rowset", json_encode($rowset));
+			if ($stmt->rowCount() > 0){
+				if ($t==0){
+					if ($rowset) {
+						foreach ($rowset as $row) {
+							$min_dt = DateTime::createFromFormat('Y?m?d', $row['DT_start']);
+						}
+					}
+					$t++;
+					continue;
+				}
+				if ($rowset) {
+					//данные из таблицы переносим в массив
+					foreach ($rowset as $row) {
+//Fn::debugToLog("row", json_encode($row));
+						$cal[$row['WeekDay']][$row['Week']][$row['TaskID']] = $row;
+						if ($min_week > $row['Week']) $min_week = $row['Week'];
+						if ($max_week < $row['Week']) $max_week = $row['Week'];
+						//Fn::debugToLog("info", json_encode($cal[$row['WeekDay']][$row['Week']][$row['TaskID']]['Info']));
+					}
+				}
+			}
+		} while ($stmt->nextRowset());
+		
+//выводим шапку таблицы
+		$str = '';
+		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
+		$str .= '<thead><tr>';
+		$str .= '	<th class="minw150">ПН</th>';
+		$str .= '	<th class="minw150">ВТ</th>';
+		$str .= '	<th class="minw150">СР</th>';
+		$str .= '	<th class="minw150">ЧТ</th>';
+		$str .= '	<th class="minw150">ПТ</th>';
+		$str .= '	<th class="minw150">СБ</th>';
+		$str .= '	<th class="minw150">ВС</th>';
+		$str .= '</tr></thead>';
+		//выводим данные в таблице
+		$id = 0;
+		$str .= '<tbody>';
+//Fn::debugToLog("cal", json_encode($cal));
+		for ($iw = $min_week; $iw <= $max_week; $iw++) {
+			$str .= '<tr>';
+			for ($id = 0; $id < 7; $id++) {
+				//$str .= '<td>Date:<br>';
+//Fn::debugToLog("cal dt", $cal[$id][$iw]['DT'].' dt:'. $min_dt->modify('+'.$days.' day')->format('Y-m-d').'	days:'.$days);
+				$tasks = $cal[$id][$iw];
+				$str .= '<td>';
+				//таблица за 1 день
+				//$str .= '<table class="table" cellspacing="0" width="100%">';
+				$str .= '<table class="table table-hover" cellspacing="0" width="100%">';
+				$str .= '<thead><tr>';
+				$str .= '	<th colspan=5 class="TAC minw150">' . $min_dt->format('Y-m-d') . '</th>';
+				$str .= '</tr></thead>';
+				$str .= '<tbody>';
+				$min_dt->modify('+1 day');
+				if ($tasks != null){
+					foreach ($tasks as $task){
+//Fn::debugToLog("task", json_encode($task));
+						if(!is_array($task)) continue;
+						$tr_class = 'class="row_data"';
+						if($min_dt < $cur_dt) $tr_class = 'class="row_data bg-danger"';
+						if($task['Status']==10) $tr_class = 'class="row_data bg-success"';
+//Fn::debugToLog("dt", ''.$min_dt->format('Y-m-d') .' '. $cur_dt->format('Y-m-d').'	tr_class='.  $tr_class);
+//Fn::debugToLog("task", json_encode($task));
+						$notes = str_replace('\n', '<br>', $task['Notes']);
+						$notes = str_replace('"', '&#34;', $notes);
+						$sourceInfo = str_replace('\n', '<br>', $task['SourceInfo']);
+						$sourceInfo = str_replace('"', '&#34;', $sourceInfo);
+						$typepayment = $task['TypePayment']==0?'нал':'БН';
+						$str .= '<tr ' . $tr_class . ' data-placement="auto" '
+								. 'data-content="'
+								. "<table class='table'><thead>"
+								. "<tr><th class='w150'>Дата события:</th><th class='TAC'>".$task['DT_event'].'</th></tr>'
+								. "<tr><th>Партнер:</th><th class='TAC'>".$task['Partner'].'</th></tr>'
+								. "<tr><th>Плательщик:</th><th class='TAC'>".$task['Payer'].'</th></tr>'
+								. "<tr><th>Сумма события: </th><th class='TAC'>". $task['SumEvent'].' '.  $task['CurrencyEvent'].'</th></tr>'
+								. "<tr><th>Срок оплаты: </th><th class='TAC'>".  $task['DT_Payment']  . '</th></tr>'
+								. "<tr><th>Дней отсрочки:</th><th class='TAC'>".  $task['DelayDays'].'</th></tr>'
+								. "<tr><th>Сумма плановая: </th><th class='TAC'>".  $task['SumTask'].' '.  $task['Currency'].' ('.$typepayment.')</th></tr>'
+								. "<tr><th colspan=2><strong>Иточник инф.: </th></tr>"
+								. "<tr><th class='w50'></th><th class='w400'>". $sourceInfo.'</th></tr>'
+								. "<tr><th colspan=2><strong>Описание платежа: </th></tr>"
+								. "<tr><th class='w50'></th><th class='w400' colspan=2>". $notes .'</th></tr>'
+								. '</thead></table>'
+								. '">'
+								//. '<td class="TAR">' . $task['TaskID'] . '</td>'
+								. '<td class="w20 TAR">' . $task['SumTask'] . '</td>'
+								. '<td class="w20 TAC">' . $task['Currency'] . '</td>'
+								. '<td class="w50 TAL">' . $task['Partner'] . '</td>'
+								. '<td class="w50 TAL">' . $task['Payer'] . '</td>'
+								. '<td class="w20 TAL">' . $typepayment . '</td>';
+						//$str .= $task['TaskID'].' - '.$task['SumTask'].' '.$task['Currency'].' - '.$task['Partner'].'<br>';
+						$str .= '</tr>';
+					}
+				}
+				$str .= '</tbody>';
+				$str .= "</table>";
+				$str .= '</td>';
+			}
+			$str .= '</tr>';
+		}
+		$str .= '</tbody>';
+		$str .= "</table>";
+
+		$response->table1 = $str;
+//Fn::debugToLog("response", json_encode($response));
+		//$response->table1 = json_encode($cal);
+		header("Content-type: application/json;charset=utf8");
+		echo json_encode($response);
+	}
+
+	public function get_pendel_data2() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
 Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
@@ -3401,6 +3555,362 @@ $str .= '
 //									<tr><th colspan=1>Сумма заказа:</th><th class="TAR">' . $row['Sum'] . '</th></tr>
 					}
 					$str .= '</table>';
+				}
+				$cnt++;
+			} while ($stmt->nextRowset());
+		}
+		$response->html = $str;
+//Fn::debugToLog("resp", json_encode($response));
+		header("Content-type: application/json;charset=utf-8");
+		echo json_encode($response);
+	}
+
+//event
+	public function event_info_full() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		$response = new stdClass();
+		$response->success = false;
+		$response->message = "";
+		$response->html = "";
+
+		if ($docid == '') $docid = $_SESSION['CurrentDocID'];
+		if ($docid == '') $docid = 0;
+		if ($action == 'event_info') $doctype = 'event';
+		if ($view) $notes = 'view';
+
+		$param = "DocID=$docid&UserID=". $_SESSION['UserID'];
+		$stmt = $this->db->prepare("call pr_doc_2017(:action, @_id, :_param)");
+		$stmt->bindParam(":action", $action);
+		$stmt->bindParam(":_param", $param);
+// вызов хранимой процедуры
+		$stmt->execute();
+		if (!Fn::checkErrorMySQLstmt($stmt)) {
+			$ar = $stmt->errorInfo();
+			$response->success = false;
+			$response->message = "Ошибка при получении информации о документе!";
+		} else {
+			$cnt = 1;
+			$str = '';
+			do {
+				$rowset = $stmt->fetchAll(PDO::FETCH_BOTH);
+				$response->success = true;
+				if ($cnt == 1) {
+					foreach ($rowset as $row) {
+						$response->clientid = $row['ClientID'];
+						$response->partnerid = $row['PartnerID'];
+						$response->period = $row['Period'];
+						$str .= '
+								 <input id="docid" type="hidden" value="' . $row['DocID'] . '"/>';
+						if (!$view) {
+							$str .= '
+								 <div class="row">
+									<div id="div_doc_buttons" class = "col-md-12 col-xs-12 TAL hidden-print">';
+							if ($action != 'timesheet_info')
+								$str .= '<button id="good_add"	type="button" class="btn btn-primary	btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus mr5"></span>Добавить товар</button>';
+							$str .= '	
+<button id="delete"		type="button" class="btn btn-danger		btn-sm minw150 mb5"><span class="glyphicon glyphicon-trash mr5"></span>Удалить документ</button>
+<button id="doc_add"	type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
+<button id="print"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-print mr5"></span>Печать документа</button>
+<button id="state"		type="button" class="btn btn-success	btn-sm minw150 mb5" title="Провести документ?"><span class="glyphicon glyphicon-ok mr5"></span>Провести</button>
+<button					type="button" class="btn btn-link btn-sm minw150 mb5" disabled >Автор: ' . $row['UserName'] . '</button>
+									</div>
+								 </div>';
+						}
+						$str .= '
+								 <div class="row">
+									<div class = "col-md-12 col-xs-12 ' . (($action == 'timesheet_info') ? 'hidden-print' : '') . '">
+										<div class = "floatL">
+											<div class="input-group input-group-sm w300">
+											   <span class = "input-group-addon w130">Документ №</span>
+											   <span class = "input-group-addon form-control TAC">' . $row['DocID'] . '</span>
+											   <span class = "input-group-addon w32"></span>
+											</div>
+											<div class="input-group input-group-sm w300">
+											   <span class = "input-group-addon w130">Статус:</span>
+											   <span class = "input-group-addon form-control TAC">' . $row['State'] . '</span>
+											   <span class = "input-group-addon w32"></span>
+											</div>
+										</div>
+										<div class="floatL ml5">&nbsp</div>
+									';
+						if (!$view) {
+							$str .= '
+										<div class="floatL">
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Магазин:</span>
+												<div id="select_companyID" class="w210"></div>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
+							if ($action == 'timesheet_info')
+								$str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Период расчета:</span>
+												<div id="select_periodID" class="w210"></div>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
+							if ($action == 'receipt_info' || $action == 'difference_info')
+								$str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Контрагент:</span>
+												<div id="select_partnerID" class="w210"></div>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
+							if ($action == 'inventory_info')
+								$str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Тип документа:</span>
+												<span class = "input-group-addon form-control w210 TAС">' . (($row['TypeDoc'] == 0) ? 'обычный' : 'сводный') . '</span>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
+							$str .= '	</div>';
+						} else {
+							$str .= '
+										<div class="floatL">
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w80">Магазин:</span>
+												<span class = "input-group-addon form-control w230 TAL">' . $row['Name'] . '</span>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							if ($action == 'receipt_info' || $action == 'difference_info')
+								$str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w80">Контрагент:</span>
+												<span class = "input-group-addon form-control w230 TAL">' . $row['PartnerName'] . '</span>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							if ($action == 'inventory_info')
+								$str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w80">Тип документа:</span>
+												<span class = "input-group-addon form-control w230 TAС">' . (($row['TypeDoc'] == 0) ? 'обычный' : 'сводный') . '</span>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							$str .= '	</div>';
+						}
+						$str .= '
+										<div class="floatL ml5">&nbsp</div>
+										<div class="floatL">
+										   <div class="input-group input-group-sm w450">
+											  <span class = "input-group-addon w100">Примечание:</span>
+											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['Notes'] . '" onchange="good_edit(\'' . $doctype . '_edit_notes\',this,0,0,0,0,0,$(this).val());">
+											  <span class = "input-group-addon w32"></span>
+										   </div>
+										   ';
+						if ($action == 'timesheet_info')
+							$str .= '
+										   <div class="input-group input-group-sm w450">
+												<span class="input-group-btn w50p"><a id="doc_fill" class="btn btn-default w100p" type="button">Заполнить документ</a></span>
+												<span class="input-group-btn w50p"><a href="javascript:doc_info()" class="btn btn-default w100p" type="button">Пересчитать итоги</a></span>
+										   </div>
+										   ';
+						//<img class="img-rounded h20 m0" src="../../images/save-as.png">
+						if ($action == 'receipt_info' || $action == 'difference_info')
+							$str .= '
+										   <div class="input-group input-group-sm w450">
+											  <span class = "input-group-addon w100">№ док. пост.:</span>
+											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['1CID'] . '" onchange="good_edit(\'' . $doctype . '_edit_invoice\',this,0,0,0,0,0,0,0,0,0,$(this).val());">
+											  <span class = "input-group-addon w32"></span>
+										   </div>
+										   ';
+						$str .= '
+										</div>
+									</div>
+								 </div>
+								 ';
+					}
+				}
+				if ($cnt == 2) {
+					if ($action == 'timesheet_info') {
+						if ($response->period != '') { //$response->period = '2017-01';
+							$dt1 = DateTime::createFromFormat('Y?m?d', $response->period . '-01');
+							$dateStart = $dt1->format('Ymd');
+							$dt2 = DateTime::createFromFormat('Y?m?d', $response->period . '-01')->modify('+1 month')->modify('-1 day');
+							$dateStop = $dt2->format('Ymd');
+						} else {
+							$dt1 = new DateTime();
+							$dateStart = $dt1->format('Ymd');
+							$dt2 = new DateTime();
+							$dateStop = $dt2->format('Ymd');
+						}
+						$data = array();
+						foreach ($rowset as $row) {
+							$data[$row['SellerID']]['SellerID'] = $row['SellerID'];
+							$data[$row['SellerID']]['SellerName'] = $row['Name'];
+							$data[$row['SellerID']]['Post'] = $row['Post'];
+							$data[$row['SellerID']][$row['DT']] = $row['Value'];
+						}
+						$str .= '<div class="panel panel-default mt10 mr5">';
+						$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw400" cellspacing="0"  width="100%">';
+						$str .= '<thead><tr style="height0:100px;">
+										<th rowspan=2 class="w50 center">№</th>
+										<th rowspan=2 class="w150 center">Ф.И.О.</th>
+										<th rowspan=2 class="w150 center">Должность</th>
+										<th rowspan=2 class="w20 center trans90">Ставка</th>
+										';
+						$str .= '		<th rowspan=1 colspan=' . $dt2->format('d') . '>' . Fn::rusm($response->period) . '</th>';
+						$str .= '		<th rowspan=2 class="w50 center">Итого часов</th>
+										<th rowspan=2 class="w50 center">Отп.</th>
+										<th rowspan=2 class="w50 center">Больн.</th>
+										<th rowspan=2 class="w50 center">Раб. дни</th>
+										';
+						$str .= '		</tr><tr>';
+						for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 day')) {
+							$str .= '		<th rowspan=1 class="center trans90 wwn" style="">' . $dt->format('d') . '</th>';
+						}
+						$str .= '		</tr>';
+						$str .= '	 </thead><tbody>';
+						$nn = 1;
+						foreach ($data as $d) {
+							$str .= '<tr>
+										<td class="TAC">' . $nn . '</td>
+										<td class="TAL wwn">' . $d['SellerName'] . '</td>
+										<td class="TAL wwn">' . $d['Post'] . '</td>
+										<td class="TAC">' . 1 . '</td>
+									';
+							$tHours = 0;
+							$tOtpus = 0;
+							$tBoln = 0;
+							$tWorkDay = 0;
+							$maxWorkDay = 5;
+							for ($dt = clone $dt1; $dt <= $dt2; $dt->modify('+1 day')) {
+								if ($d[$dt->format('Y-m-d')] == 'О') {
+									$tOtpus++;
+									$class = 'holiday';
+									$value = 'О';
+									$maxWorkDay = 5;
+								} else if ($d[$dt->format('Y-m-d')] == 'Б') {
+									$tBoln++;
+									$class = 'hospital';
+									$value = 'Б';
+									$maxWorkDay = 5;
+								} else if ($d[$dt->format('Y-m-d')] == 'Х') {
+									$tBoln++;
+									$class = 'noworking';
+									$value = 'Х';
+									$maxWorkDay = 5;
+								} else if ($d[$dt->format('Y-m-d')] > 0) {
+									$tWorkDay++;
+									$tHours = $tHours + $d[$dt->format('Y-m-d')];
+									$class = 'workday';
+									if ($maxWorkDay == 0) {
+										$class = 'orangeday';
+										$maxWorkDay = 5;
+									} else {
+										$maxWorkDay --;
+									}
+									$value = $d[$dt->format('Y-m-d')];
+								} else {
+									$class = 'freeday';
+									$value = 'В';
+									$maxWorkDay = 5;
+								}
+								$str .= '		<td class="TAC ' . $class . '" onclick="javascript:doc_cell(\'' . $d['SellerID'] . '_' . $dt->format('Y-m-d') . '\');" id=' . $d['SellerID'] . '_' . $dt->format('Y-m-d') . '>' . $value . '</th>';
+							}
+							$nn++;
+							$str .= '		<td class="TAC">' . $tHours . '</td>
+											<td class="TAC">' . $tOtpus . '</td>
+											<td class="TAC">' . $tBoln . '</td>
+											<td class="TAC">' . $tWorkDay . '</td>
+										';
+						}
+						$str .= '</tr>';
+						$str .= '</tbody>';
+						$str .= '</table></div>';
+						$str .= '<div class="panel panel-default mt10 mr5 w300">';
+						$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw200" cellspacing="0"  width="100%">';
+						$str .= '<thead><tr style="height:40px;">
+										<th colspan=2 class="w150 center">Условные обозначения</th>
+										';
+						$str .= '</tr>';
+						$str .= '	 </thead><tbody>';
+						$str .= '		<tr><td class="TAC">Выходной</td><td class="freeday">В</td></tr>';
+						$str .= '		<tr><td class="TAC">Отпуск</td><td class="holiday">О</td></tr>';
+						$str .= '		<tr><td class="TAC">Больничный</td><td class="hospital">Б</td></tr>';
+						$str .= '		<tr><td class="TAC">Рабочий день</td><td class="workday">8</td></tr>';
+						$str .= '		<tr><td class="TAC">Не числился</td><td class="noworkday">Х</td></tr>';
+						$str .= '</tbody>';
+						$str .= '</table></div>';
+					} else {
+						$total_qty = 0;
+						$col_cnt = 4;
+						$str .= '<div class="panel panel-default mt10 mr5">';
+						$str .= '<table id="table_doc" class="table table-striped table-bordered font12 minw400" cellspacing="0"  width="100%">';
+						$str .= '<thead><tr>
+										<th class="w50 center">Артикул</th>
+										<th class="w150 center">Название</th>';
+						if ($action != 'receipt_info')
+							$str .= '	<th class="w100  center">Инфо</th>';
+						$str .= '		<th class="w40  center">Кол-во</th>';
+						if ($action == 'receipt_info') {
+							$str .= '		<th class="w40  center">Цена розн.</th>';
+							$str .= '		<th class="w40  center">Сумма</th>';
+						}
+						$str .= '	 </thead><tbody>';
+						foreach ($rowset as $row) {
+							$total_qty += $row['Quantity'];
+							$str .= '<tr>
+										<td class="TAL">' . $row['Article'] . '</td>
+										<td class="TAL">' . $row['Name'] . '</td>';
+							if (!$view) {
+								if ($action != 'receipt_info')
+									$str .= '<td class="TAL">
+											<input type="text" class="TAL editable inline-edit-cell" style="line-height:17px;width:100%;" min=0 onchange="good_edit(\'' . $doctype . '_edit_good_info\',this,' . $row['GoodID'] . ',null,null,$(this).val());" value="' . $row['Info'] . '">
+										</td>';
+								$str .= '	<td class="TAC">
+											<input type="number" class="TAR editable inline-edit-cell" style="line-height:17px;width:60%;min-width:40px;" onchange="good_edit(\'' . $doctype . '_edit\',this,' . $row['GoodID'] . ',null,$(this).val(),null);" value="' . $row['Quantity'] . '">
+											<span id="qty" class="hidden">' . $row['Quantity'] . '</span>
+											<span class="ml5 mr5 glyphicon glyphicon-remove hidden-print" onclick="good_edit(\'' . $doctype . '_edit\',$(this).prev(),' . $row['GoodID'] . ',null,0);"></span>
+										</td>';
+								if ($action == 'receipt_info') {
+									$str .= '<th class="w40  center">' . $row['Price'] . '</th>';
+									$str .= '<th class="w40  center">' . $row['Sum'] . '</th>';
+								}
+								$str .= '</tr>';
+							} else {
+								$str .= '	<td class = "w40  center">' . $row['Info'] . '</td>';
+								$str .= '	<td class = "w40  center">' . $row['Quantity'] . '</td>';
+							}
+						}
+						if ($stmt->rowCount() == 0) {
+							$str .= '<tr><td colspan=' . $col_cnt . ' class="TAC">В документе нет товаров</td></tr>';
+						}
+						$str .= '</tbody>';
+					}
+				}
+				if ($cnt == 3) {
+					if ($action == 'timesheet_info') {
+						
+					} else {
+						foreach ($rowset as $row) {
+							if ($action == 'receipt_info') {
+								$str .= '<tfoot>
+										<tr><th colspan=' . ($col_cnt - 2) . '>Всего кол-во в документе:</th>
+										<th class="TAC">' . $total_qty . ' ед.</th>
+										<th colspan=2 class="TAC"></th></tr>
+									 </tfoot>';
+							} else if ($action == 'package_info') {
+								$str .= '<tfoot>
+										<tr><th colspan=' . ($col_cnt - 1) . '>Всего кол-во в документе:</th>
+										<th class="TAC">' . $total_qty . ' ед.</th></tr>
+										<th class="TAC"></th></tr>
+									 </tfoot>';
+							} else {
+								$str .= '<tfoot>
+										<tr><th colspan=' . ($col_cnt - 1) . '>Всего кол-во в документе:</th><th class="TAC">' . $total_qty . ' ед.</th></tr>
+									 </tfoot>';
+							}
+						}
+						$str .= '</table></div>';
+					}
 				}
 				$cnt++;
 			} while ($stmt->nextRowset());
