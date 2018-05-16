@@ -2,6 +2,13 @@
 class Route {
 	static function start() {
 //Fn::debugToLog("REQUEST_URI", urldecode($_SERVER['REQUEST_URI']));
+//определение ajax запроса
+//$headers = apache_request_headers();
+//$is_ajax = (isset($headers['X-Requested-With']) && $headers['X-Requested-With'] == 'XMLHttpRequest');
+//$is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+//Fn::debugToLog("is_ajax",  $is_ajax);
+
+
 //Fn::debugToLog('$_SERVER',json_encode($_SERVER));
 //Fn::debugAccess('',$_SERVER['REMOTE_ADDR'].':'.$_SERVER['REMOTE_PORT'].' '.$_SERVER['HTTP_COOKIE'].' '.$_SERVER['REDIRECT_URL']."\r\n\t\t\t\t\t"
 //		.'access:'.$_SESSION['access'].'	UserID:'.$_SESSION['UserID'].'	UserName:'.$_SESSION['UserName'].'	UserPost:'.$_SESSION['UserPost']);
@@ -39,7 +46,9 @@ class Route {
 		}
 		//проверяем есть ли доступ к системе
 //Fn::debugToLog("test", 'access='.$_SESSION['access'].' $controller_name='.$controller_name);
-		if ($_SESSION['access'] == '' && 
+		if (
+			$_SESSION['access'] == '' && 
+			//($_SESSION['access'] == '' || $_SESSION['UserID']%2 != 1) && 
 			$controller_name != 'logon' && 
 			$controller_name != 'login' &&
 			$controller_name != 'recovery' &&
@@ -49,6 +58,8 @@ class Route {
 			$action_name != 'deletefile' &&
 			$action_name != 'captcha'
 		) {
+//Fn::debugToLog("user:".$_SESSION['UserID'].' '.$_SESSION['UserName'],$_SESSION['UserID']%2);
+//$_SESSION['access'] == '';
 			Fn::redirectToController('logon');
 			return;
 		}
@@ -59,6 +70,7 @@ class Route {
 		if (!empty($routes[2]))
 			if ($routes[2] == 'favicon.ico')	return;
 		if ($controller_name == 'images')		return;
+		if ($controller_name == 'screen')		return;
 		if ($action_name == 'favicon.ico')		return;
 		//if ($action_name == 'captcha')			return;
 		if ($action_name == 'images_goods')		return;

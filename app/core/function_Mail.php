@@ -57,7 +57,7 @@ class Mail {
 		fputs($socket, "AUTH LOGIN\r\n");
 		if (!Mail::server_parse($socket, "334", __LINE__)) {
 			if ($config['smtp_debug'])
-				Fn::errorToLog("email robot", "Не могу найти ответ на запрос авторизаци.");
+				Fn::errorToLog("email robot", "Не могу найти ответ на запрос авторизации.");
 			fclose($socket);
 			return false;
 		}

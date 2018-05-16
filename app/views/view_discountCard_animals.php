@@ -28,39 +28,45 @@ $(document).ready(function () {
     });
 	$("#grid1").jqGrid({
 		styleUI : 'Bootstrap',
-		caption: "Список дисконтных карт",
+		caption: "Дисконты - список животных",
 		mtype: "GET",
-		url:"/engine/jqgrid3?action=discountCards_list&f1=CardID&f2=Family&f3=Name&f4=MiddleName&f5=Address&f6=Phone1&f7=Phone2&f8=EMail&f9=Magazine&f10=PercentOfDiscount&f11=AmountOfBuying&f12=DateOfIssue&f13=DateOfCancellation",
+		url:"/engine/jqgrid3?action=discountCards_animals&f1=CardID&f2=Family&f3=Name&f4=MiddleName&f5=Phone1&f6=City&f7=Magazine&f8=PercentOfDiscount&f9=DateOfCancellation&f10=CountAnimals&f11=TypeAnimal&f12=Breed&f13=PetName&f14=PetDT&f15=Index_R&f16=Index_F&f17=Index_M&length(CardID)>6",
 		responsive: true,
-		height: 462, // если виртуальная подгрузка страниц
-		scroll: true, // если виртуальная подгрузка страниц
-//		height: 'auto', //если надо управлять страницами
-		datatype: "local",
+		//height: 462, // если виртуальная подгрузка страниц
+		//scroll: true, // если виртуальная подгрузка страниц
+		height: 'auto', //если надо управлять страницами
+		width: 'auto',
+		//datatype: "local",
+		datatype: "json",
 		colModel: [
-			{label:'Карта',		name:'CardID',		index:'CardID',		width: 100, align:"center", sorttype:"text",  search:true},
-			{label:'Фамилия',	name:'Family',      index:'Family',		width: 200, align:"left",	sorttype:"text",  search:true},
-			{label:'Имя',		name:'Name',        index:'Name',       width: 100, align:"left",	sorttype:"text",  search:true},
-			{label:'Отчество',	name:'MiddleName',	index:'MiddleName', width: 100, align:"left",	sorttype:"text",  search:true},
-			{label:'Адрес',		name:'cs_Address',	index:'cs.Address',	width: 200, align:"left",	sorttype:"text",  search:true},
-			{label:'Тел.',		name:'Phone1',		index:'Phone1',		width: 120, align:"left",	sorttype:"text",  search:true},
-			{label:'Тел.доп.',	name:'Phone2',		index:'Phone2',		width: 90, align:"left",	sorttype:"text",  search:true},
-			{label:'E-mail',	name:'EMail',		index:'EMail',		width: 90, align:"left",	sorttype:"text",  search:true},
-			{label:'Магазин',	name:'NameShort',	index:'NameShort',width: 150, align:"left",	sorttype:"text",  search:true},
-			{label:'%',			name:'PercentOfDiscount',	index:'PercentOfDiscount',	width:  50, align:"center", sorttype:"number", search:true},
-			{label:'Накопл.',	name:'AmountOfBuying',		index:'AmountOfBuying',		width: 100, align:"right",	sorttype:"number", search:false, sortable: true},
-			{label:'Выдана',	name:'DateOfIssue',			index:'DateOfIssue',        width: 120, align:"center", sorttype:"date",   search:true},
-			{label:'Анулир.',	name:'DateOfCancellation',	index:'DateOfCancellation', width: 120, align:"center", sorttype:"date",   search:true},
+			{label:'Карта',			name:'CardID',				index:'CardID',				width: 120, align:"center", sorttype:"text",  search:true},
+			{label:'Фамилия',		name:'Family',				index:'Family',				width: 180, align:"left",	sorttype:"text",  search:true},
+			{label:'Имя',			name:'Name',				index:'Name',				width: 100, align:"left",	sorttype:"text",  search:true},
+			{label:'Отчество',		name:'MiddleName',			index:'MiddleName',			width: 100, align:"left",	sorttype:"text",  search:true, hidden: true},
+			{label:'Тел.',			name:'Phone1',				index:'Phone1',				width: 120, align:"center",	sorttype:"text",  search:true},
+			{label:'Город',			name:'City',				index:'City',				width: 100, align:"center",	sorttype:"text",  search:true},
+			{label:'Магазин',		name:'NameShort',			index:'NameShort',			width: 150, align:"center",	sorttype:"text",  search:true},
+			{label:'% скидки',		name:'PercentOfDiscount',	index:'PercentOfDiscount',	width: 70,	align:"center",	sorttype:"number",search:true},
+			{label:'Аннулирована',	name:'DateOfCancellation',	index:'DateOfCancellation',	width: 90,	align:"center",	sorttype:"date",  search:true, hidden: true},
+			{label:'Кол-во жив.',	name:'CountAnimals',		index:'CountAnimals',		width: 80,	align:"center",	sorttype:"number",search:true},
+			{label:'Вид жив.',		name:'TypeAnimal',			index:'TypeAnimal',			width: 110,	align:"left",	sorttype:"text",  search:true},
+			{label:'Порода',		name:'Breed',				index:'Breed',				width: 150,	align:"left",	sorttype:"text",  search:true},
+			{label:'Кличка',		name:'PetName',				index:'PetName',			width: 100,	align:"left",	sorttype:"text",  search:true, hidden: true},
+			{label:'Дата рождения',	name:'PetDT',				index:'PetDT',				width: 90,	align:"center",	sorttype:"date",  search:true, hidden: true},
+			{label:'R',				name:'Index_R',				index:'Index_R',			width: 50,	align:"center",	sorttype:"number",	search:true, sortable: true},
+			{label:'F',				name:'Index_F',				index:'Index_F',			width: 50,	align:"center", sorttype:"number",  search:true},
+			{label:'M',				name:'Index_M',				index:'Index_M',			width: 50,	align:"center", sorttype:"number",  search:true},
 		],
-		rowNum: 17,
-		rowList: [20, 30, 40, 50, 100, 200, 300],
+		rowNum: 500,
+		rowList: [50, 100, 500, 1000, 2000, 3000, 4000, 5000],
 		sortname: "CardID",
 		viewrecords: true,
-		toppager: true,
+		toppager: true,		
 		gridview: true,
 		pager: "#pgrid1",
 		shrinkToFit: false,
 		search: false,
-		gridComplete: function() {if(!fs) {fs = true; filter_restore("#grid1");}},
+		//gridComplete: function() {if(!fs) {fs = true; filter_restore("#grid1");}},
 		ondblClickRow: function(rowid) {
 			if (rowid != '')
 				window.location = "../goods/map_discountcard_edit?cardid=" + rowid;
@@ -68,7 +74,9 @@ $(document).ready(function () {
     });
 	$('#gbox_grid1 .ui-jqgrid-caption').addClass('btn-info');
 	$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: false, cloneToTop: true});
-	$("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true, beforeSearch: function(){filter_save("#grid1");}});
+	$("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true, 
+		//beforeSearch: function(){filter_save("#grid1");}
+	});
 	$("#pg_pgrid1").remove();
 	$("#pgrid1").removeClass('ui-jqgrid-pager');
 	$("#pgrid1").addClass('ui-jqgrid-pager-empty');
@@ -146,8 +154,8 @@ $(document).ready(function () {
 				html = html.split(" грн.").join("");
 				html = html.split("<table").join("<table border='1' ");
 
-				var file_name = 'Список дисконтных карт';
-				var report_name = 'discount1';
+				var file_name = 'Дисконты - RFM анализ';
+				var report_name = 'discount2';
 				$.ajax({
 					type: "POST",
 					data: ({report_name: report_name, file_name: file_name, html: html}),
@@ -257,11 +265,7 @@ $(document).ready(function () {
 		var gw = $("#grid1").jqGrid('getGridParam','width');
 		$("#grid1").jqGrid('setGridWidth',gw+17)
 	}
-	$('#grid1').jqGrid('hideCol','Name');
 	$('#grid1').jqGrid('hideCol','MiddleName');
-	$('#grid1').jqGrid('hideCol','Phone2');
-	$('#grid1').jqGrid('hideCol','Email');
-	$('#grid1').jqGrid('hideCol','AmountOfBuying');
 	$('#grid1').jqGrid('hideCol','DateOfCancellation');
 
 //восстановление сохраненных настроек

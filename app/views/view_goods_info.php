@@ -163,7 +163,7 @@ $(document).ready(function () {
 			visible: $("#select_visible").select2("val"),
 			visibleinorder: $("#select_visible_in_order").select2("val"),
 			markupid: $("#select_markup").select2("val"),
-			service: $("#service").val(),
+			service: ($("#service").prop("checked")==false)?0:1,
 			division: $("#division").val(),
 			length: $("#length").val(),
 			width: $("#width").val(),
@@ -467,7 +467,7 @@ $(document).ready(function () {
                 <div class="input-group input-group-sm w100p">
                     <span  class="input-group-addon w130 TAL">Услуга</span>
 					<span class="input-group-addon w78">
-						<input id="service" type="checkbox" value="<?php echo $row['Service']; ?>">
+						<input id="service" type="checkbox" <?php echo ($row['Service']==0)?'':'checked'; ?>>
 					</span>
                     <span class="input-group-addon w32"></span>
                 </div>
@@ -529,6 +529,16 @@ $(document).ready(function () {
                 <div class="input-group input-group-sm w100p">
                     <span  class="input-group-addon w130 TAL">Макс. скидка</span>
                     <input id="discountmax"  type="text"  class="form-control TAR" value="<?php echo $row['DiscountMax']; ?>">
+                    <span class="input-group-addon w32"></span>
+                </div>
+                <div class="input-group input-group-sm w100p">
+                    <span  class="input-group-addon w130 TAL">Клуб.цена 3 шт.</span>
+					<span id="discount304" class="input-group-addon form-control TAC"><?php echo ($row['Discount304']>0)?'-'.$row['Discount304'].' %':''; ?></span>
+                    <span class="input-group-addon w32"></span>
+                </div>
+                <div class="input-group input-group-sm w100p">
+                    <span  class="input-group-addon w130 TAL">Клуб.цена 5 шт.</span>
+					<span id="discount305" class="input-group-addon form-control TAC"><?php echo ($row['Discount305'] > 0) ? '-' . $row['Discount305'] . ' %' : ''; ?></span>
                     <span class="input-group-addon w32"></span>
                 </div>
             </div>

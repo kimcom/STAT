@@ -43,7 +43,7 @@ $(document).ready(function () {
 			//url:"../engine/jqgrid3?action=goods_list_w_cost&f1=DT&f2=1C&f3=ClientID&f4=GoodID&f5=ID&f6=OPT_ID&f7=Article&f8=Name",
 			var pointid = $("#select_point").select2("val");
 			var newurl = "../engine/jqgrid3?action=good_list&sid=5&group=" + cat_id + "&point_balance_min="+pointid+
-					"&f1=Article&f2=Name&f3=PeriodDelivery&f4=QtySale&f5=QtyPeriod&f6=Avg&f7=Std&f8=Rezerv&f9=CalcBalanceMinA&f10=BalanceMinA&f11=BalanceMinM";
+					"&f1=Article&f2=Name&f3=PeriodDelivery&f4=QtySale&f5=QtyPeriod&f6=Avg&f7=Std&f8=Rezerv&f9=CalcBalanceMinA&f10=BalanceMinA&f11=BalanceMinM&f12=Showcase";
 			$("#grid1").jqGrid('setGridParam', {url: newurl, page: 1});
 			$("#grid1").trigger('reloadGrid');
 	    }
@@ -75,6 +75,7 @@ $(document).ready(function () {
 			{label:'Расч.М.О.А',	name:'CalcBalanceMinA',	index:'CalcBalanceMinA',width:80,	sorttype:"number",	search:true, align:"right"},
 			{label:'Тек.М.О.А',		name:'BalanceMinA',	index:'BalanceMinA',width:80,	sorttype:"number",	search:true, align:"right"},
 			{label:'Тек.М.О.Р',		name:'BalanceMinM',	index:'BalanceMinM',width:80,	sorttype:"number",	search:true, align:"right", editable:true},
+			{label:'Витрина',		name:'Showcase',	index:'Showcase',	width:80,	sorttype:"number",	search:true, align:"right", editable:false},
 	    ],
 	    rowNum: 20,
 	    rowList: [20, 30, 40, 50, 100, 200, 300],

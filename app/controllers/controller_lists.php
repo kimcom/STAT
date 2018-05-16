@@ -40,6 +40,15 @@ class Controller_Lists extends Controller {
 		//$this->view->generate('view_discountCard_list.php', 'view_template.php');
 		$this->view->generate('view_discountCard_list_new.php', 'view_template.php');
 	}
+	function action_discountCards_RFM() {
+		//$this->view->generate('view_discountCard_list.php', 'view_template.php');
+		$this->view->generate('view_discountCard_list_RFM.php', 'view_template.php');
+	}
+	function action_discountCards_animals() {
+		//$this->view->generate('view_discountCard_list.php', 'view_template.php');
+		$this->view->generate('view_discountCard_animals.php', 'view_template.php');
+	}
+
 	function action_get_promo_tree_NS() {
 		$this->model = new Model_Lists();
 		echo $this->model->get_promo_tree_NS();
@@ -83,5 +92,9 @@ class Controller_Lists extends Controller {
 	function action_promo_list() {
 		$this->view->generate('view_promo_list.php', 'view_template.php');
 	}
+	function action_cancel_base() {
+		$this->view->generate('view_cancel_base.php', 'view_template.php');
+	}
+
 }
 ?>

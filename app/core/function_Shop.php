@@ -5,7 +5,7 @@ class Shop {
 		$Article = '%' . $Article . '%';
 		$Name = $Name . '%';
 		$ssql = "CALL pr_goods_list('" . adds($param) . "','" . adds($sidx) . "','" . adds($sord) . "'," . adds($request_count) . "," . adds($start) . "," . adds($limit) . ",'" . adds($GoodID) . "','" . adds($Article) . "','" . adds($Name) . "','" . adds($EAN13) . "', " . adds($cat_id) . " , 0)";
-//Fn::debugToLog("GetGoodsList", $ssql);
+//Fn::debugToLog("sql GetGoodsList", $ssql);
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))
 			return false;
@@ -16,7 +16,7 @@ class Shop {
 		$Article = '%' . $Article . '%';
 		$Name = $Name . '%';
 		$ssql = "CALL pr_goods_list('" . adds($param) . "','" . adds($sidx) . "','" . adds($sord) . "'," . adds($request_count) . "," . adds($start) . "," . adds($limit) . ",'','','" . ($where) . "','', " . adds($cat_id) . " , 0)";
-//Fn::debugToLog("sql", $ssql);
+//Fn::debugToLog("sql GetGoodsListWhere", $ssql);
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))
 			return false;
@@ -172,7 +172,7 @@ Fn::DebugToLog('start: ',$ssql);
 		if ($table == 'promo')
 			$ssql = "CALL pr_tree_NS_action_promo('add', @id, " . $parent_id . ", '" . $name . "', " . $_SESSION['UserID'] . ");";
 
-Fn::DebugToLog('add: ',$ssql);
+//Fn::DebugToLog('add: ',$ssql);
 
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))
@@ -463,6 +463,7 @@ Fn::DebugToLog('edit: ', $ssql);
 	}
 	public static function AddToCategory($dbi, $cat_id, $source) {
 		$ssql = "CALL pr_category('add_in_cat'," . $cat_id . ", '" . $source . "');";
+//Fn::DebugToLog('start: ', $ssql);
 		$res = $dbi->query($ssql);
 		if (!Fn::checkErrorMySQLi($dbi))
 			return false;

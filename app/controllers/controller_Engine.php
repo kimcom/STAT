@@ -77,9 +77,11 @@ class Controller_Engine extends Controller {
 	}
 	function action_set_file(){
 		foreach ($_REQUEST as $arg => $val)	${$arg} = $val;
+//Fn::paramToLog();
 		$report_name = "Users\\Files\\" . $_SESSION['UserID'] . '_' . $report_name . ".xls";
 //Fn::debugToLog('set file', $report_name);
-		$html = iconv('utf-8', 'cp1251', $html);
+		//$html = iconv('utf-8', 'cp1251', $html);
+		$html = mb_convert_encoding($html, 'cp1251', 'utf-8');
 		$content = <<<EOF
 <html>
 <head>
@@ -90,6 +92,7 @@ class Controller_Engine extends Controller {
 </body>
 </html>
 EOF;
+//Fn::debugToLog("html", $content);
 		$bl = file_put_contents($report_name, $content);
 //Fn::debugToLog('set file',$bl);
 	}
@@ -238,6 +241,10 @@ EOF;
 		$cnn = new Cnn();
 		return $cnn->reasons_save();
 	}
+	function action_cancel_base_save() {
+		$cnn = new Cnn();
+		return $cnn->cancel_base_save();
+	}
 
 	public function action_doc_edit() {
 		$cnn = new Cnn();
@@ -308,6 +315,8 @@ EOF;
 		imagedestroy($im);
 	}
 
-	
+	public function action_test_ajax_html(){
+		echo 'test_ajax_html';
+	}
 }
 ?>

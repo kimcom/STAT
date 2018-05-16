@@ -199,7 +199,7 @@ $(document).ready(function () {
 		setTimeout(function () {
 			var file_name = $("#select_report").select2("data").text;
 			var html = file_name + "<br>" + $("#tab_report").html();
-			html = html.split("<table ").join("<table border='1' ");
+			html = html.split("<table").join("<table border='1' ");
 			var report_name = 'report' + reportID;
 			$.ajax({
 				type: "POST",

@@ -3,8 +3,8 @@ class Cnn {
 	private $db = null;
 	public function __construct() {
 		try {
-			//$this->db = new PDO('mysql:host=localhost;dbname='.$_SESSION['dbname'].';port='.$_SESSION['server_port'], $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
-			$this->db = new PDO('mysql:host=tor.pp.ua;dbname='.$_SESSION['dbname'].';port=43306', $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
+			$this->db = new PDO('mysql:host=localhost;dbname='.$_SESSION['dbname'].';port='.$_SESSION['server_port'], $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
+			//$this->db = new PDO('mysql:host=tor.pp.ua;dbname='.$_SESSION['dbname'].';port=43306', $_SESSION['server_user'], $_SESSION['server_pass'],array(1006));
 			//$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
 			Fn::errorToLog("PDO error!: ", $e->getMessage());
@@ -59,6 +59,7 @@ class Cnn {
 			return false;
 		}
 //вызов хранимой процедуры
+Fn::debugToLog("SQL", "call pr_login_site('register',@_id,'$login','$pass','$email','$fio','$phone','$company','$post','$codeauth');");
 		$stmt = $this->db->prepare("CALL pr_login_site('register', @id, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $login, PDO::PARAM_STR);
 		$stmt->bindParam(2, $pass, PDO::PARAM_STR);
@@ -75,6 +76,7 @@ class Cnn {
 			return false;
 		}
 		$result = $stmt->fetch(PDO::FETCH_BOTH);
+Fn::debugToLog("result", json_encode($result));
 		if (!$result) return false;
 		//echo 'result='.$result[0].'<br>';
 		if ($result[0] < 0) {
@@ -442,13 +444,14 @@ Fn::debugToLog('report5 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 						foreach ($rowset as $row) {
 							$response->rows[$i]['id'] = $row[0];
 							$ar = array();
-							for ($f = 0; $f < $columnCount - 7; $f++) {
+							for ($f = 0; $f < $columnCount; $f++) {
 								$ar[] = $row[$f];
 							}
-							$ar = array_pad($ar, 8, null);
-							for ($f = $columnCount - 7; $f < $columnCount; $f++) {
-								$ar[] = $row[$f];
-							}
+//							$ar = array_pad($ar, 8, null);
+//							for ($f = $columnCount - 7; $f < $columnCount; $f++) {
+//								$ar[] = $row[$f];
+//							}
+							//Fn::debugToLog("cell", json_encode($ar));
 							$response->rows[$i]['cell'] = $ar;
 							$i++;
 						}
@@ -465,10 +468,11 @@ Fn::debugToLog('report5 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 //Fn::debugToLog('report5 user:'.  $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 //Fn::debugToLog('REQUEST_URI', urldecode($_SERVER['REQUEST_URI']));
 Fn::debugToLog('report6 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+		$param = urldecode($_SERVER['QUERY_STRING']);
 		$stmt = $this->db->prepare("CALL pr_reports('goods_action', @id, ?, ?, ?)");
 		$stmt->bindParam(1, $date1, PDO::PARAM_STR);
 		$stmt->bindParam(2, $date2, PDO::PARAM_STR);
-		$stmt->bindParam(3, urldecode($_SERVER['QUERY_STRING']), PDO::PARAM_STR);
+		$stmt->bindParam(3, $param, PDO::PARAM_STR);
 // вызов хранимой процедуры
 		$stmt->execute();
 		header("Content-type: application/json;charset=utf8");
@@ -637,8 +641,18 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 				$value1 = $row['Quantity'];
 				$value2 = $row['Oborot'];
 				$value3 = $row['Dohod'];
-				$dg[$row[0].$row[2]]['name1'] = $row[1];
-				$dg[$row[0].$row[2]]['name2'] = $row[3];
+				if ($groupName1=='Товар') {
+					$dg[$row[0].$row[2]]['article'] = $row[1];
+					$dg[$row[0].$row[2]]['name1'] = $row[2];
+					$dg[$row[0].$row[2]]['name2'] = $row[4];
+				}else if ($groupName2=='Товар') {
+					$dg[$row[0] . $row[2]]['name1'] = $row[1];
+					$dg[$row[0] . $row[2]]['name2'] = $row[4];
+					$dg[$row[0] . $row[2]]['article'] = $row[3];
+				}else{
+					$dg[$row[0] . $row[2]]['name1'] = $row[1];
+					$dg[$row[0] . $row[2]]['name2'] = $row[3];
+				}
 				$dg[$row[0].$row[2]][$row['intervals']]['q'] = $value1;
 				$dg[$row[0].$row[2]][$row['intervals']]['o'] = $value2;
 				$dg[$row[0].$row[2]][$row['intervals']]['d'] = $value3;
@@ -672,14 +686,29 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 			$increment = '+1 year'; $dt_format = 'Y'; $dt_html = 'Y';
 		}
 		$cnt_group = substr_count($grouping,";");
+		$cnt_group_dop = 0;
 		$col = 1;
 		if ($data=='all') $col = 3;
 		//выводим шапку таблицы
 		$str = '';
 		$str .= '<table id="table1" class="table table-striped table-bordered" cellspacing="0"  width="100%">';
-		$str .= '<thead><tr>
-				<th rowspan=2>'.$groupName1.'</th>';
-		if ($cnt_group==2) $str .= '<th rowspan=2>'.$groupName2.'</th>';
+		$str .= '<thead><tr>';
+			if ($groupName1=='Товар') {
+				$str .= '<th rowspan=2>Артикул</th>';
+				$str .= '<th rowspan=2>'.$groupName1.'</th>';
+				$cnt_group_dop = 1;
+			}else{
+				$str .= '<th rowspan=2>'.$groupName1.'</th>';
+			}
+		if ($cnt_group==2) {
+			if ($groupName2=='Товар') {
+				$str .= '<th rowspan=2>Артикул</th>';
+				$str .= '<th rowspan=2>'.$groupName2.'</th>';
+				$cnt_group_dop = 1;
+			}else{
+				$str .= '<th rowspan=2>'.$groupName2.'</th>';
+			}
+		}
 		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 			$str .= '<th colspan='. $col .'>' . $dt->format($dt_html) . '</th>';
 		}
@@ -697,6 +726,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 			}
 			$cnt_col ++;
 		}
+		if ($groupName1 == 'Товар' || $groupName2 == 'Товар') $cnt_col ++;
 		$str .= '</tr></thead>';
 		//выводим данные в таблице
 		$str .= '<tbody>';
@@ -714,7 +744,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 				//выводим итоги
 				//$cnt_in_grp = 0;
 				$str .= '<tr>';
-				$str .= '<th colspan=2 class="TAL">' . $dgi[$total][name1] . '</th>';
+				$str .= '<th colspan=' . ($cnt_group + $cnt_group_dop) . ' class="TAL">' . $dgi[$total][name1] . '</th>';
 				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 					if ($data == 'Quantity') $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['q']) . '</th>';
 					if ($data == 'Oborot') $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['o']) . '</th>';
@@ -726,7 +756,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 					}
 				}
 				$str .= '</tr>';
-				$str .= '<tr><td colspan='.$cnt_group.'></td>';
+				$str .= '<tr><td colspan='.($cnt_group + $cnt_group_dop).'></td>';
 				for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 					$str .= '<td colspan='.$col.'></td>';
 				}
@@ -735,17 +765,32 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 			}
 			if ($cnt_in_grp == 0 && $cnt_group == 2) {
 				$str .= '<tr>';
-				$str .= '<th colspan=' . ($cnt_col + 2) . ' class="TAL">' . $dg[$a[$i]][name1] . '</th>';
+				if ($groupName1=='Товар'){
+					$str .= '<th class="TAL">' . $dg[$a[$i]][article] . '</th>';
+					$str .= '<th colspan=' . ($cnt_col + 1) . ' class="TAL">' . $dg[$a[$i]][name1] . '</th>';
+				}else{
+					$str .= '<th colspan=' . ($cnt_col + 2) . ' class="TAL">' . $dg[$a[$i]][name1] . '</th>';
+				}
 				$str .= '</tr>';
 			}
 			$cnt_in_grp ++;
 			//выводим строки таблицы
 			$str .= '<tr>';
 			if ($cnt_group == 2) {
-				$str .= '<td class="TAL max200"></td>';
-				$str .= '<td class="TAL max200">'.$dg[$a[$i]][name2].'</td>';
+				$str .= '<td colspan=' . (1 + (($groupName1=='Товар')?$cnt_group_dop:0)) . ' class="TAL w200 max200"></td>';
+				if ($groupName2=='Товар') { 
+					$str .= '<td class="TAL max200">'.$dg[$a[$i]][article].'</td>';
+					$str .= '<td class="TAL max200">'.$dg[$a[$i]][name2].'</td>';
+				}else{
+					$str .= '<td class="TAL w300 max300">'.$dg[$a[$i]][name2].'</td>';
+				}
 			}else{
-				$str .= '<td class="TAL max200">'.$dg[$a[$i]][name1].'</td>';
+				if ($groupName1=='Товар') {
+					$str .= '<td class="TAL max200">'.$dg[$a[$i]][article].'</td>';
+					$str .= '<td class="TAL max200">'.$dg[$a[$i]][name1].'</td>';
+				}else{
+					$str .= '<td class="TAL w300 max300">'.$dg[$a[$i]][name1].'</td>';
+				}
 			}
 			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 				if ($data == 'Quantity') $str .= '<td class="TAR">' . $dg[$a[$i]][$dt->format($dt_format)]['q'] . '</td>';
@@ -762,7 +807,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 		//выводим итоги последней группы
 		if ($cnt_group == 2){
 			$str .= '<tr>';
-			$str .= '<th colspan=2 class="TAL">' . $dgi[$total][name1] . '</th>';
+			$str .= '<th colspan=' . ($cnt_group + $cnt_group_dop) . ' class="TAL">' . $dgi[$total][name1] . '</th>';
 			for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 				if ($data == 'Quantity') $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['q']) . '</th>';
 				if ($data == 'Oborot')	 $str .= '<th class="TAR">' . Fn::nf($dgi[$total][$dt->format($dt_format)]['o']) . '</th>';
@@ -776,7 +821,7 @@ Fn::debugToLog('report7 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUER
 			$str .= '</tr>';
 		}
 		$str .= '<tr>';
-		$str .= '<th colspan='.$cnt_group.' class="TAL">Общие итоги:</th>';
+		$str .= '<th colspan='.($cnt_group + $cnt_group_dop).' class="TAL">Общие итоги:</th>';
 		for ($dt = clone $dt1; $dt <= $dt2; $dt->modify($increment)) {
 			if ($data == 'Quantity') $str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['q']) . '</th>';
 			if ($data == 'Oborot')	 $str .= '<th class="TAR">' . Fn::nf($dgiall[$dt->format($dt_format)]['o']) . '</th>';
@@ -1095,10 +1140,11 @@ Fn::debugToLog('report10 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUE
 		} else {
 			return;
 		}
-Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']).'	$date1='.  $date1.'	$date2='.  $date2);
-//Fn::debugToLog("date1", $date1);
-//Fn::debugToLog("date2", $date2);
+Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+		//'	$date1='.  $date1.'	$date2='.  $date2);
 		$action = 'conversion_' . $repid;
+//Fn::debugToLog("call", "CALL pr_reports($action, @id, $date1, $date2, '".  urldecode($_SERVER['QUERY_STRING']) ."')");
+//Fn::debugToLog("date2", $date2);
 		$stmt = $this->db->prepare("CALL pr_reports(?, @id, ?, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $date1, PDO::PARAM_STR);
@@ -2252,6 +2298,7 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$goodid = $id;
 		$url = urldecode($_SERVER['QUERY_STRING']);
 //Fn::paramToLog();
+//Fn::debugToLog("SQL", "call pr_balance_min('$action', @id, $point_balance_min, null, null, null, null, null, null, '$url');");
 		$stmt = $this->db->prepare("CALL pr_balance_min( ?, @id, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $point_balance_min, PDO::PARAM_STR);
@@ -2681,6 +2728,8 @@ Fn::debugToLog('pendel user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY
 		$url = str_replace("field13", $f13, $url);
 		$url = str_replace("field14", $f14, $url);
 		$url = str_replace("field15", $f15, $url);
+		$url = str_replace("field16", $f16, $url);
+		$url = str_replace("field17", $f17, $url);
 
 		$url = str_replace("pr.Status=-1", "pr.Status<>100", $url);
 		$url = str_replace("pc.Status=-1", "pc.Status<>100", $url);
@@ -2697,7 +2746,7 @@ if ($action == 'good_list_doc') {
 	$url .= '&good_list_DocID=' . $_SESSION['CurrentDocID'];
 	//Fn::debugToLog('jqgrid3 проверка', "&group=$group");
 }
-if ($action == 'package_list' || 
+if ($action == 'package_list' || $action == 'transfer_list' ||
 	$action == 'cancel_list'  || $action == 'difference_list') {
 	$url .= '&o.UserID=' . $_SESSION['UserID'];
 }
@@ -2748,6 +2797,8 @@ Fn::debugToLog('jqgrid3 url', $url);
 							$row[$f13],
 							$row[$f14],
 							$row[$f15],
+							$row[$f16],
+							$row[$f17],
 						);
 //						$response->rows[$i]['cell'] = array_values($row);
 						//$a1 = array_fill_keys(array_keys($row),$row);
@@ -2838,6 +2889,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 			${$arg} = $val;
 //Fn::paramToLog();
 		if ($action=='point') $type = $_SESSION['UserID'];
+//Fn::debugToLog("SQL", "CALL pr_select2('$action', @id, '$name', '$type');");
 		$stmt = $this->db->prepare("CALL pr_select2(?, @id, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
 		$stmt->bindParam(2, $name, PDO::PARAM_STR);
@@ -2973,6 +3025,25 @@ Fn::debugToLog('jqgrid3 url', $url);
 		$stmt->execute();
 		$this->echo_response($stmt);
 	}
+//cancel_base - основания для списания
+	public function cancel_base_save() {
+		foreach ($_REQUEST as $arg => $val)
+			${$arg} = $val;
+//Fn::paramToLog();
+		if (isset($oper)) {
+			$baseID = $BaseID;
+			$name = $BaseName;
+			$value = $NoShow;
+		}
+//Fn::debugToLog("base", $baseID.'	'.$name.'	'.  $value);
+		$stmt = $this->db->prepare("CALL pr_reason('cancel_base_save',@id,?,?,?)");
+		$stmt->bindParam(1, $baseID, PDO::PARAM_STR);
+		$stmt->bindParam(2, $name, PDO::PARAM_STR);
+		$stmt->bindParam(3, $value, PDO::PARAM_STR);
+// вызов хранимой процедуры
+		$stmt->execute();
+		$this->echo_response($stmt);
+	}
 
 //category
 	public function get_tree_NS_category() {
@@ -3066,6 +3137,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 //Fn::paramToLog();
 		if ($docid == '')	$docid = $_SESSION['CurrentDocID'];
 		if ($docid == '')	$docid = 0;
+		$docid = str_replace("_", ".", $docid);
 		$response = new stdClass();
 		$response->success = false;
 		$response->message = "";
@@ -3078,6 +3150,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 //Fn::debugToLog("UserID", $_SESSION['UserID']);
 //Fn::debugToLog("operid", $operid);
 //Fn::debugToLog("partnerid", $partnerid);
+//Fn::debugToLog("SQL", "call pr_doc('$action', @_id, $clientid, $partnerid, $docid, $operid, $goodid, $qty, $info, $status, $_SESSION[UserID], '$notes', $invoice)");
 		$stmt = $this->db->prepare("call pr_doc(:action, @_id, :_ClientID, :_PartnerID, :_DocID, :_OperID, :_GoodID, :_Qty, :_Info, :_Status, :_UserID, :_Notes, :_Invoice)");
 		$stmt->bindParam(":action", $action);
 		$stmt->bindParam(":_ClientID", $clientid);
@@ -3119,7 +3192,7 @@ Fn::debugToLog('jqgrid3 url', $url);
 	public function doc_info_full() {
 		foreach ($_REQUEST as $arg => $val)
 			${$arg} = $val;
-//Fn::paramToLog();
+// Fn::paramToLog();
 		$response = new stdClass();
 		$response->success = false;
 		$response->clientid = $_SESSION['ClientID'];
@@ -3131,14 +3204,19 @@ Fn::debugToLog('jqgrid3 url', $url);
 		//$action = 'sale_info';
 		if ($docid == '')	$docid = $_SESSION['CurrentDocID'];
 		if ($docid == '')	$docid = 0;
+		$docid = str_replace("_", ".", $docid);
 		if ($action == 'package_info') $doctype = 'package';
+		if ($action == 'transfer_info') $doctype = 'transfer';
 		if ($action == 'receipt_info') $doctype = 'receipt';
 		if ($action == 'cancel_info')  $doctype = 'cancel';
 		if ($action == 'difference_info')  $doctype = 'difference';
 		if ($action == 'timesheet_info') $doctype = 'timesheet';
 		if ($action == 'inventory_info')  $doctype = 'inventory';
+		if ($action == 'order_info')  $doctype = 'order';
 		if ($view) $notes = 'view';
 
+// Fn::debugToLog("docid", $docid);ы
+//Fn::debugToLog("SQL", "call pr_doc('$action', @_id, $_SESSION[ClientID], $partnerid, $docid, $operid, $goodid, $qty, $info, $status, $_SESSION[UserID], '$notes', $invoice)");
 		$stmt = $this->db->prepare("call pr_doc(:action, @_id, :_ClientID, :_PartnerID, :_DocID, :_OperID, :_GoodID, :_Qty, :_Info, :_Status, :_UserID, :_Notes, :_Invoice)");
 		$stmt->bindParam(":action", $action);
 		$stmt->bindParam(":_ClientID", $_SESSION['ClientID']);
@@ -3168,6 +3246,8 @@ Fn::debugToLog('jqgrid3 url', $url);
 					foreach ($rowset as $row) {
 						$response->clientid = $row['ClientID'];
 						$response->partnerid = $row['PartnerID'];
+						$response->ordertype = $row['OrderType'];
+						$response->cancel_base = $row['BaseID'];
 						$response->period = $row['Period'];
 						$str .= '
 								 <input id="docid" type="hidden" value="' . $row['DocID'] . '"/>';
@@ -3233,7 +3313,29 @@ $str .= '
 												<span class = "input-group-addon w30"></span>
 										   </div>
 										   ';
+							if ($action == 'order_info') $str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Тип заказа:</span>
+												<div id="select_ordertype" class="w210"></div>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
+							if ($action == 'cancel_info') $str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Основание:</span>
+												<div id="select_cancel_base" class="w210"></div>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
 							$str .= '	</div>';
+							$str .= '
+										<div class="floatL ml5">
+										   <div class="input-group input-group-sm w450">
+											  <span class = "input-group-addon w100">Примечание:</span>
+											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['Notes'] . '" onchange="good_edit(\'' . $doctype . '_edit_notes\',this,0,0,0,0,0,$(this).val());">
+											  <span class = "input-group-addon w32"></span>
+										   </div>
+										   ';
 						} else {
 							$str .= '
 										<div class="floatL">
@@ -3257,17 +3359,36 @@ $str .= '
 												<span class = "input-group-addon w40"></span>
 										   </div>
 										   ';
+							if ($action=='order_info') $str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w80">Тип документа:</span>
+												<span class = "input-group-addon form-control w230 TAС">' . (($row['OrderType']==0)?'ручной':'автоматический') . '</span>
+												<span class = "input-group-addon w40"></span>
+										   </div>
+										   ';
+							if ($action == 'cancel_info')
+								$str .= '
+										   <div class="input-group input-group-sm w350">
+												<span class = "input-group-addon w110">Основание:</span>
+												<span class = "input-group-addon form-control w230 TAL">' . $row['BaseName'] . '</span>
+												<span class = "input-group-addon w30"></span>
+										   </div>
+										   ';
 							$str .= '	</div>';
-						}
-						$str .= '
-										<div class="floatL ml5">&nbsp</div>
-										<div class="floatL">
+							if ($action == 'order_info')
+								$str .= '
+<button id="button_report_export" type="button" class="btn btn-info	btn-sm w450 floatL ml5 hidden-print "><span class="glyphicon glyphicon-export mr5"></span>Экспорт в EXCEL</button>
+									   ';
+							$str .= '
+										<div class="floatL ml5">
 										   <div class="input-group input-group-sm w450">
 											  <span class = "input-group-addon w100">Примечание:</span>
-											  <input type = "text" class = "form-control" ' . ((!$view) ? '' : 'disabled') . ' autofocus value = "' . $row['Notes'] . '" onchange="good_edit(\''. $doctype .'_edit_notes\',this,0,0,0,0,0,$(this).val());">
+											  <span class = "input-group-addon form-control w230 TAL">' . $row['Notes'] . '</span>
 											  <span class = "input-group-addon w32"></span>
 										   </div>
 										   ';
+						}
+										//<div class="floatL ml5">&nbsp</div>
 						if ($action == 'timesheet_info')
 						$str .= '
 										   <div class="input-group input-group-sm w450">
@@ -3396,12 +3517,21 @@ $str .= '
 						$str .= '<thead><tr>
 										<th class="w50 center">Артикул</th>
 										<th class="w150 center">Название</th>';
-						if ($action!='receipt_info')
+						if ($action!='receipt_info' && $action != 'order_info')
 							$str .= '	<th class="w100  center">Инфо</th>';
-						$str .= '		<th class="w40  center">Кол-во</th>';
-						if ($action=='receipt_info'){
-							$str .=	'		<th class="w40  center">Цена розн.</th>';
-							$str .=	'		<th class="w40  center">Сумма</th>';
+						if ($action == 'order_info'){
+							$col_cnt += 4;
+							$str .= '	<th class="w50  center">Тек.ост.</th>';
+							$str .= '	<th class="w50  center">Мин.ост.</th>';
+							$str .= '	<th class="w50  center">Витрина</th>';
+							$str .= '	<th class="w50  center">Требуется</th>';
+							$str .= '	<th class="w40  center">Заказано</th>';
+						}else{
+							$str .= '	<th class="w40  center">Кол-во</th>';
+						}
+						if ($action=='receipt_info' || $action == 'order_info'){
+							$str .=	'	<th class="w40  center">Цена розн.</th>';
+							$str .=	'	<th class="w40  center">Сумма</th>';
 						}
 						$str .= '	 </thead><tbody>';
 						foreach ($rowset as $row) {
@@ -3410,27 +3540,49 @@ $str .= '
 										<td class="TAL">' . $row['Article'] . '</td>
 										<td class="TAL">' . $row['Name'] . '</td>';
 							if (!$view){
-							if ($action != 'receipt_info')
-								$str .= '<td class="TAL">
+								if ($action != 'receipt_info' && $action != 'order_info'){
+								$str .= '
+										<td class="TAL">
 											<input type="text" class="TAL editable inline-edit-cell" style="line-height:17px;width:100%;" min=0 onchange="good_edit(\''. $doctype .'_edit_good_info\',this,'. $row['GoodID'] .',null,null,$(this).val());" value="' . $row['Info'] . '">
 										</td>';
-							$str .= '	<td class="TAC">
-											<input type="number" class="TAR editable inline-edit-cell" style="line-height:17px;width:60%;min-width:40px;" onchange="good_edit(\''. $doctype .'_edit\',this,'. $row['GoodID'] .',null,$(this).val(),null);" value="' . $row['Quantity'] . '">
+								}
+								if ($action == 'order_info') {
+								$str .= '
+										<td class="TAC">' . Fn::nfx0($row['Balance'],null) . '</td>
+										<td class="TAC">' . Fn::nfx0($row['BalanceMin'], null) . '</td>
+										<td class="TAC">' . Fn::nfx0($row['Showcase'], null) . '</td>
+										<td class="TAC">' . Fn::nfx0($row['Required'], null) . '</td>';
+								}
+								$str .='<td class="TAC">
+											<input type="number" class="TAR editable inline-edit-cell" style="line-height:17px;width:60%;min-width:40px;" onchange="good_edit(\''. $doctype .'_edit\',this,'. $row['GoodID'] .',null,$(this).val(),null);" value="' . Fn::nfx0($row['Quantity'],null) . '">
 											<span id="qty" class="hidden">' . $row['Quantity'] . '</span>
 											<span class="ml5 mr5 glyphicon glyphicon-remove hidden-print" onclick="good_edit(\''. $doctype .'_edit\',$(this).prev(),'. $row['GoodID'] .',null,0);"></span>
 										</td>';
-								if ($action == 'receipt_info') {
-									$str .= '<th class="w40  center">' . $row['Price'] . '</th>';
-									$str .= '<th class="w40  center">' . $row['Sum'] . '</th>';
+								if ($action == 'receipt_info' || $action == 'order_info') {
+									$str .= '<td class="w40  center">' . $row['Price'] . '</td>';
+									$str .= '<td class="w40  center">' . $row['Sum'] . '</td>';
 								}
 							$str .= '</tr>';
 							} else {
-								$str .= '	<td class = "w40  center">' . $row['Info'] . '</td>';
+								if ($action == 'order_info') {
+									$str .= '
+										<td class="TAC">' . Fn::nfx0($row['Balance'], null) . '</td>
+										<td class="TAC">' . Fn::nfx0($row['BalanceMin'], null) . '</td>
+										<td class="TAC">' . Fn::nfx0($row['Showcase'], null) . '</td>
+										<td class="TAC">' . Fn::nfx0($row['Required'], null) . '</td>';
+								}else if ($action == 'receipt_info'){
+								}else{
+									$str .= '	<td class = "w40  center">' . $row['Info'] . '</td>';
+								}
 								$str .= '	<td class = "w40  center">' . $row['Quantity'] . '</td>';
+								if ($action == 'receipt_info' || $action == 'order_info') {
+									$str .= '<td class="w40  center">' . $row['Price'] . '</td>';
+									$str .= '<td class="w40  center">' . $row['Sum'] . '</td>';
+								}
 							}
 						}
 						if ($stmt->rowCount() == 0){
-							$str .= '<tr><td colspan='. $col_cnt .' class="TAC">В документе нет товаров</td></tr>';
+							$str .= '<tr><td colspan='. ($col_cnt+1) .' class="TAC">В документе нет товаров</td></tr>';
 						}
 						$str .= '</tbody>';
 					}
@@ -3440,13 +3592,13 @@ $str .= '
 						
 					}else{
 						foreach ($rowset as $row) {
-						if ($action=='receipt_info'){
+						if ($action=='receipt_info' || $action == 'order_info'){
 							$str .= '<tfoot>
 										<tr><th colspan=' . ($col_cnt-2) . '>Всего кол-во в документе:</th>
 										<th class="TAC">' . $total_qty . ' ед.</th>
-										<th colspan=2 class="TAC"></th></tr>
+										<th colspan=2 class="TAR">'.$row['Sum'].'</th></tr>
 									 </tfoot>';
-						}else if ($action=='package_info') {
+						}else if ($action=='package_info' || $action=='transfer_info') {
 							$str .= '<tfoot>
 										<tr><th colspan=' . ($col_cnt-1) . '>Всего кол-во в документе:</th>
 										<th class="TAC">' . $total_qty . ' ед.</th></tr>
@@ -3478,12 +3630,12 @@ $str .= '
 		$response->message = "";
 		$response->html = "";
 
-		if ($docid == '')
-			$docid = $_SESSION['CurrentDocID'];
-		if ($docid == '')
-			$docid = 0;
+		if ($docid == '') $docid = $_SESSION['CurrentDocID'];
+		if ($docid == '') $docid = 0;
+		$docid = str_replace("_", ".", $docid);
 		$docname = 'Документ';
 		if ($action=='package_info') $docname = 'Расфасовка';
+		if ($action=='transfer_info') $docname = 'Перемещение';
 		if ($action=='receipt_info' && $operid==1) $docname = 'Приход';
 		if ($action=='receipt_info' && $operid==-1) $docname = 'Возврат';
 		if ($action=='cancel_info' && $operid==1) $docname = 'Оприх-ние';
@@ -3897,7 +4049,7 @@ $str .= '
 										<th class="TAC">' . $total_qty . ' ед.</th>
 										<th colspan=2 class="TAC"></th></tr>
 									 </tfoot>';
-							} else if ($action == 'package_info') {
+							} else if ($action == 'package_info' || $action == 'transfer_info') {
 								$str .= '<tfoot>
 										<tr><th colspan=' . ($col_cnt - 1) . '>Всего кол-во в документе:</th>
 										<th class="TAC">' . $total_qty . ' ед.</th></tr>

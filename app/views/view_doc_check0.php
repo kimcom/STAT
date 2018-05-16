@@ -19,7 +19,7 @@ $(document).ready(function(){
 		height:'auto',
 		colNames:['№ чека','Статус Чека','Тип оплаты','Тип чека','Дата, время','Город','Магазин','Сумма общая','Сумма скидки','Сумма к оплате','Номер Дисконта'],
 		colModel:[
-			{name:'cl.CheckID',           index:'cl.CheckID',            width: 100,  align:"center",  sorttype:"number",    search:true, sortable: true},
+			{name:'cl_CheckID',           index:'cl.CheckID',            width: 100,  align:"center",  sorttype:"number",    search:true, sortable: true},
 			{name:'CheckStatus',       index:'CheckStatus',        width: 90,   align:"left",    stype:"select",     searchoptions: {value: ":любой;1:распечатан;0:не закрыт" }},
 			{name:'TypePayment',       index:'TypePayment',        width: 80,   align:"center",  stype:"select",     searchoptions: {value: ":любой;1:без нал;0:нал;2%:оплата частями"}},
 			{name:'FlagReturn',        index:'FlagReturn',         width: 80,   align: "center", stype:"select",     searchoptions: {value: ":любой;1:продажа;-1:возврат"}},
@@ -34,16 +34,9 @@ $(document).ready(function(){
 		beforeRequest: function() {
 			var date = new Date();
 			formated_date = date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
-//			formated_date = date.getFullYear() + '-02';
 			var postData = $("#grid1").jqGrid('getGridParam', 'postData');
-			if(postData.CreateDateTime==null){
+			if(postData.CreateDateTime==null)
 				postData.CreateDateTime = formated_date;
-//				$('#CreateDateTime').val(formated_date);
-//				console.log($('#CreateDateTime'));
-			}
-//			console.log(this);
-			//console.log(postData);
-				//postData.'cl.CheckID' = '%3.1000';
 			$("#gs_CreateDateTime").val(postData.CreateDateTime);
 			//console.log("gs_CreateDateTime:",$("#gs_CreateDateTime"));
 	    },
@@ -128,8 +121,8 @@ $(document).ready(function(){
 	//			window.location = "../goods/map_discountcard_edit?cardid=" + id;
 	//}
 //    });
-	$('#gbox_grid1 .ui-jqgrid-caption').addClass('btn-info');
-	$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: false, cloneToTop: true});
+//	$('#gbox_grid1 .ui-jqgrid-caption').addClass('btn-info');
+	//$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: false, cloneToTop: true});
 
 	$("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true, 
 		beforeSearch: function(){filter_save("#grid1");}

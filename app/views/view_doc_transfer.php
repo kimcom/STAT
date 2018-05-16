@@ -1,6 +1,3 @@
-<?php
-$operid = $_REQUEST['operid'];
-?>
 <link rel="stylesheet" type="text/css" href="/css/jqgrid/ui.jqgrid-bootstrap-ui.css">
 <link rel="stylesheet" type="text/css" href="/css/jqgrid/ui.jqgrid-bootstrap.css">
 <link rel="stylesheet" type="text/css" href="/css/jqgrid/ui.jqgrid.alik.css">
@@ -33,7 +30,7 @@ $(document).ready(function () {
 		caption: "Список документов",
 		mtype: "GET",
 		styleUI: 'Bootstrap',
-		url: "/engine/jqgrid3?action=cancel_list&OperID=<?php echo $operid?>&grouping=DocID&o.Status=0&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author",
+		url: "/engine/jqgrid3?action=transfer_list&grouping=DocID&o.Status=0&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author",
 		//responsive: true,
 		scroll: 1, height: 360, // если виртуальная подгрузка страниц
 		//height: 'auto', //если надо управлять страницами
@@ -82,9 +79,9 @@ $(document).ready(function () {
 			$("#divGrid").appendTo( $($(this).attr('href')));
 			$("#divGrid").removeClass("hide");
 			if($(this).attr('state')=='all') {
-				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=cancel_list&OperID=<?php echo $operid ?>&grouping=DocID&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
+				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=transfer_list&grouping=DocID&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
 			}else{
-				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=cancel_list&OperID=<?php echo $operid ?>&grouping=DocID&o.Status="+$(this).attr('state')+"&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
+				$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "/engine/jqgrid3?action=transfer_list&grouping=DocID&o.Status="+$(this).attr('state')+"&f1=DocID&f2=State&f3=DT_create&f4=Qty&f5=ClientName&f6=Notes&f7=Author", page: 1});
 			}
 			$("#grid1").trigger('reloadGrid');
 		}
@@ -103,7 +100,7 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 				return false;
 			}
-			$.post('/engine/doc_edit', {action: 'cancel_setcurrent',docid:id,operid:<?php echo $operid ?>}, function (json) {
+			$.post('/engine/doc_edit', {action: 'transfer_setcurrent',docid:id}, function (json) {
 			//console.log(json);
 			    if (!json.success) {
 					$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -124,7 +121,7 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 				return false;
 		    }
-			$.post('/engine/doc_info_full',{action: 'cancel_info', docid: id, view: true}, function (json) {
+			$.post('/engine/doc_info_full',{action: 'transfer_info', docid: id, view: true}, function (json) {
 				if (json.success){
 					$("#view").html(json.html);
 					$("#view").dialog({title:'Просмотр информации о документе №'+id});
@@ -149,7 +146,7 @@ $(document).ready(function () {
 			$("#question").dialog('open');
 		}
 		if (id == 'doc_add') {
-		    $.post('/engine/doc_edit', {action: 'cancel_new', operid:<?php echo $operid;?>}, function (json) {
+		    $.post('/engine/doc_edit', {action: 'transfer_new'}, function (json) {
 				//console.log(json);
 				if (!json.success) {
 				    $("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -164,28 +161,20 @@ $(document).ready(function () {
 		}
 	});
 	doc_info = function () {
-		$.post('/engine/doc_info_full',{action: 'cancel_info'}, function (json) {
+		$.post('/engine/doc_info_full',{action: 'transfer_info'}, function (json) {
 			//console.log(json);
 			if (json.success){
 				clientid = json.clientid;
-				cancel_base = json.cancel_base;
+				partnerid = json.partnerid;
 				$("#div_doc_active").html(json.html);
 				$.post('/engine/select2?action=point', function (json) {
 					$("#select_companyID").select2({enable: false, multiple: false, placeholder: "Укажите торговую точку", data: {results: json, text: 'text'}});
 					$("#select_companyID").on("change", function (e) {
 					    if (e.val.length > 0)
-						good_edit('cancel_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
+						good_edit('transfer_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
 					});
 					$("#select_companyID").select2("val", clientid);
 					//$("#select_companyID").select2("enable", mode_manager);
-			    });
-				$.post('/engine/select2?action=cancel_base', function (json) {
-					$("#select_cancel_base").select2({enable: false, multiple: false, placeholder: "Укажите основание", data: {results: json, text: 'text'}});
-					$("#select_cancel_base").on("change", function (e) {
-						if (e.val.length > 0)
-						good_edit('cancel_edit_base', null, 0, 0, 0, 0, 0, 0, 0, e.val);
-					});
-					$("#select_cancel_base").select2("val", cancel_base);
 			    });
 				$("#div_doc_buttons button").click(function(e){
 					id = e.target.id;
@@ -201,7 +190,7 @@ $(document).ready(function () {
 						$("#question").dialog('option', 'buttons', [{text: "Удалить", click: doc_delete},{text: "Отмена", click: function () {$(this).dialog("close");}}]);
 						$("#question").dialog('open');
 					}
-					if (id == 'good_add') {window.location.href='/main/catalog?oper=cancel&operid=<?php echo $operid?>';}
+					if (id == 'good_add') {window.location.href='/main/catalog?oper=transfer&operid=0';}
 					if (id == 'doc_add') {$("#div_doc_list #doc_add:first").click();}
 				});
 			}
@@ -209,13 +198,7 @@ $(document).ready(function () {
 	}
 	doc_send = function (e) {
 		$(this).dialog("close");
-		if ($("#select_cancel_base").select2("val")=='') {
-			$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
-			$("#dialog>#text").html("Необходимо указать основание для списания!");
-			$("#dialog").dialog("open");
-			return;
-		}
-		$.post('/engine/doc_edit', {action: 'cancel_send',operid:<?php echo $operid ?>}, function (json) {
+		$.post('/engine/doc_edit', {action: 'transfer_send'}, function (json) {
 			//console.log(json);
 			if (!json.success) {
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -230,7 +213,7 @@ $(document).ready(function () {
 	}
 	doc_delete = function (e) {
 		$(this).dialog("close");
-		$.post('/engine/doc_edit', {action: 'cancel_delete'}, function (json) {
+		$.post('/engine/doc_edit', {action: 'transfer_delete'}, function (json) {
 			//console.log(json);
 			if (!json.success) {
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -247,7 +230,7 @@ $(document).ready(function () {
 		$(this).dialog("close");
 		var id = $("#grid1").jqGrid('getGridParam', 'selrow');
 		if (id == null) return false;
-		$.post('/engine/doc_edit', {action: 'cancel_delete', docid: id}, function (json) {
+		$.post('/engine/doc_edit', {action: 'transfer_delete', docid: id}, function (json) {
 			//console.log(json);
 			if (!json.success) {
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -264,9 +247,9 @@ $(document).ready(function () {
 		});
 	}
 	
-	good_edit = function (action, el, goodid, size, qty, info, delivery, notes, newclientid, operid) {
+	good_edit = function (action, el, goodid, size, qty, info, delivery, notes, newclientid, typepay, partnerid) {
 		//console.log(action, el, goodid, size, qty, info);
-		$.post('/engine/doc_edit', {action: action, operid:<?php echo $operid ?>, goodid: goodid, modifiers:size, qty: qty, info: info, delivery: delivery, notes: notes, clientid: newclientid, operid: operid}, function (json) {
+		$.post('/engine/doc_edit', {action: action, goodid: goodid, modifiers:size, qty: qty, info: info, delivery: delivery, notes: notes, clientid: newclientid, typepay:typepay, partnerid:partnerid }, function (json) {
 			//console.log(JSON.stringify(json));
 			if (!json.success){
 				$("#dialog").css('background-color', 'linear-gradient(to bottom, #f7dcdb 0%, #c12e2a 100%)');
@@ -274,7 +257,7 @@ $(document).ready(function () {
 				$("#dialog").dialog("open");
 				return;
 			}
-		    if (json.success && action == 'cancel_edit' && qty == 0) {
+		    if (json.success && action == 'transfer_edit' && qty == 0) {
 				next = $(el).parent().parent().next();
 				$(el).parent().parent().remove();
 				$(next).focus();
@@ -314,10 +297,10 @@ $(document).ready(function () {
 					$("#select_companyID").select2({enable: false, multiple: false, placeholder: "Укажите фирму для пользователя", data: {results: json, text: 'text'}});
 					$("#select_companyID").on("change", function (e) {
 					    if (e.val.length > 0)
-						good_edit('cancel_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
+						good_edit('transfer_edit_client', null, 0, 0, 0, 0, 0, 0, e.val);
 					});
 					$("#select_companyID").select2("val", id);
-					good_edit('cancel_edit_client', null, 0, 0, 0, 0, 0, 0, id);
+					good_edit('transfer_edit_client', null, 0, 0, 0, 0, 0, 0, id);
 			    });
 			}
 		});
@@ -341,11 +324,10 @@ $(document).ready(function () {
 //if ($_SESSION['ClientID']!=0) {
 ?>
 	<ul id="myTab" class="nav nav-tabs floatL active hidden-print" role="tablist">
-		<li>				<a id="a_tab_0" href="#tab_doc_action" role="tab" data-toggle="tab"><?php echo ($operid==1?'Оприходование':'Списание')?> товара</a></li>
+		<li>				<a id="a_tab_0" href="#tab_doc_action" role="tab" data-toggle="tab">Перемещение</a></li>
 		<li class="active">	<a id="a_tab_1" href="#tab_doc_list1"  state="0" role="tab" data-toggle="tab">Непроведенные</a></li>
-		<li>				<a href="#tab_doc_list2"	role="tab" state="10" data-toggle="tab">Отправленные</a></li>
-		<li>				<a href="#tab_doc_list3"	role="tab" state="20" data-toggle="tab">Обработанные</a></li>
-		<li>				<a href="#tab_doc_list4"	role="tab" state="all" data-toggle="tab">Все документы</a></li>
+		<li>				<a href="#tab_doc_list2"	role="tab" state="10" data-toggle="tab">Проведенные</a></li>
+		<li>				<a href="#tab_doc_list3"	role="tab" state="all" data-toggle="tab">Все документы</a></li>
 	</ul>
 	<div class="tab-content">
 		<div class="tab-pane m0 w100p min530 ui-corner-tab1 borderColor frameL border1" id="tab_doc_action">
@@ -368,6 +350,7 @@ $(document).ready(function () {
 				<div class="row">
 					<div class = "col-md-12 col-xs-12 TAL hidden-print">
 						<button id="doc_add"		type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
+						<button id="doc_edit"		type="button" class="btn btn-success	btn-sm minw150 mb5"><span class="glyphicon glyphicon-edit		mr5"></span>Редактировать документ</button>
 						<button id="doc_view"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-list-alt	mr5"></span>Просморт документа</button>
 					</div>
 				</div>
@@ -378,16 +361,7 @@ $(document).ready(function () {
 				<div class="row">
 					<div class = "col-md-12 col-xs-12 TAL hidden-print">
 						<button id="doc_add"		type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
-						<button id="doc_view"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-list-alt mr5"></span>Просморт документа</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="tab-pane m0 w100p min530 ui-corner-all borderColor frameL border1" id="tab_doc_list4">
-			<div class="ml5 mt5" id="div_doc_list" >
-				<div class="row">
-					<div class = "col-md-12 col-xs-12 TAL hidden-print">
-						<button id="doc_add"		type="button" class="btn btn-lilac		btn-sm minw150 mb5"><span class="glyphicon glyphicon-plus		mr5"></span>Новый документ</button>
+						<button id="doc_edit"		type="button" class="btn btn-success	btn-sm minw150 mb5"><span class="glyphicon glyphicon-edit		mr5"></span>Редактировать документ</button>
 						<button id="doc_view"		type="button" class="btn btn-info		btn-sm minw150 mb5"><span class="glyphicon glyphicon-list-alt mr5"></span>Просморт документа</button>
 					</div>
 				</div>

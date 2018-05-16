@@ -7,6 +7,9 @@ $(document).ready(function () {
 	keyJoin = function (obj){ var ar = []; for (key in obj){ar[ar.length] = key;}return ar;}
 	clearObj= function (obj){ for(key in obj){for(k in obj[key]){delete obj[key][k];}}return obj;}
 	var settings = new Object();
+	var point = new Object();
+	settings['point']=point;
+
 	$("#dialog").dialog({
 		autoOpen: false, modal: true, width: 400, //height: 300,
 		buttons: [{text: "Закрыть", click: function () {
@@ -93,11 +96,69 @@ $(document).ready(function () {
 					}
 				}
 			}
+			$("#point").val(strJoin(point).join(';'));
+		    $("#point").attr("title", strJoin(point).join("\n"));
 			$("#select_report").click();
 //$('#button_report_run').click();
 		});
 	});
-		
+
+//список для выбора
+	$("#grid1").jqGrid({
+	    sortable: true,
+	    datatype: "json",
+	    width: 370,
+	    height: 330,
+	    colModel: [
+		{name: 'field1', index: 'field1', width: 80, sorttype: "text", search: true},
+		{name: 'field2', index: 'field2', sorttype: "text", search: true},
+		{name: 'field3', index: 'field3', sorttype: "text", search: true, hidden: true}
+	    ],
+	    rowNum: 15,
+	    rowList: [15, 30, 40, 50, 100, 200, 300],
+	    sortname: "Name",
+	    viewrecords: true,
+	    multiselect: true,
+	    //loadonce: true,
+	    gridview: true,
+	    toppager: true,
+	    caption: "",
+	    pager: '#pgrid1'
+	});
+	$("#grid1").jqGrid('navGrid', '#pgrid1', {edit: false, add: false, del: false, search: false, refresh: false, cloneToTop: true});
+	$("#grid1").jqGrid('filterToolbar', {autosearch: true, searchOnEnter: true});
+
+	$("#grid1").navButtonAdd('#grid1_toppager', {
+	    buttonicon: 'ui-icon-plusthick', caption: 'Выбрать', position: "last",
+	    onClickButton: function () {
+		var sel;
+		sel = jQuery("#grid1").jqGrid('getGridParam', 'selarrrow');
+		if (sel == '') {
+		    $("#dialog").css('background-color', '');
+		    $("#dialog>#text").html('Вы не выбрали ни одной записи!');
+		    $("#dialog").dialog("open");
+		    return;
+		}
+		datastr = $("#grid1").getGridParam('datastr');
+		for (key in sel) {
+		    var node = $("#grid1").jqGrid('getRowData', sel[key]);
+		    //alert('key='+key+'\nsel[key]='+sel[key]+'\nnode.field2='+node.field2);
+		    if (datastr == 'point')
+			point[sel[key]] = node.field2;
+		}
+		if (datastr == 'point') {
+		    $("#point").val(strJoin(point).join(';'));
+		    $("#point").attr("title", strJoin(point).join("\n"));
+		}
+	    }
+	});
+
+	$("#pg_pgrid1").remove();
+	$("#pgrid1").removeClass('ui-jqgrid-pager');
+	$("#pgrid1").addClass('ui-jqgrid-pager-empty');
+
+	$("#divGrid").hide();
+
 	$("#setting_filter a").click(function() {
 		operid = '';
 		var command = this.parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
@@ -134,7 +195,8 @@ $(document).ready(function () {
 			$.post("../Engine/setting_set"+
 					"?DT_start="+ $("#DT_start").val()+
 					"&DT_stop="	+ $("#DT_stop").val()+
-					"&repid="	+ $("#select_report").select2("val"),
+					"&repid="	+ $("#select_report").select2("val")+
+					"&point="	+ keyJoin(point).join(';') + "|" + strJoin(point).join(';'),
 				{	sid:	reportID,
 					sname:	setting.text,
 				}, 
@@ -150,6 +212,21 @@ $(document).ready(function () {
 					}
 			});
 		}
+		if(operid=='point'){
+			$("#grid1").jqGrid('setLabel', "field1", "Код магазина");
+			$("#grid1").jqGrid('setLabel', "field2", "Название");
+			$("#grid1").jqGrid('setLabel', "field3", "Матрица");
+			$("#legendGrid").html('Выбор торговой точки:');
+			$("#grid1").jqGrid('setGridParam', {datastr: "point"});
+			$("#grid1").jqGrid('setCaption', 'Торговые точки');
+			$("#grid1").showCol("field3");
+			$(".ui-search-input>input").val("");
+			//$("#grid1").jqGrid("clearGridData", true).trigger("reloadGrid");
+			$("#grid1").jqGrid('setGridParam', {datatype: "json", url: "../reports/jqgrid3?action=point_list&f1=PointID&f2=Name&f3=MatrixName&pu.UserID=<?php echo $_SESSION['UserID']; ?>", page: 1}).trigger('reloadGrid');
+			$("#divTable").removeClass('ml10');
+			$("#divTable").show();
+			$("#divGrid").show();
+	    }
 		if(operid=='DT_start')
 			$("#DT_start").datepicker("show");
 		if(operid=='DT_stop')
@@ -162,7 +239,7 @@ $(document).ready(function () {
 		setTimeout(function () {
 			var file_name = $("#select_report").select2("data").text;
 			var html = file_name + "<br>" + $("#tab_report").html();
-			html = html.split("<table ").join("<table border='1' ");
+			html = html.split("<table").join("<table border='1' ");
 			var report_name = 'report' + reportID;
 			$.ajax({
 				type: "POST",
@@ -192,6 +269,7 @@ $(document).ready(function () {
 		prmRep = "<b>Отбор данных выполнен по критериям:</b> ";
 		prmRep += "<br>" + "Период с " + $("#DT_start").val() + " по " + $("#DT_stop").val();
 		prmRep += "<br>Вид отчета: " + $("#select_report").select2("data").text + ".";
+		prmRep += (Object.keys(point).length == 0) ? "" : "<br>" + "Торговые точки: " + strJoin(point).join(', ');
 
 		$("#report_param_str").html(prmRep);
 		$.post("../reports/report"+reportID+"_data" +
@@ -199,7 +277,8 @@ $(document).ready(function () {
 				"&repid=" + $("#select_report").select2("val") +
 				"&UserID=<?php echo $_SESSION['UserID']; ?>" +
 				"&DT_start=" + $("#DT_start").val() +
-				"&DT_stop=" + $("#DT_stop").val(),
+				"&DT_stop=" + $("#DT_stop").val() +
+				"&point=" + keyJoin(point).join(';'),
 				function (json) {
 					$('#div_report').html(json.table1);
 					setTimeout(function () {
@@ -270,10 +349,27 @@ $(document).ready(function () {
 						<a class="btn btn-default w100p" type="button">...</a>
 					</span>
 				</div>
-				<div class="input-group input-group-sm mt5 w100p">
+				<div class="input-group input-group-sm mt20 w100p">
 					<span class="input-group-addon w130">Вид отчета:</span>
 					<div class="w328 maxw328" id="select_report" name="select_report"></div>
 					<span class="input-group-addon w32"></span>
+				</div>
+				<div class="input-group input-group-sm mt20 w100p">
+					<span class="input-group-addon w130">Торговая точка:</span>
+					<input id="point" name="point" type="text" class="form-control" >
+					<span class="input-group-btn w32">
+						<a class="btn btn-default w100p" type="button">X</a>
+					</span>
+					<span class="input-group-btn w32">
+						<a class="btn btn-default w100p" type="button">...</a>
+					</span>
+				</div>
+			</div>
+			<div id="divGrid" class='p5 ui-corner-all frameL ml5 border0'>
+				<legend id="legendGrid"></legend>
+				<div id="divTable" class='frameL ml10'>
+					<table id="grid1"></table>
+					<div id="pgrid1"></div>
 				</div>
 			</div>
 		</div>

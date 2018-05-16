@@ -535,7 +535,7 @@ $(document).ready(function () {
 		setTimeout(function () {
 			var file_name = 'Продажи товаров в рознице по периодам';
 			var html = file_name + "<br>" + $("#tab_report").html();
-			html = html.split("<table ").join("<table border='1' ");
+			html = html.split("<table").join("<table border='1' ");
 			var report_name = 'report' + reportID;
 			$.ajax({
 				type: "POST",
@@ -566,7 +566,10 @@ $(document).ready(function () {
 		}
 //return;
 		grouping = [];
-		$("#grouping li").each(function(index) {grouping[index] = this.id;});
+		$("#grouping li").each(function(index) {
+			//if (this.id!='Oborot')
+				grouping[index] = this.id;
+		});
 		var grouping_str = '';
 		$("#grouping li span").each(function( index ) { grouping_str += ((grouping_str.length==0) ? '' : ', ') + $(this).html();});
 		prmRep = "<b>Отбор данных выполнен по критериям:</b> ";
@@ -601,7 +604,7 @@ $(document).ready(function () {
 				"?sid=" + reportID +
 				"&DT_start=" + $("#DT_start").val() +
 				"&DT_stop=" + $("#DT_stop").val() +
-				"&grouping=intervals;" + strJoin(grouping).join(';') +
+				"&grouping=intervals" + ((grouping.length>0)?";":"") + strJoin(grouping).join(';') +
 				"&group=" + keyJoin(group).join(';') +
 				"&good=" + keyJoin(good).join(';') +
 				"&cat=" + keyJoin(cat).join(';') +
@@ -807,6 +810,11 @@ $(document).ready(function () {
 			<div id="divGridGrouping_add" class='p5 ui-corner-all frameL m10 border1 w250'>
 				<legend>Возможные группировки</legend>
 				<ul id="grouping_add" class="w100p selectable">
+					<li class="bc1 ui-corner-all" id="groupName1">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Группа товара (1 уровень)</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
 					<li class="bc1 ui-corner-all" id="groupName2">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Группа товара (2 уровня)</span>
@@ -865,6 +873,11 @@ $(document).ready(function () {
 					<li class="bc10 ui-corner-all" id="c_City">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Город</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc12 ui-corner-all" id="Mark">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Показатель</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 				</ul>

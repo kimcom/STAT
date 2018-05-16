@@ -164,7 +164,7 @@ $(document).ready(function () {
 			//var file_name = $("#select_report").select2("data").text;
 			var file_name = "file_name";
 			var html = file_name + "<br>" + $("#tab_report").html();
-			html = html.split("<table ").join("<table border='1' ");
+			html = html.split("<table").join("<table border='1' ");
 			var report_name = 'report' + reportID;
 			$.ajax({
 				type: "POST",

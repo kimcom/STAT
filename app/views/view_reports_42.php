@@ -74,8 +74,8 @@ $(document).ready(function () {
 			placeholder: "Выберите настройку отчета",
 		    data: {results: json, text: 'text'}
 		});
-$("#select_report_setting").select2("val", "тест");
-$("#select_report_setting").click();
+		$("#select_report_setting").select2("val", "тест");
+		$("#select_report_setting").click();
     });
 
 	$("#select_report_setting").click(function () { 
@@ -486,6 +486,36 @@ $("#select_report_setting").click();
 			$("#"+ui.selected.id+">#a2").removeClass('show').addClass('hide');
 		}
 	});
+	function profitType(value, name, record){
+		if(typeof value === 'string'){
+			value = {totalAmount: 0, totalProfit: 0};
+		}
+		// perform summary
+		if (record['field11']) {
+			value.totalAmount += parseFloat(record['field11']);
+		}
+		if (record['field13']) {
+			value.totalProfit += parseFloat(record['field13']);
+		}
+		return value;
+	}
+	function profitFormat(cellval, opts, rwdat, act){
+		// get the regional options and pass it to the custom formatter
+		opts = $.extend({}, $.jgrid.getRegional(this, 'formatter'), opts);
+		// determine if we are in summary row to put the value
+		//console.log(cellval);
+		if (cellval == null) return '';
+		if (opts.rowId === '') {
+		    if (cellval.totalAmount > 0) {
+				var val = cellval.totalProfit * 100 / cellval.totalAmount;
+				return $.fn.fmatter('number', val, opts, rwdat, act) + ' %';
+		    } else {
+				return $.fn.fmatter('number', cellval, opts, rwdat, act) + ' %';
+		    }
+		} else {
+		    return $.fn.fmatter('number', cellval, opts, rwdat, act);
+		}
+	}
 
 // Creating gridRep
 	var gridRep = function(){
@@ -498,18 +528,18 @@ $("#select_report_setting").click();
 			{name: 'field0' , index: 'field0' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field1' , index: 'field1' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field2' , index: 'field2' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field3' , index: 'field3' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field4' , index: 'field4' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field5' , index: 'field5' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field6' , index: 'field6' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field7' , index: 'field7' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field8' , index: 'field8' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field9' , index: 'field9' , width: 250, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field3' , index: 'field3' , width: 200, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field4' , index: 'field4' , width: 200, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field5' , index: 'field5' , width: 200, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field6' , index: 'field6' , width: 200, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field7' , index: 'field7' , width: 200, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field8' , index: 'field8' , width: 200, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field9' , index: 'field9' , width: 200, align: "left", sorttype: "text", summaryType: 'count', summaryTpl: '<b class="ml10">Итого ({0} эл.):</b>'},
 			{name: 'field10', index: 'field10', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} </b>'		, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
 			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'	, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
 			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'	, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
 			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number", summaryType:'sum', summaryTpl:'<b>{0} грн.</b>'	, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
-			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'		, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
+			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", formatter:profitFormat, summaryType:profitType,summaryTpl:'<b>{0}</b>'		, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
 			{name: 'field15', index: 'field15', width: 60, align: "right", sorttype: "number", formatter:"number", summaryType:'avg', summaryTpl:'<b>{0} %</b>'		, formatoptions:{decimalSeparator:",", thousandsSeparator: " "}},
 	    ],
 	    //width: 'auto',
@@ -626,7 +656,7 @@ $("#select_report_setting").click();
 
 				var html = $(gr).html();
 				html = html.split(" грн.").join("");
-				html = html.split("<table ").join("<table border='1' ");
+				html = html.split("<table").join("<table border='1' ");
 				
 				var file_name = 'Продажи в рознице';
 				var report_name = 'report'+reportID;
@@ -677,27 +707,36 @@ $("#select_report_setting").click();
 		}
 		var grlen = Object.keys(grouping).length;
 		var ar = [];
+		var view_reason = false;
 		for(var id=0; id<grlen; id++){
 			if(id==grlen-1) break;
+			//console.log("field"+id, grouping[id]);
+			if (grouping[id]=='cc_checkID') view_reason = true;
 			ar[id] = 'field'+id;
+			//console.log(ar[id],grouping[id]);
 			$("#gridRep").jqGrid('setLabel', "field"+id, grouping[id]);
 		}
 		if(grouping[id]=='groupName2')  $("#gridRep").jqGrid('setLabel', "field" + id, "Группа товара (2 уровня)");
-	    if(grouping[id] == 'groupName3')$("#gridRep").jqGrid('setLabel', "field" + id, "Группа товара (3 уровня)");
-		if(grouping[id]=='catName')     $("#gridRep").jqGrid('setLabel', "field"+id, "Категория товара");
-		if(grouping[id]=='cattypeName') $("#gridRep").jqGrid('setLabel', "field"+id, "Кат.по виду животн.");
-		if(grouping[id]=='markupName')$("#gridRep").jqGrid('setLabel', "field"+id, "Категория наценки");
-		if(grouping[id]=='cc_checkID')$("#gridRep").jqGrid('setLabel', "field"+id, "Документ");
-		if(grouping[id]=='cc_promoID')$("#gridRep").jqGrid('setLabel', "field"+id, "Акция");
-		if(grouping[id]=='c_clientID')$("#gridRep").jqGrid('setLabel', "field"+id, "Торговая точка");
-		if(grouping[id]=='c_City')	  $("#gridRep").jqGrid('setLabel', "field" + id, "Город");
+	    if(grouping[id]=='groupName3')  $("#gridRep").jqGrid('setLabel', "field" + id, "Группа товара (3 уровня)");
+		if(grouping[id]=='catName')     $("#gridRep").jqGrid('setLabel', "field" +id, "Категория товара");
+		if(grouping[id]=='cattypeName1') $("#gridRep").jqGrid('setLabel', "field"+id, "Вид товара");
+		if(grouping[id]=='cattypeName2') $("#gridRep").jqGrid('setLabel', "field"+id, "Вид товара (разверн.)");
+		if(grouping[id]=='markupName')  $("#gridRep").jqGrid('setLabel', "field"+id, "Категория наценки");
+		if(grouping[id]=='cc_checkID')  $("#gridRep").jqGrid('setLabel', "field"+id, "Документ");
+		if(grouping[id]=='pr_promoID')  $("#gridRep").jqGrid('setLabel', "field"+id, "Акция");
+		if(grouping[id]=='c_clientID')  $("#gridRep").jqGrid('setLabel', "field"+id, "Торговая точка");
+		if(grouping[id]=='c_City')	    $("#gridRep").jqGrid('setLabel', "field" + id, "Город");
 		if(grouping[id]=='DiscountType')$("#gridRep").jqGrid('setLabel', "field" + id, "Вид скидки");
-		if(grouping[id]=='s_sellerID')$("#gridRep").jqGrid('setLabel', "field"+id, "Сотрудник");
+		if(grouping[id]=='s_sellerID')  $("#gridRep").jqGrid('setLabel', "field"+id, "Сотрудник");
 		if(grouping[id]=='cards_cardID')$("#gridRep").jqGrid('setLabel', "field"+id, "Дисконтная карта");
 		if(grouping[id]=='g_goodID'){
 			$("#gridRep").jqGrid('setLabel', "field"+id, "Артикул");
 			id++;
 			$("#gridRep").jqGrid('setLabel', "field"+id, "Название");
+			if (view_reason){
+				id++;
+				$("#gridRep").jqGrid('setLabel', "field"+id, "Причина скидки");
+			}
 		}
 		id++;
 		for(var fi=0; fi<6; fi++){
@@ -706,6 +745,7 @@ $("#select_report_setting").click();
 		for(i=id; i<10; i++){
 			$("#gridRep").jqGrid('hideCol',"field"+i);
 		}
+		//console.log("grlen:"+grlen);
 		if(grlen<=1){
 			$("#gridRep").jqGrid('setGridParam', {
 				grouping: true,
@@ -872,7 +912,7 @@ $("#select_report_setting").click();
 					</span>
 				</div>
 				<div class="input-group input-group-sm mt5 w100p">
-					<span class="input-group-addon w130">Кат.по видам живот.:</span>
+					<span class="input-group-addon w130">Кат. по виду товара:</span>
 					<input id="cat_type" name="cat_type" type="text" class="form-control" >
 					<span class="input-group-btn w32">
 						<a class="btn btn-default w100p" type="button">X</a>
@@ -953,6 +993,11 @@ $("#select_report_setting").click();
 			<div id="divGridGrouping_add" class='p5 ui-corner-all frameL m10 border1 w250'>
 				<legend>Возможные группировки</legend>
 				<ul id="grouping_add" class="w100p selectable">
+					<li class="bc1 ui-corner-all" id="groupName1">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Группа товара (1 уровень)</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
 					<li class="bc1 ui-corner-all" id="groupName2">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Группа товара (2 уровня)</span>
@@ -973,9 +1018,14 @@ $("#select_report_setting").click();
 						<span class="pl5 floatL w80p">Категория товара</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
-					<li class="bc3 ui-corner-all" id="cattypeName">
+					<li class="bc15 ui-corner-all" id="cattypeName1">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
-						<span class="pl5 floatL w80p">Кат.по виду живот.</span>
+						<span class="pl5 floatL w80p">По видам товаров</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc16 ui-corner-all" id="cattypeName2">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">По видам товаров (разв.)</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 					<li class="bc4 ui-corner-all" id="markupName">
@@ -993,7 +1043,7 @@ $("#select_report_setting").click();
 						<span class="pl5 floatL w80p">Сотрудник</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
-					<li class="bc7 ui-corner-all" id="cc_promoID">
+					<li class="bc7 ui-corner-all" id="pr_promoID">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Акция</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>

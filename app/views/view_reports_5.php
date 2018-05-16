@@ -11,15 +11,18 @@ $(document).ready(function () {
 	var group = new Object();
 	var good = new Object();
 	var cat = new Object();
+	var catSKSid = new Object();
 	var markup = new Object();
 	var matrix = new Object();
 	settings['grouping']=grouping;
 	settings['group']=group;
 	settings['good']=good;
 	settings['cat']=cat;
+	settings['catSKSid']=catSKSid;
 	settings['markup']=markup;
 	settings['matrix']=matrix;
-	var colnames = ['Ед.','Вес','Отдел','Макс.%','Себ. Киев','Себ. Харьков','К-во'];
+	//var colnames = ['Ед.','Вес','Отдел','Макс.%','Себ. Киев','Себ. Харьков','К-во'];
+	var colnames = ['Ед.','Вес','Отдел','Макс.%'];
 	$("#dialog").dialog({
 		autoOpen: false, modal: true, width: 400, //height: 300,
 		buttons: [{text: "Закрыть", click: function () {
@@ -94,6 +97,8 @@ $("#select_report_setting").click();
 			$("#good").attr("title", strJoin(good).join("\n"));
 			$("#cat").val(strJoin(cat).join(';'));
 			$("#cat").attr("title",strJoin(cat).join("\n"));
+			$("#catSKSid").val(strJoin(catSKSid).join(';'));
+			$("#catSKSid").attr("title",strJoin(catSKSid).join("\n"));
 			$("#markup").val(strJoin(markup).join(';'));
 			$("#markup").attr("title", strJoin(markup).join("\n"));
 			$("#matrix").val(strJoin(matrix).join(';'));
@@ -147,6 +152,11 @@ $("#select_report_setting").click();
 				cat[id] = node.name;
 				$("#cat").val(strJoin(cat).join(';'));
 				$("#cat").attr("title",strJoin(cat).join("\n"));
+		    }
+			if (datastr=='catSKSid'){
+				catSKSid[id] = node.name;
+				$("#catSKSid").val(strJoin(catSKSid).join(';'));
+				$("#catSKSid").attr("title",strJoin(catSKSid).join("\n"));
 		    }
 			if (datastr=='markup'){
 				markup[id] = node.name;
@@ -264,6 +274,7 @@ $("#select_report_setting").click();
 					"&group="	+ keyJoin(group).join(';')	+"|"+strJoin(group).join(';')+
 					"&good="	+ keyJoin(good).join(';')	+"|"+strJoin(good).join(';')+
 					"&cat="		+ keyJoin(cat).join(';')	+"|"+strJoin(cat).join(';')+
+					"&catSKSid="+ keyJoin(catSKSid).join(';')	+"|"+strJoin(catSKSid).join(';')+
 					"&markup="	+ keyJoin(markup).join(';') +"|"+strJoin(markup).join(';')+
 					"&matrix="	+ keyJoin(matrix).join(';')	+"|"+strJoin(matrix).join(';'),
 				{	sid:	reportID,
@@ -316,6 +327,15 @@ $("#select_report_setting").click();
 			$("#divTree").show();
 			$("#divGrid").show();
 	    }
+		if(operid=='catSKSid'){
+			$("#legendGrid").html('Выбор категории СКС:');
+			$("#treeGrid").jqGrid('setGridParam',{datastr:"catSKSid"});
+			$("#treeGrid").jqGrid('setCaption', 'Категории СКС');
+		    $("#treeGrid").jqGrid('setGridParam', {datatype: "json", url: "../category/get_tree_NS?nodeid=75", page: 1}).trigger('reloadGrid');
+			$("#divTable").hide();
+			$("#divTree").show();
+			$("#divGrid").show();
+	    }
 		if(operid=='markup'){
 			$("#legendGrid").html('Выбор категории наценки:');
 			$("#treeGrid").jqGrid('setGridParam',{datastr:"markup"});
@@ -360,21 +380,16 @@ $("#select_report_setting").click();
 		datatype: 'local',
 	    height: 'auto',
 	    colModel: [
-			{name: 'field0' , index: 'field0' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field1' , index: 'field1' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field2' , index: 'field2' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field3' , index: 'field3' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field4' , index: 'field4' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field5' , index: 'field5' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field6' , index: 'field6' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field7' , index: 'field7' , width: 250, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
-			{name: 'field8' , index: 'field8' , width: 90, align: "center",sorttype: "text"},
-			{name: 'field9' , index: 'field9' , width: 90, align: "right", sorttype: "number", formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
-			{name: 'field10', index: 'field10', width: 90, align: "center",sorttype: "text"	 , formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
-			{name: 'field11', index: 'field11', width: 90, align: "right", sorttype: "number", formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
-			{name: 'field12', index: 'field12', width: 90, align: "right", sorttype: "number", formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
-			{name: 'field13', index: 'field13', width: 90, align: "right", sorttype: "number", formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
-			{name: 'field14', index: 'field14', width: 60, align: "right", sorttype: "number", summaryType:'count', summaryTpl:'<b>{0} эл.</b>'	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
+			{name: 'field0' , index: 'field0' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field1' , index: 'field1' , width: 200, align: "left", sorttype: "text",summaryType:'count', summaryTpl:'<b class="ml10">Итого ({0} эл.):</b>'},
+			{name: 'field2' , index: 'field2' , width: 200, align: "left", sorttype: "text"},
+			{name: 'field3' , index: 'field3' , width: 150, align: "left", sorttype: "text"},
+			{name: 'field4' , index: 'field4' , width: 100, align: "center", sorttype: "text"},
+			{name: 'field5' , index: 'field5' , width: 100, align: "center", sorttype: "text"},
+			{name: 'field6' , index: 'field6' , width: 100, align: "center", sorttype: "text"},
+			{name: 'field7' , index: 'field7' , width:  90, align: "right", sorttype: "number", formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
+			{name: 'field8' , index: 'field8' , width:  90, align: "right", sorttype: "number", formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
+			{name: 'field9' , index: 'field9' , width:  90, align: "right", sorttype: "number", formatter:"number"	, formatoptions:{decimalSeparator: ",", thousandsSeparator: " "}},
 	    ],
 	    //width: 'auto',
 	    shrinkToFit: true,
@@ -411,11 +426,11 @@ $("#select_report_setting").click();
 				$(".jqgroup.ui-row-ltr.gridRepghead_"+index).css("background-image","none");
 				$(".jqgroup.ui-row-ltr.gridRepghead_"+index).addClass(cl);
 			});
-			var ar = new Object();
-			i = 14;
-			var summary = ar["field13"]*100 / ar["field11"];
-			ar["field" + i] = summary;
-			$("#gridRep").jqGrid('footerData','set', ar);
+//			var ar = new Object();
+//			i = 14;
+//			var summary = ar["field13"]*100 / ar["field11"];
+//			ar["field" + i] = summary;
+//			$("#gridRep").jqGrid('footerData','set', ar);
 			$("#dialog_progress").dialog("close");
 		},
 	    caption: 'Отчет "Товарный ассортимент"',
@@ -470,7 +485,7 @@ $("#select_report_setting").click();
 
 				var html = $(gr).html();
 				html = html.split(" грн.").join("");
-				html = html.split("<table ").join("<table border='1' ");
+				html = html.split("<table").join("<table border='1' ");
 				var file_name = 'Товарный ассортимент';
 				var report_name = 'report'+reportID;
 				$.ajax({
@@ -522,25 +537,29 @@ $("#select_report_setting").click();
 		var grlen = Object.keys(grouping).length;
 		var ar = [];
 		for(var id=0; id<grlen; id++){
-			if(id==grlen-1) break;
+			if (id == grlen-1) break;
 			ar[id] = 'field'+id;
 			$("#gridRep").jqGrid('setLabel', "field"+id, grouping[id]);
 		}
-		if(grouping[id]=='groupName')$("#gridRep").jqGrid('setLabel', "field"+id, "Группа товара");
-		if(grouping[id]=='catName')$("#gridRep").jqGrid('setLabel', "field"+id, "Категория товара");
+		if(grouping[id]=='groupName') $("#gridRep").jqGrid('setLabel', "field"+id, "Группа товара");
+		if(grouping[id]=='catName')   $("#gridRep").jqGrid('setLabel', "field"+id, "Категория товара");
+		if(grouping[id]=='catSKSName')$("#gridRep").jqGrid('setLabel', "field"+id, "Категория СКС");
 		if(grouping[id]=='markupName')$("#gridRep").jqGrid('setLabel', "field"+id, "Категория наценки");
 		if(grouping[id]=='matrixName')$("#gridRep").jqGrid('setLabel', "field"+id, "Товарная матрица");
 		if(grouping[id]=='g_goodID'){
 			$("#gridRep").jqGrid('setLabel', "field"+id, "Артикул");
 			id++;
 			$("#gridRep").jqGrid('setLabel', "field"+id, "Название");
+			id++;
+			$("#gridRep").jqGrid('setLabel', "field"+id, "Название укр.");
+			id++;
+			$("#gridRep").jqGrid('setLabel', "field"+id, "Код 1С-ОПТ");
+			id++;
+			$("#gridRep").jqGrid('setLabel', "field"+id, "GoodID");
 		}
 		id++;
-		for(var fi=0; fi<7; fi++){
-			$("#gridRep").jqGrid('setLabel', "field"+(fi+8), colnames[fi]);
-		}
-		for(i=id; i<8; i++){
-			$("#gridRep").jqGrid('hideCol',"field"+i);
+		for(var fi=0; fi<10; fi++){
+			$("#gridRep").jqGrid('setLabel', "field"+(fi+6), colnames[fi]);
 		}
 		if(grlen<=1){
 			$("#gridRep").jqGrid('setGridParam', {
@@ -579,6 +598,7 @@ $("#select_report_setting").click();
 		prmRep += (Object.keys(group).length == 0) ? "" : "<br>" + "Группа товара: " + strJoin(group).join(', ');
 		prmRep += (Object.keys(good).length == 0) ? "" : "<br>" + "Товары: " + strJoin(good).join(', ');
 		prmRep += (Object.keys(cat).length == 0) ? "" : "<br>" + "Категории товаров: " + strJoin(cat).join(', ');
+		prmRep += (Object.keys(catSKSid).length == 0) ? "" : "<br>" + "Категории СКС: " + strJoin(catSKSid).join(', ');
 		prmRep += (Object.keys(markup).length == 0) ? "" : "<br>" + "Категории наценок: " + strJoin(markup).join(', ');
 		prmRep += (Object.keys(matrix).length == 0) ? "" : "<br>" + "Товарная матрица: " + strJoin(matrix).join(', ');
 		prmRep += (grouping_str.length == 0) ? "" : "<br>" + "Группировки отчета: " + grouping_str;
@@ -597,6 +617,7 @@ $("#select_report_setting").click();
 			"&group=" + keyJoin(group).join(';') +
 			"&goodID=" + keyJoin(good).join(';') +
 			"&cat=" + keyJoin(cat).join(';') +
+			"&catSKSid=" + keyJoin(catSKSid).join(';') +
 			"&markup=" + keyJoin(markup).join(';') +
 			"&matrix=" + keyJoin(matrix).join(';') +
 			"&orderby=" + orderby +
@@ -667,6 +688,16 @@ $("#select_report_setting").click();
 						<a class="btn btn-default w100p" type="button">...</a>
 					</span>
 				</div>
+				<div class="input-group input-group-sm mt5 w100p">
+					<span class="input-group-addon w130">Категория СКС:</span>
+					<input id="catSKSid" name="catSKSid" type="text" class="form-control" >
+					<span class="input-group-btn w32">
+						<a class="btn btn-default w100p" type="button">X</a>
+					</span>
+					<span class="input-group-btn w32">
+						<a class="btn btn-default w100p" type="button">...</a>
+					</span>
+				</div>
 				<div class="input-group input-group-sm mt20 w100p">
 					<span class="input-group-addon w130">Категория наценки:</span>
 					<input id="markup" name="markup" type="text" class="form-control" >
@@ -722,6 +753,11 @@ $("#select_report_setting").click();
 					<li class="bc3 ui-corner-all" id="catName">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Категория товара</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc7 ui-corner-all" id="catSKSName">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Категория СКС</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 					<li class="bc4 ui-corner-all" id="markupName">

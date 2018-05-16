@@ -68,7 +68,7 @@ if($_SESSION['AccessLevel']<2000) $btn_access = 'disabled';
 	$("#select_balanceActivity").select2("val", <?php echo $balanceActivity; ?>);
 
 	// выбор матриці
-	var a_status = [{id: 2567, text: 'Матрица A'}, {id: 2568, text: 'Матрица B'}, {id: 2571, text: 'Матрица C'}];
+	var a_status = [{id: 2567, text: 'Матрица A'}, {id: 8553, text: 'Матрица A+'}, {id: 2568, text: 'Матрица B'}, {id: 2571, text: 'Матрица C'}];
 	$("#select_matrixID").select2({data: a_status, placeholder: ""});
 	$("#select_matrixID").select2("val", <?php echo $matrixID; ?>);
 

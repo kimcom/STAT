@@ -15,9 +15,9 @@ class Controller_Register extends Controller {
 			Fn::redirectToController('register_ok');
 		}
 	}
-        function action_user_cabinet() {
-            $this->view->generate('view_user_cabinet.php', 'view_template.php');
-        }
+	function action_user_cabinet() {
+		$this->view->generate('view_user_cabinet.php', 'view_template.php');
+	}
 
 //    function user_cabinet() {
 //        $data = $this->model->get_data();

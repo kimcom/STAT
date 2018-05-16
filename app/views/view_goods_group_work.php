@@ -560,7 +560,7 @@ $("#select_report_setting").click();
 
 				var html = $(gr).html();
 				html = html.split(" грн.").join("");
-				html = html.split("<table ").join("<table border='1' ");
+				html = html.split("<table").join("<table border='1' ");
 				var file_name = 'Товарный ассортимент';
 				var report_name = 'report'+reportID;
 				$.ajax({
@@ -738,6 +738,7 @@ $("#select_report_setting").click();
 		else if (set == 185) { val = $("#select_visible").select2("val");		}
 		else if (set == 230) { val = keyJoin(selcat).join(';')		}
 		else if (set == 240) { val = keyJoin(selcat).join(';')		}
+		else if (set == 250) { val = $("#select_service").select2("val");} 		
 		else				 { val = $("#newvalue").val();					}
 		if (val == '' && id != 'btn_view_param') {
 			$("#dialog>#text").html('Вы не указали значение!');
@@ -785,6 +786,7 @@ $("#select_report_setting").click();
 		{id: 220, text: 'установить макс. скидку'}, 
 		{id: 230, text: 'добавить в категорию'}, 
 		{id: 240, text: 'удалить из категории'}, 
+		{id: 250, text: 'установить признак услуги'},
 	];
 	$("#select_action").select2({data: a_action, placeholder: "Выберите действие"});
 	$("#select_action").select2("val", 0);
@@ -792,6 +794,7 @@ $("#select_report_setting").click();
 		$("#set_all").hide();
 		$("#set_fold_order").hide();
 		$("#set_stickers").hide();
+		$("#set_service").hide();
 		$("#set_visible").hide();
 		$("#set_cat").hide();
 		set = $("#select_action").select2("val");
@@ -803,6 +806,8 @@ $("#select_report_setting").click();
 		    $("#set_visible").show();
 		} else if (set == 230 || set == 240) {
 		    $("#set_cat").show();
+		} else if (set == 250) {
+			$("#set_service").show();
 		} else {
 		    $("#set_all").show();
 		}
@@ -811,12 +816,16 @@ $("#select_report_setting").click();
 	$("#set_all").hide();
 	$("#set_fold_order").hide();
 	$("#set_stickers").hide();
+	$("#set_service").hide();
 	$("#set_visible").hide();
 	$("#set_cat").hide();
 		
-	var a_status = [{id: 10, text: 'стикер'}, {id: 20, text: 'ценовая планка'}];
+	var a_status = [{id: 10, text: 'стикер'}, {id: 20, text: 'ценовая планка'}, {id: 30, text: 'стикер "Клубная цена"'}, {id: 40, text: 'ценовая планка "Клубная цена"'}];
 	$("#select_type_sticker").select2({data: a_status, placeholder: "Выберите тип ценника"});
 	$("#select_type_sticker").select2("val", 0);
+	var a_status = [{id: 0, text: 'не услуга'}, {id: 1, text: 'услуга'}];
+	$("#select_service").select2({data: a_status, placeholder: "Выберите признак услуги"});
+	$("#select_service").select2("val", 0);
 	var a_status = [{id: 10, text: 'заказ только упаковкой'}, {id: 20, text: 'заказ по-штучно'}];
 	$("#select_fold_order").select2({data: a_status, placeholder: "Выберите кратность для заказа"});
 	$("#select_fold_order").select2("val", 0);
@@ -961,6 +970,11 @@ $("#select_report_setting").click();
 						<div id="set_stickers" class="input-group input-group-sm mt10 w100p">
 							<span class="input-group-addon w100 TAL">Значение:</span>
 							<div class="w100p" id="select_type_sticker"></div>
+							<span class="input-group-addon w32"></span>
+						</div>
+						<div id="set_service" class="input-group input-group-sm mt10 w100p">
+							<span class="input-group-addon w100 TAL">Значение:</span>
+							<div class="w100p" id="select_service"></div>
 							<span class="input-group-addon w32"></span>
 						</div>
 						<div id="set_visible" class="input-group input-group-sm mt10 w100p">

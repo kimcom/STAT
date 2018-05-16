@@ -981,6 +981,11 @@ $(document).ready(function () {
 			<div id="divGridGrouping_add" class='p5 ui-corner-all frameL m10 border1 w250'>
 				<legend>Возможные группировки</legend>
 				<ul id="grouping_add" class="w100p selectable">
+					<li class="bc1 ui-corner-all" id="groupName1">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Группа товара (1 уровень)</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
 					<li class="bc1 ui-corner-all" id="groupName2">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Группа товара (2 уровня)</span>
@@ -1039,6 +1044,11 @@ $(document).ready(function () {
 					<li class="bc10 ui-corner-all" id="c_City">
 						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
 						<span class="pl5 floatL w80p">Город</span>
+						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
+					</li>
+					<li class="bc12 ui-corner-all" id="Mark">
+						<a id="a1" class="floatL ui-icon ui-icon-triangle-1-w mt2 show" type="button"></a>
+						<span class="pl5 floatL w80p">Показатель</span>
 						<a id="a2" class="floatL ui-icon ui-icon-triangle-1-e mt2 hide" type="button"></a>
 					</li>
 				</ul>

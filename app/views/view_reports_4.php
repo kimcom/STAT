@@ -629,7 +629,7 @@ $("#select_report_setting").click();
 
 				var html = $(gr).html();
 				html = html.split(" грн.").join("");
-				html = html.split("<table ").join("<table border='1' ");
+				html = html.split("<table").join("<table border='1' ");
 				
 				var file_name = 'Продажи в рознице';
 				var report_name = 'report'+reportID;

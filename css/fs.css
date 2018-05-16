@@ -60,6 +60,11 @@
 .bc11{background-color:#C1C1C1;}
 .bc12{background-color:#FFFFCC;} /*lightyellow*/
 .bc13{background-color:#F0FFFF;} /*Aquamarine*/
+.bc14{background-color:#e6e600;} /*olive*/
+.bc15{background-color:#ff66d9;} /*розовый*/
+.bc16{background-color:#ff66aa;} /*розовый*/
+.bc17{background-color:#ff0000;} /*красный*/
+.bc18{background-color:#cc9966;} /*коричн*/
 
 .pl5{padding-left:5px;}
 .pl10{padding-left:10px;}
@@ -99,6 +104,7 @@
 .w32{width:32px;}
 .w40{width:40px;}
 .w50{width:50px;}
+.w60{width:60px;}
 .w64{width:64px;}
 .w70{width:70px;}
 .w80{width:80px;}
