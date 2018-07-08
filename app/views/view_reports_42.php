@@ -733,6 +733,8 @@ $(document).ready(function () {
 			$("#gridRep").jqGrid('setLabel', "field"+id, "Артикул");
 			id++;
 			$("#gridRep").jqGrid('setLabel', "field"+id, "Название");
+			id++;
+			$("#gridRep").jqGrid('setLabel', "field"+id, "Код 1С");
 			if (view_reason){
 				id++;
 				$("#gridRep").jqGrid('setLabel', "field"+id, "Причина скидки");
@@ -745,7 +747,7 @@ $(document).ready(function () {
 		for(i=id; i<10; i++){
 			$("#gridRep").jqGrid('hideCol',"field"+i);
 		}
-		//console.log("grlen:"+grlen);
+//console.log("grlen:"+grlen);
 		if(grlen<=1){
 			$("#gridRep").jqGrid('setGridParam', {
 				grouping: true,

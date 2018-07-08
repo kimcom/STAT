@@ -40,5 +40,9 @@ class Controller_Documents extends Controller {
     function action_order_list() {
 		$this->view->generate('view_doc_order.php', 'view_template.php');
 	}
+    function action_delivery_list() {
+		$this->view->generate('view_doc_delivery.php', 'view_template.php');
+	}
+
 }
 

@@ -30,7 +30,7 @@ $(document).ready(function () {
 		styleUI : 'Bootstrap',
 		caption: "Дисконты - R.F.M. анализ",
 		mtype: "GET",
-		url:"/engine/jqgrid3?action=discountCards_RFM&f1=CardID&f2=Family&f3=Name&f4=MiddleName&f5=Phone1&f6=City&f7=Magazine&f8=PercentOfDiscount&f9=DateOfCancellation&f10=AvgCheckSum&f11=Index_R&f12=Index_F&f13=Index_M&length(CardID)>6",
+		url:"/engine/jqgrid3?action=discountCards_RFM&f1=CardID&f2=Family&f3=Name&f4=MiddleName&f5=Phone1&f6=City&f7=Magazine&f8=PercentOfDiscount&f9=DateOfCancellation&f10=AvgCheckSum&f11=Index_R&f12=Index_F&f13=Index_M&f14=HowWeLearn&length(CardID)>6",
 		responsive: true,
 		//height: 462, // если виртуальная подгрузка страниц
 		//scroll: true, // если виртуальная подгрузка страниц
@@ -51,6 +51,7 @@ $(document).ready(function () {
 			{label:'R',				name:'Index_R',				index:'Index_R',			width: 50,	align:"center",	sorttype:"number",	search:true, sortable: true},
 			{label:'F',				name:'Index_F',				index:'Index_F',			width: 50,	align:"center", sorttype:"number",  search:true},
 			{label:'M',				name:'Index_M',				index:'Index_M',			width: 50,	align:"center", sorttype:"number",  search:true},
+			{label:'Источник инфо.',name:'HowWeLearn',			index:'HowWeLearn',			width: 100, align:"center",	sorttype:"text",  search:true},
 		],
 		rowNum: 500,
 		rowList: [50, 100, 500, 1000, 2000, 3000, 4000, 5000],
@@ -262,6 +263,7 @@ $(document).ready(function () {
 	}
 	$('#grid1').jqGrid('hideCol','MiddleName');
 	$('#grid1').jqGrid('hideCol','DateOfCancellation');
+	$('#grid1').jqGrid('hideCol','HowWeLearn');
 
 //восстановление сохраненных настроек
 	$.post('/engine/config',{action: 'get', section: section}, function (json) {

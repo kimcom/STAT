@@ -30,7 +30,7 @@ $(document).ready(function () {
 		styleUI : 'Bootstrap',
 		caption: "Список дисконтных карт",
 		mtype: "GET",
-		url:"/engine/jqgrid3?action=discountCards_list&f1=CardID&f2=Family&f3=Name&f4=MiddleName&f5=Address&f6=Phone1&f7=Phone2&f8=EMail&f9=Magazine&f10=PercentOfDiscount&f11=AmountOfBuying&f12=DateOfIssue&f13=DateOfCancellation",
+		url:"/engine/jqgrid3?action=discountCards_list&f1=CardID&f2=Family&f3=Name&f4=MiddleName&f5=Address&f6=Phone1&f7=Phone2&f8=EMail&f9=Magazine&f10=PercentOfDiscount&f11=AmountOfBuying&f12=DateOfIssue&f13=DateOfCancellation&f14=HowWeLearn",
 		responsive: true,
 		height: 462, // если виртуальная подгрузка страниц
 		scroll: true, // если виртуальная подгрузка страниц
@@ -50,6 +50,7 @@ $(document).ready(function () {
 			{label:'Накопл.',	name:'AmountOfBuying',		index:'AmountOfBuying',		width: 100, align:"right",	sorttype:"number", search:false, sortable: true},
 			{label:'Выдана',	name:'DateOfIssue',			index:'DateOfIssue',        width: 120, align:"center", sorttype:"date",   search:true},
 			{label:'Анулир.',	name:'DateOfCancellation',	index:'DateOfCancellation', width: 120, align:"center", sorttype:"date",   search:true},
+			{label:'Источник инфо.',name:'HowWeLearn',		index:'HowWeLearn',			width: 100, align:"center",	sorttype:"text",   search:true},
 		],
 		rowNum: 17,
 		rowList: [20, 30, 40, 50, 100, 200, 300],
@@ -263,6 +264,7 @@ $(document).ready(function () {
 	$('#grid1').jqGrid('hideCol','Email');
 	$('#grid1').jqGrid('hideCol','AmountOfBuying');
 	$('#grid1').jqGrid('hideCol','DateOfCancellation');
+	$('#grid1').jqGrid('hideCol','HowWeLearn');
 
 //восстановление сохраненных настроек
 	$.post('/engine/config',{action: 'get', section: section}, function (json) {

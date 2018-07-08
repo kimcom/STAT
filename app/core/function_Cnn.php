@@ -1140,10 +1140,10 @@ Fn::debugToLog('report10 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUE
 		} else {
 			return;
 		}
-Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
+//Fn::debugToLog('report11 user:' . $_SESSION['UserName'], urldecode($_SERVER['QUERY_STRING']));
 		//'	$date1='.  $date1.'	$date2='.  $date2);
 		$action = 'conversion_' . $repid;
-//Fn::debugToLog("call", "CALL pr_reports($action, @id, $date1, $date2, '".  urldecode($_SERVER['QUERY_STRING']) ."')");
+Fn::debugToLog("call", "CALL pr_reports('$action', @id, '$date1', '$date2', '".  urldecode($_SERVER['QUERY_STRING']) ."')");
 //Fn::debugToLog("date2", $date2);
 		$stmt = $this->db->prepare("CALL pr_reports(?, @id, ?, ?, ?)");
 		$stmt->bindParam(1, $action, PDO::PARAM_STR);
